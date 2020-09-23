@@ -1,10 +1,11 @@
-const DRAW_STATE = {
+const DOT_STATE = {
     ANIMATING_CONNECTION: {
         BEGIN: 'begin-animating-connection',
         END: 'end-animating-connection'
     },
-    ANIMATING_MOUSE_CLOSE: 'normal-interacion',
-    NOT_ANIMATING: 'still'
+    ANIMATING_MOUSE_CLOSE: 'animating-mouse-close',
+    NOT_ANIMATING: 'still',
+    OBEYING_EXTERNAL_COMMANDS: 'obeying-external-commands'
 }
 
 class Dot {
@@ -17,21 +18,21 @@ class Dot {
         this.initAlpha = 150;
         this.initSize = 10;
 
-        this.x = this.initX;
-        this.y = this.initY;
-        this.alpha = this.initAlpha;
-        this.size = this.initSize;
+        this.x = width / 2;
+        this.y = height / 2;
+        this.alpha = 0;
+        this.size = 0;
         
         this.numConns = 0;
         this.maxConns = maxConns;
 
         this.isLeading = false;
-        this.drawState = DRAW_STATE.ANIMATING_MOUSE_CLOSE;
+        this.state = DOT_STATE.OBEYING_EXTERNAL_COMMANDS;
     }
 
     draw() {
         /* There are still connections to be made with this particular dot, it moves freely */
-        if (this.drawState == DRAW_STATE.ANIMATING_MOUSE_CLOSE) { 
+        if (this.state == DOT_STATE.ANIMATING_MOUSE_CLOSE) { 
             let dis = dist(mouseX, mouseY, this.x, this.y);
 
             /* in radians */
@@ -55,7 +56,7 @@ class Dot {
             this.y = lerp(this.y, toY, 0.25);
             this.size = lerp(this.size, toSize, 0.25);
             this.alpha = lerp(this.alpha, toAlpha, 0.25);
-        } else if (this.drawState == DRAW_STATE.ANIMATING_CONNECTION.BEGIN) {
+        } else if (this.state == DOT_STATE.ANIMATING_CONNECTION.BEGIN) {
             this.x = lerp(this.x, this.initX, 0.2);
             this.y = lerp(this.y, this.initY, 0.2);
             
@@ -64,9 +65,9 @@ class Dot {
             this.size = lerp(this.size, toSize, 0.35);
 
             if (this.size >= toSize-1) {
-                this.drawState = DRAW_STATE.ANIMATING_CONNECTION.END;
+                this.state = DOT_STATE.ANIMATING_CONNECTION.END;
             }
-        } else if (this.drawState == DRAW_STATE.ANIMATING_CONNECTION.END) {
+        } else if (this.state == DOT_STATE.ANIMATING_CONNECTION.END) {
             this.x = lerp(this.x, this.initX, 0.2);
             this.y = lerp(this.y, this.initY, 0.2);
             
@@ -76,12 +77,12 @@ class Dot {
 
             if (this.size == toSize) {
                 if (this.isFullyConnected() || this.isLeading) {
-                    this.drawState = DRAW_STATE.NOT_ANIMATING;
+                    this.state = DOT_STATE.NOT_ANIMATING;
                 } else {
-                    this.drawState = DRAW_STATE.ANIMATING_MOUSE_CLOSE;
+                    this.state = DOT_STATE.ANIMATING_MOUSE_CLOSE;
                 }
             }
-        } else if (this.drawState == DRAW_STATE.NOT_ANIMATING) {
+        } else if (this.state == DOT_STATE.NOT_ANIMATING) {
             this.x = this.initX;
             this.y = this.initY;
             this.size = this.initSize;
@@ -95,9 +96,9 @@ class Dot {
     }
 
     handleConnection() {
-        if (!this.isFullyConnected()) {
+        if (!this.isFullyConnected() && !this.isLeading) {
             this.numConns += 1;
-            this.drawState = DRAW_STATE.ANIMATING_CONNECTION.BEGIN;
+            this.state = DOT_STATE.ANIMATING_CONNECTION.BEGIN;
         }
             
     }
@@ -105,9 +106,9 @@ class Dot {
     setLeading(leading) {
         if (!leading) { // not leading anymore;
             if (!this.isFullyConnected())
-                this.drawState = DRAW_STATE.ANIMATING_MOUSE_CLOSE;
+                this.state = DOT_STATE.ANIMATING_MOUSE_CLOSE;
             else
-                this.drawState = DRAW_STATE.NOT_ANIMATING;
+                this.state = DOT_STATE.NOT_ANIMATING;
         }
 
         this.isLeading = leading;

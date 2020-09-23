@@ -1,7 +1,7 @@
 levels3x3 = [
     {
-        rows: 3,
-        cols: 3,
+        rows: 4,
+        cols: 4,
         number: 1,
         connections: 
         [
