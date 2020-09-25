@@ -9,84 +9,36 @@ const DOT_STATE = {
 }
 
 class Dot {
-    constructor(row, col, x, y) {
+    #animating;
+    #animationDirection;
+
+    constructor(x, y, size, row=0, col=0, maxConns=0) {
         this.row = row;
         this.col = col;
 
         this.initX = x;
         this.initY = y;
         this.initAlpha = 150;
-        this.initSize = 12;
+        this.initSize = size;
 
-        this.x = width / 2;
-        this.y = height / 2;
+        this.x = x;
+        this.y = y;
         this.alpha = 0;
-        this.size = 0;
+        this.size = size;
         
         this.numConns = 0;
-        this.maxConns = 0;
+        this.maxConns = maxConns;
+
+        this.#animating = false;
+        this.#animationDirection = '';
 
         this.isLeading = false;
         this.state = DOT_STATE.OBEYING_EXTERNAL_COMMANDS;
     }
 
     draw() {
-        /* There are still connections to be made with this particular dot, it moves freely */
-        if (this.state == DOT_STATE.ANIMATING_MOUSE_CLOSE) { 
-            let dis = dist(mouseX, mouseY, this.x, this.y);
-
-            /* in radians */
-            let mouseAngle = Math.atan2(mouseY - this.y, mouseX - this.x);
-
-            let toX = this.initX;
-            let toY = this.initY;
-
-            let toSize = this.initSize;
-            let toAlpha = this.isFullyConnected() ? 255 : this.initAlpha;
-
-            if (dis < 45) {
-                toX = this.initX + Math.cos(mouseAngle) * 5;
-                toY = this.initY + Math.sin(mouseAngle) * 5;
-
-                toSize = 13;
-                toAlpha = 255;
-            }
-
-            this.x = lerp(this.x, toX, 0.25);
-            this.y = lerp(this.y, toY, 0.25);
-            this.size = lerp(this.size, toSize, 0.25);
-            this.alpha = lerp(this.alpha, toAlpha, 0.25);
-        } else if (this.state == DOT_STATE.ANIMATING_CONNECTION.BEGIN) {
-            this.x = lerp(this.x, this.initX, 0.2);
-            this.y = lerp(this.y, this.initY, 0.2);
-            
-            this.alpha = 255;
-            let toSize = 23;
-            this.size = lerp(this.size, toSize, 0.35);
-
-            if (Math.abs(this.size - toSize) < 0.2) {
-                this.state = DOT_STATE.ANIMATING_CONNECTION.END;
-            }
-        } else if (this.state == DOT_STATE.ANIMATING_CONNECTION.END) {
-            this.x = lerp(this.x, this.initX, 0.2);
-            this.y = lerp(this.y, this.initY, 0.2);
-            
-            this.alpha = 255;
-            let toSize = this.initSize;
-            this.size = lerp(this.size, toSize, 0.35);
-
-            if (Math.abs(this.size - toSize) < 0.2) {
-                if (this.isFullyConnected() || this.isLeading) {
-                    this.state = DOT_STATE.NOT_ANIMATING;
-                } else {
-                    this.state = DOT_STATE.ANIMATING_MOUSE_CLOSE;
-                }
-            }
-        } else if (this.state == DOT_STATE.NOT_ANIMATING) {
-            this.x = this.initX;
-            this.y = this.initY;
-            this.size = this.initSize;
-            this.alpha = this.isFullyConnected() ? 255: this.initAlpha;
+        if (this.#animating) {
+            this.#updateAnimation();
         }
         
         stroke(255, 150);
@@ -101,29 +53,28 @@ class Dot {
         }
     }
 
-    handleConnection() {
-        if (!this.isFullyConnected() && !this.isLeading) {
-            this.numConns += 1;
-            this.state = DOT_STATE.ANIMATING_CONNECTION.BEGIN;
-        }
+    animateExpand() {
+        this.#animating = true;
+        this.#animationDirection = 'expanding';
     }
 
-    setLeading(leading) {
-        if (!leading) { // not leading anymore;
-            if (!this.isFullyConnected())
-                this.state = DOT_STATE.ANIMATING_MOUSE_CLOSE;
-            else
-                this.state = DOT_STATE.NOT_ANIMATING;
-        }
+    #updateAnimation() {
+        let toSize = this.#animationDirection == 'expanding' ? 23 : this.initSize;
+        
+        this.size = lerp(this.size, toSize, 0.35);
 
-        this.isLeading = leading;
+        if (Math.abs(this.size - toSize) < 0.2) {
+            if (this.#animationDirection == 'expanding') { // has to shrink yet in animation
+                this.#animating = true;
+                this.#animationDirection = 'shrinking';
+            } else if (this.#animationDirection == 'shrinking') { // animation is over
+                this.#animating = false;
+                this.#animationDirection = '';
+            }
+        }
     }
 
     isFullyConnected() {
         return this.numConns == this.maxConns;
-    }
-
-    static get MIN_CONNECTION_DIST() {
-        return 17;
     }
 }

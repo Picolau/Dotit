@@ -7,9 +7,9 @@ const LEVEL_STATE = {
 
 class DotsController {
     /* PRIVATE VARIABLES USED TO HANDLE THE ANIMATIONS */
-    #showingErrorConnection = 1;
+    #myAnimations;
+    #animating;
 
-    #connWeight = 1;
     /* PRIVATE METHODS */
 
     #toIdx(pos) {
@@ -185,7 +185,7 @@ class DotsController {
                 let dotX = horizontalMargin + col*horizontalPaddingDots;
                 let dotY = verticalMargin + row*verticalPaddingDots;
 
-                dotsRow.push(new Dot(row, col, dotX, dotY));
+                dotsRow.push(new Dot(dotX, dotY, 12, row, col));
             }
 
             dots.push(dotsRow);
@@ -215,15 +215,10 @@ class DotsController {
             for (let j = 0;j < this.cols;j++) {
                 let dot = this.dots[i][j];
                 
-                if (this.state == LEVEL_STATE.PLAYING) {
+                if (!this.#animating) {
                     let mouseDis = dist(mouseX, mouseY, dot.x, dot.y);
                     this.#updateClosesDot(dot, mouseDis);
                     this.#checkMouseCanConnect(dot, mouseDis);
-                } else if (this.state == LEVEL_STATE.LOADING) {
-                    dot.size = lerp(dot.size, dot.initSize, 0.05);
-                    dot.alpha = lerp(dot.alpha, dot.initAlpha, 0.05);
-                    dot.x = lerp(dot.x, dot.initX, 0.05);
-                    dot.y = lerp(dot.y, dot.initY, 0.05);
                 }
 
                 dot.draw();
@@ -231,11 +226,11 @@ class DotsController {
         }
 
         /* Checking if we should change the game state from loading to playing */
-        if (this.state == LEVEL_STATE.LOADING) {
+        /*if (this.state == LEVEL_STATE.LOADING) {
             let dot = this.dots[0][0];
             if (Math.sqrt(Math.pow(dot.initX - dot.x, 2) + Math.pow(dot.initY - dot.y, 2)) < 0.2)
                 this.#changeState(LEVEL_STATE.PLAYING);
-        }
+        }*/
     }
 
     #drawConnections() {
@@ -268,7 +263,11 @@ class DotsController {
                         lineY2 = dot2.y;
                     }
 
-                    if (this.state == LEVEL_STATE.PLAYING) {
+                    let alpha = this.playerConnections[i][j] ? 255 : 50;
+                    stroke(255, alpha);
+                    strokeWeight(4);
+
+                    /* if (this.state == LEVEL_STATE.PLAYING) {
                         let alpha = this.playerConnections[i][j] ? 255 : 50;
                         stroke(255, alpha);
                         strokeWeight(4);
@@ -292,7 +291,7 @@ class DotsController {
                             stroke(255, 255);
                             strokeWeight(4);
                         }
-                    }
+                    } */
 
                     line(lineX1, lineY1, lineX2, lineY2);
                 }
@@ -341,12 +340,41 @@ class DotsController {
             this.load(levelObj);
     }
 
-    restart() {
+    animateExpand() {
+        this.#animating = true;
+        this.#myAnimations = [];
+
+        for (let row = 0; row < this.rows; row++) {
+            for (let col = 0; col < this.cols; col++) {
+                let dot = this.dots[row][col];
+                
+                dot.x = width/2;
+                dot.y = height/2;
+                dot.size = 0;
+                dot.alpha = 0;
+
+                this.#myAnimations.push(new DotitAnimation(dot, 'x', dot.initX, 0.05));
+                this.#myAnimations.push(new DotitAnimation(dot, 'y', dot.initY, 0.05));
+                this.#myAnimations.push(new DotitAnimation(dot, 'size', dot.initSize, 0.05));
+                this.#myAnimations.push(new DotitAnimation(dot, 'alpha', dot.initAlpha, 0.05));
+            }
+        }
 
     }
 
-    finish() {
+    #updateAnimations() {
+        for (let i = this.#myAnimations.length-1;i >= 0;i--) {
+            let animation = this.#myAnimations[i];
+            
+            if (animation.ended()) {
+                this.#myAnimations.splice(i);
+            } else {
+                animation.update();
+            }
+        }
 
+        if (!this.#myAnimations.length)
+            this.#animating = false;
     }
 
     load(levelObj) {
@@ -362,7 +390,7 @@ class DotsController {
         this.leadingDot = null; 
         this.closestDot = null;
 
-        this.state = LEVEL_STATE.LOADING;
+        this.#myAnimations = [];
         this.number = levelObj.number;
     }
 
@@ -370,6 +398,7 @@ class DotsController {
         this.#drawConnections();
         this.#drawLeadingConnection();
         this.#drawDots();
+        this.#updateAnimations();
 
         if (!mouseIsPressed && this.leadingDot) {
             this.#checkConnectionSuccess();

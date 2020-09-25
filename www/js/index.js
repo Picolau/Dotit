@@ -41,6 +41,7 @@ function setup() {
 
     backgroundController = new BackgroundController(50);
     dotsController = new DotsController(levelObj);
+    dotsController.animateExpand();
 }
 
 function draw() {
