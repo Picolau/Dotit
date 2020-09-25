@@ -28,7 +28,8 @@ function onDeviceReady() {
 }
 
 let backgroundController;
-let levelController;
+let dotsController;
+let gameFont;
 
 function setup() {
     let levelNumber = 0;
@@ -39,10 +40,25 @@ function setup() {
         levelObj = levels3x3[levelNumber]
 
     backgroundController = new BackgroundController(50);
-    levelController = new LevelController(levelObj);
+    dotsController = new DotsController(levelObj);
 }
 
 function draw() {
     backgroundController.draw();
-    levelController.draw();
+    dotsController.draw();
+}
+
+function preload() {
+    gameFont = loadFont('fonts/Dotnation.ttf');
+}
+
+function drawInfo() {
+    let strNumber = this.number + "";
+    while (strNumber.length < 3) strNumber = "0" + strNumber;
+
+    fill(255);
+    textAlign(CENTER, CENTER);
+    textFont(gameFont);
+    textSize(45);
+    text(strNumber, width/2, 50);
 }

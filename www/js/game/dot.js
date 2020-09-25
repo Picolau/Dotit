@@ -9,14 +9,14 @@ const DOT_STATE = {
 }
 
 class Dot {
-    constructor(row, col, x, y, maxConns) {
+    constructor(row, col, x, y) {
         this.row = row;
         this.col = col;
 
         this.initX = x;
         this.initY = y;
         this.initAlpha = 150;
-        this.initSize = 10;
+        this.initSize = 12;
 
         this.x = width / 2;
         this.y = height / 2;
@@ -24,7 +24,7 @@ class Dot {
         this.size = 0;
         
         this.numConns = 0;
-        this.maxConns = maxConns;
+        this.maxConns = 0;
 
         this.isLeading = false;
         this.state = DOT_STATE.OBEYING_EXTERNAL_COMMANDS;
@@ -42,7 +42,7 @@ class Dot {
             let toY = this.initY;
 
             let toSize = this.initSize;
-            let toAlpha = this.numConns > 0 ? 255 : this.initAlpha;
+            let toAlpha = this.isFullyConnected() ? 255 : this.initAlpha;
 
             if (dis < 45) {
                 toX = this.initX + Math.cos(mouseAngle) * 5;
@@ -64,7 +64,7 @@ class Dot {
             let toSize = 23;
             this.size = lerp(this.size, toSize, 0.35);
 
-            if (this.size >= toSize-1) {
+            if (Math.abs(this.size - toSize) < 0.2) {
                 this.state = DOT_STATE.ANIMATING_CONNECTION.END;
             }
         } else if (this.state == DOT_STATE.ANIMATING_CONNECTION.END) {
@@ -75,7 +75,7 @@ class Dot {
             let toSize = this.initSize;
             this.size = lerp(this.size, toSize, 0.35);
 
-            if (this.size == toSize) {
+            if (Math.abs(this.size - toSize) < 0.2) {
                 if (this.isFullyConnected() || this.isLeading) {
                     this.state = DOT_STATE.NOT_ANIMATING;
                 } else {
@@ -86,13 +86,19 @@ class Dot {
             this.x = this.initX;
             this.y = this.initY;
             this.size = this.initSize;
-            this.alpha = 255;
+            this.alpha = this.isFullyConnected() ? 255: this.initAlpha;
         }
         
         stroke(255, 150);
         strokeWeight(1);
         fill(255, this.alpha);
         circle(this.x, this.y, this.size);
+
+        noFill();
+        let leftConns = this.maxConns - this.numConns - 1;
+        for (let i = 0; i < leftConns; i++) {
+            circle(this.x, this.y, this.size + 5*(i+1));
+        }
     }
 
     handleConnection() {
@@ -100,7 +106,6 @@ class Dot {
             this.numConns += 1;
             this.state = DOT_STATE.ANIMATING_CONNECTION.BEGIN;
         }
-            
     }
 
     setLeading(leading) {
