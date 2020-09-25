@@ -8,7 +8,8 @@ const LEVEL_STATE = {
 class DotsController {
     /* PRIVATE VARIABLES USED TO HANDLE THE ANIMATIONS */
     #myAnimations;
-    #animating;
+
+    #startedConnecting;
 
     /* PRIVATE METHODS */
 
@@ -38,14 +39,6 @@ class DotsController {
         }
 
         this.dots[beginPos.row][beginPos.col].maxConns += 1;
-    }
-
-    #changeLeadingDot(newLeadingDot) {
-        if (this.leadingDot)
-            this.leadingDot.setLeading(false);
-
-        newLeadingDot.setLeading(true);
-        this.leadingDot = newLeadingDot;
     }
 
     #makeNewConnection(begin, end, connections) {
@@ -94,8 +87,8 @@ class DotsController {
     }
 
     #checkMouseCanConnect(dot, mouseDis) {
-        if (!dot.isFullyConnected() && !dot.isLeading) {
-            if (mouseDis < Dot.MIN_CONNECTION_DIST) {
+        if (!dot.isFullyConnected() && dot != this.leadingDot) {
+            if (mouseDis < 25) {
                 if (this.leadingDot) {
                     let posLeadingDot = {
                         row: this.leadingDot.row,
@@ -112,13 +105,18 @@ class DotsController {
                     for (let i = 0;i < posConnsMade.length;i++) {
                         let pos = posConnsMade[i];
                         let connectedDot = this.dots[pos.row][pos.col];
-                        connectedDot.handleConnection();
+
+                        connectedDot.reset();
+                        connectedDot.numConns += 1;
+                        connectedDot.animateExpand();
                     }
                 } else {
-                    dot.handleConnection();
+                    dot.reset();
+                    dot.numConns += 1;
+                    dot.animateExpand();
                 }
 
-                this.#changeLeadingDot(dot);
+                this.leadingDot = dot;
             }
         }
     }
@@ -137,7 +135,7 @@ class DotsController {
         this.#changeState(LEVEL_STATE.SHOWING_SUCCESS);
     }
 
-    #updateClosesDot(dot, mouseDis) {
+    #updateMouseClose(dot, mouseDis) {
         if (dot != this.leadingDot && !dot.isFullyConnected() && dot != this.closestDot) {
             if (this.closestDot) {
                 let distClosestDost = dist(mouseX, mouseY, this.closestDot.x, this.closestDot.y);
@@ -149,6 +147,46 @@ class DotsController {
                 this.closestDot = dot;
             }
         }
+        
+        let mouseAngle = Math.atan2(mouseY - dot.y, mouseX - dot.x);
+        let toX = dot.initX;
+        let toY = dot.initY;
+        let toSize = dot.initSize;
+        let toAlpha = dot.initAlpha;
+        let deadDot = dot.maxConns == 0;
+
+        if (mouseDis < 45) {
+            dot.state = DOT_STATE.REACTING_MOUSE_CLOSE;
+
+            if (!deadDot) {
+                toX = dot.initX + Math.cos(mouseAngle) * 5;
+                toY = dot.initY + Math.sin(mouseAngle) * 5;
+                toSize = 15;
+            } else {
+                toX = dot.initX + Math.cos(mouseAngle) * 3;
+                toY = dot.initY + Math.sin(mouseAngle) * 3;
+            }
+                
+            toAlpha = 255;
+        } 
+        
+        if (dot.state == DOT_STATE.REACTING_MOUSE_CLOSE && (!dot.isFullyConnected() || deadDot)) {
+            dot.x = lerp(dot.x, toX, 0.25);
+            dot.y = lerp(dot.y, toY, 0.25);
+            dot.size = lerp(dot.size, toSize, 0.25);
+            dot.alpha = lerp(dot.alpha, toAlpha, 0.25);
+
+            if (dist(dot.x, dot.y, dot.initX, dot.initY) < 0.1) {
+                dot.state = DOT_STATE.STILL;
+
+                dot.x = dot.initX;
+                dot.y = dot.initY;
+                dot.size = toSize;
+                dot.alpha = toAlpha;
+            }
+        }
+
+        
     }
 
     #changeState(state) {
@@ -214,12 +252,10 @@ class DotsController {
         for (let i = 0;i < this.rows; i++) {
             for (let j = 0;j < this.cols;j++) {
                 let dot = this.dots[i][j];
-                
-                if (!this.#animating) {
-                    let mouseDis = dist(mouseX, mouseY, dot.x, dot.y);
-                    this.#updateClosesDot(dot, mouseDis);
-                    this.#checkMouseCanConnect(dot, mouseDis);
-                }
+
+                let mouseDis = dist(mouseX, mouseY, dot.x, dot.y);
+                this.#updateMouseClose(dot, mouseDis);
+                this.#checkMouseCanConnect(dot, mouseDis);
 
                 dot.draw();
             }
@@ -266,33 +302,6 @@ class DotsController {
                     let alpha = this.playerConnections[i][j] ? 255 : 50;
                     stroke(255, alpha);
                     strokeWeight(4);
-
-                    /* if (this.state == LEVEL_STATE.PLAYING) {
-                        let alpha = this.playerConnections[i][j] ? 255 : 50;
-                        stroke(255, alpha);
-                        strokeWeight(4);
-                    } else if (this.state == LEVEL_STATE.LOADING) {
-                        let alpha = this.playerConnections[i][j] ? 255 : 50;
-                        stroke(255, alpha);
-                        this.#connWeight = lerp(this.#connWeight, 4, 0.05);
-                        strokeWeight(this.#connWeight);
-                    } else if (this.state == LEVEL_STATE.SHOWING_ERROR) {
-                        if (!this.playerConnections[i][j]) {
-                            let lighting = Math.floor(this.#showingErrorConnection / 100) % 2 ? true : false;
-
-                            let alpha = 50;
-                            if (lighting)
-                                alpha = 255;
-                            
-                            this.#showingErrorConnection += 1;
-                            stroke(255, alpha);
-                            strokeWeight(4);
-                        } else {
-                            stroke(255, 255);
-                            strokeWeight(4);
-                        }
-                    } */
-
                     line(lineX1, lineY1, lineX2, lineY2);
                 }
             }
@@ -341,7 +350,6 @@ class DotsController {
     }
 
     animateExpand() {
-        this.#animating = true;
         this.#myAnimations = [];
 
         for (let row = 0; row < this.rows; row++) {
@@ -372,9 +380,6 @@ class DotsController {
                 animation.update();
             }
         }
-
-        if (!this.#myAnimations.length)
-            this.#animating = false;
     }
 
     load(levelObj) {
@@ -391,7 +396,7 @@ class DotsController {
         this.closestDot = null;
 
         this.#myAnimations = [];
-        this.number = levelObj.number;
+        this.#startedConnecting = false;
     }
 
     draw() {
@@ -400,8 +405,12 @@ class DotsController {
         this.#drawDots();
         this.#updateAnimations();
 
-        if (!mouseIsPressed && this.leadingDot) {
-            this.#checkConnectionSuccess();
+        if (!mouseIsPressed && this.#startedConnecting) {
+            //this.#checkConnectionSuccess();
+        }
+
+        if (mouseIsPressed && !this.#startedConnecting) {
+            this.#startedConnecting = true;
         }
     }
 }

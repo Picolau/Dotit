@@ -1,11 +1,6 @@
 const DOT_STATE = {
-    ANIMATING_CONNECTION: {
-        BEGIN: 'begin-animating-connection',
-        END: 'end-animating-connection'
-    },
-    ANIMATING_MOUSE_CLOSE: 'animating-mouse-close',
-    NOT_ANIMATING: 'still',
-    OBEYING_EXTERNAL_COMMANDS: 'obeying-external-commands'
+    REACTING_MOUSE_CLOSE: 'reacting-mouse-close',
+    STILL: 'still'
 }
 
 class Dot {
@@ -18,7 +13,7 @@ class Dot {
 
         this.initX = x;
         this.initY = y;
-        this.initAlpha = 150;
+        this.initAlpha = 50;
         this.initSize = size;
 
         this.x = x;
@@ -33,7 +28,15 @@ class Dot {
         this.#animationDirection = '';
 
         this.isLeading = false;
-        this.state = DOT_STATE.OBEYING_EXTERNAL_COMMANDS;
+        this.state = DOT_STATE.STILL;
+    }
+
+    reset() {
+        this.x = this.initX;
+        this.y = this.initY;
+        this.size = this.initSize;
+        this.alpha = this.initAlpha;
+        this.state = DOT_STATE.STILL;
     }
 
     draw() {
@@ -41,8 +44,12 @@ class Dot {
             this.#updateAnimation();
         }
         
-        stroke(255, 150);
+        stroke(255, 190);
         strokeWeight(1);
+
+        if (this.isFullyConnected())
+            this.alpha = 255;
+
         fill(255, this.alpha);
         circle(this.x, this.y, this.size);
 
