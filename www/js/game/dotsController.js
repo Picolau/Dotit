@@ -106,14 +106,18 @@ class DotsController {
                         let pos = posConnsMade[i];
                         let connectedDot = this.dots[pos.row][pos.col];
 
-                        connectedDot.reset();
-                        connectedDot.numConns += 1;
-                        connectedDot.animateExpand();
+                        if (!connectedDot.isFullyConnected()) {
+                            connectedDot.resetPosAndSize();
+                            connectedDot.numConns += 1;
+                            connectedDot.animateExpand();
+                        }
                     }
                 } else {
-                    dot.reset();
-                    dot.numConns += 1;
-                    dot.animateExpand();
+                    if (!dot.isFullyConnected()) {
+                        dot.resetPosAndSize();
+                        dot.numConns += 1;
+                        dot.animateExpand();
+                    }
                 }
 
                 this.leadingDot = dot;
@@ -155,7 +159,7 @@ class DotsController {
         let toAlpha = dot.initAlpha;
         let deadDot = dot.maxConns == 0;
 
-        if (mouseDis < 45) {
+        if (mouseDis < 45 && this.leadingDot != dot) {
             dot.state = DOT_STATE.REACTING_MOUSE_CLOSE;
 
             if (!deadDot) {
@@ -367,7 +371,6 @@ class DotsController {
                 this.#myAnimations.push(new DotitAnimation(dot, 'alpha', dot.initAlpha, 0.05));
             }
         }
-
     }
 
     #updateAnimations() {

@@ -31,7 +31,7 @@ class Dot {
         this.state = DOT_STATE.STILL;
     }
 
-    reset() {
+    resetPosAndSize() {
         this.x = this.initX;
         this.y = this.initY;
         this.size = this.initSize;
@@ -51,6 +51,9 @@ class Dot {
             this.alpha = 255;
 
         fill(255, this.alpha);
+        circle(this.x, this.y, this.size);
+        noFill();
+        stroke(255, 150);
         circle(this.x, this.y, this.size);
 
         noFill();
