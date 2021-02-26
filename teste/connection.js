@@ -1,3 +1,33 @@
+class Connection {
+    constructor(is_player_conn, dot_begin=null, dot_end=null) {
+        this.is_player_conn = is_player_conn;
+
+        this.conn_string;
+
+        if (dot_begin)
+            this.begin(dot_begin);
+        if (dot_end)
+            this.end(dot_end);
+    }
+
+    update_and_draw() {
+        this.conn_string.alpha = this.is_player_conn ? (this.dot_end ? 255 : 150) : 50;
+        this.conn_string?.update_and_draw();
+    }
+
+    begin(dot_begin) {
+        this.dot_begin = dot_begin;
+        this.conn_string = new ConnString(dot_begin);
+    }
+
+    end(dot_end) {
+        this.dot_end = dot_end;
+        this.conn_string.tighten(dot_end);
+    }
+}
+
+/* CONN STRING */
+
 const SPRING_MASS = 3.0;
 const CONN_PARAMS = {GRAVITY: 9.0, DAMPING: 0.7, STIFFNESS: 0.2, 
     TIGHT_DAMPING: 0.8, TIGHT_STIFFNESS: 0.3};
@@ -17,7 +47,8 @@ class ConnString {
         this.springs = []; // 0 loose spring;
 
         this.is_loose = true;
-        this.animating_springs = true;
+        this.animating_springs = false;
+        this.alpha;
 
         this.#init_springs();
     }
@@ -74,7 +105,7 @@ class ConnString {
     }
 
     update_and_draw() {
-        stroke(255); // TODO: ALPHA
+        stroke(255, this.alpha); // TODO: ALPHA
         strokeWeight(3);
 
         if (this.animating_springs) {

@@ -4,8 +4,8 @@ let bg_controller;
 function setup() {
   createCanvas(windowWidth, windowHeight);
 
-  dots_controller = new DotsController({rows: 3, cols: 3});
-  bg_controller = new BackgroundController(150); 
+  dots_controller = new DotsController({rows: 5, cols: 8});
+  bg_controller = new BackgroundController(100); 
 }
 
 function draw() {
