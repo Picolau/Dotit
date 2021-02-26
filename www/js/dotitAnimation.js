@@ -21,7 +21,6 @@ class DotitAnimation {
         if ((remainingDistance / this.#totalDistance) < this.min_error) {
             this.obj[this.key] = this.limit_value;
             this.#hasEnded = true;
-            console.log("cabou");
         }
     }
 

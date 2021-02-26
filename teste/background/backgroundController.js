@@ -12,7 +12,7 @@ class BackgroundController {
         }
     }
 
-    draw() {
+    update_and_draw() {
         background(BACKGROUND_COLOR);
 
         for(let i = 0;i<this.particles.length;i++) {

@@ -19,7 +19,7 @@ class Dot {
         this.x = x;
         this.y = y;
         this.alpha = 0;
-        this.size = size;
+        this.size = 20;
         
         this.numConns = 0;
         this.maxConns = maxConns;

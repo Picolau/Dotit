@@ -5,6 +5,9 @@ const LEVEL_STATE = {
     SHOWING_SUCCESS: 'showing_success'
 }
 
+const DOTS_PADDING = 150;
+const DOT_SIZE = 15;
+
 class DotsController {
     /* PRIVATE VARIABLES USED TO HANDLE THE ANIMATIONS */
     #myAnimations;
@@ -212,22 +215,24 @@ class DotsController {
     }
 
     #initDots() {
-        let dots = []
-        let horizontalMargin = width / 10;
-        let dotsSquareSize = (width - 2*horizontalMargin);
-        let verticalMargin = (height - dotsSquareSize) / 2;
-        
-        let horizontalPaddingDots = dotsSquareSize / (this.rows - 1);
-        let verticalPaddingDots = dotsSquareSize / (this.cols - 1);
-        
+        let dots = [];
+
+        let dotsContainerSize = {
+            width: DOT_SIZE*this.cols + (this.cols - 1)*(DOTS_PADDING),
+            height: DOT_SIZE*this.rows + (this.rows - 1)*(DOTS_PADDING),
+        };
+
+        let horizontalMargin = (width - dotsContainerSize.width) / 2;
+        let verticalMargin = (height - dotsContainerSize.height) / 2;
+
         for (let row = 0; row < this.rows; row++) {
             let dotsRow = [];
 
             for (let col = 0; col < this.cols; col++) {
-                let dotX = horizontalMargin + col*horizontalPaddingDots;
-                let dotY = verticalMargin + row*verticalPaddingDots;
+                let dotX = horizontalMargin + col*DOTS_PADDING;
+                let dotY = verticalMargin + row*DOTS_PADDING;
 
-                dotsRow.push(new Dot(dotX, dotY, 12, row, col));
+                dotsRow.push(new Dot(dotX, dotY, DOT_SIZE, row, col));
             }
 
             dots.push(dotsRow);
@@ -257,20 +262,22 @@ class DotsController {
             for (let j = 0;j < this.cols;j++) {
                 let dot = this.dots[i][j];
 
-                let mouseDis = dist(mouseX, mouseY, dot.x, dot.y);
-                this.#updateMouseClose(dot, mouseDis);
-                this.#checkMouseCanConnect(dot, mouseDis);
+                if (this.state == LEVEL_STATE.PLAYING) {
+                    let mouseDis = dist(mouseX, mouseY, dot.x, dot.y);
+                    this.#updateMouseClose(dot, mouseDis);
+                    this.#checkMouseCanConnect(dot, mouseDis);
+                }
 
                 dot.draw();
             }
         }
 
         /* Checking if we should change the game state from loading to playing */
-        /*if (this.state == LEVEL_STATE.LOADING) {
+        if (this.state == LEVEL_STATE.LOADING) {
             let dot = this.dots[0][0];
-            if (Math.sqrt(Math.pow(dot.initX - dot.x, 2) + Math.pow(dot.initY - dot.y, 2)) < 0.2)
+            if (dist(dot.initX, dot.initY, dot.x, dot.y) < 1)
                 this.#changeState(LEVEL_STATE.PLAYING);
-        }*/
+        }
     }
 
     #drawConnections() {
@@ -400,6 +407,8 @@ class DotsController {
 
         this.#myAnimations = [];
         this.#startedConnecting = false;
+
+        this.state = LEVEL_STATE.LOADING; 
     }
 
     draw() {
@@ -409,7 +418,7 @@ class DotsController {
         this.#updateAnimations();
 
         if (!mouseIsPressed && this.#startedConnecting) {
-            //this.#checkConnectionSuccess();
+            this.#checkConnectionSuccess();
         }
 
         if (mouseIsPressed && !this.#startedConnecting) {
