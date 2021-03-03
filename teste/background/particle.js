@@ -7,7 +7,7 @@ class Particle {
     constructor(){
         this.x = random(0,width);
         this.y = random(0,height);
-        this.r = random(1,4);
+        this.r = random(2,6);
         this.xSpeed = random(-0.5,0.5);
         this.ySpeed = random(-0.5,0.5);
     }
@@ -34,9 +34,9 @@ class Particle {
     joinParticles(particles) {
         particles.forEach(element =>{
             let dis = dist(this.x,this.y,element.x,element.y);
-            if (dis < 75) {
+            if (dis < 125) {
                 strokeWeight(1);
-                stroke(color(255,255,255,100 - 100*dis/75));
+                stroke(color(255,255,255,100 - 100*dis/125));
                 line(this.x,this.y,element.x,element.y);
             }
         });

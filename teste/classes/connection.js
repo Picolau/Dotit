@@ -1,7 +1,8 @@
 class Connection {
     constructor(is_player_conn, dot_begin=null, dot_end=null) {
         this.is_player_conn = is_player_conn;
-
+        this.alpha = 0;
+        this.initAlpha = 102;
         this.conn_string;
 
         if (dot_begin)
@@ -11,7 +12,7 @@ class Connection {
     }
 
     update_and_draw() {
-        this.conn_string.alpha = this.is_player_conn ? (this.dot_end ? 255 : 150) : 50;
+        this.conn_string.color = this.is_player_conn ? (this.dot_end ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.6)') : color(255,255,255,this.alpha);
         this.conn_string?.update_and_draw();
     }
 
@@ -24,12 +25,17 @@ class Connection {
         this.dot_end = dot_end;
         this.conn_string.tighten(dot_end);
     }
+
+    is_equal(other) {
+        return (this.dot_begin.idx == other.dot_begin.idx && this.dot_end.idx == other.dot_end.idx) ||
+        (this.dot_begin.idx == other.dot_end.idx && this.dot_end.idx == other.dot_begin.idx)
+    }
 }
 
 /* CONN STRING */
 
 const SPRING_MASS = 3.0;
-const CONN_PARAMS = {GRAVITY: 9.0, DAMPING: 0.7, STIFFNESS: 0.2, 
+const CONN_PARAMS = {GRAVITY: 9.0, DAMPING: 0.7, STIFFNESS: 0.21, 
     TIGHT_DAMPING: 0.8, TIGHT_STIFFNESS: 0.3};
 const MAX_SPRINGS = 5;
 const GRAVITY_MULTIPLIER = 6;
@@ -47,8 +53,8 @@ class ConnString {
         this.springs = []; // 0 loose spring;
 
         this.is_loose = true;
-        this.animating_springs = false;
-        this.alpha;
+        this.animating_springs = true;
+        this.color;
 
         this.#init_springs();
     }
@@ -76,6 +82,7 @@ class ConnString {
     }
 
     tighten(tight_point) {
+        this.animating_springs = false;
         this.is_loose = false;
         this.end_dot = tight_point;
 
@@ -105,8 +112,8 @@ class ConnString {
     }
 
     update_and_draw() {
-        stroke(255, this.alpha); // TODO: ALPHA
-        strokeWeight(3);
+        stroke(this.color); 
+        strokeWeight(4);
 
         if (this.animating_springs) {
             this.animating_springs = false;

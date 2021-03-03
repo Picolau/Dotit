@@ -1,4 +1,5 @@
 const DOT_SIZE = 20;
+const DEAD_DOT_SIZE = 15;
 
 class SpringDot {
     constructor(value) {
@@ -20,17 +21,26 @@ class SpringDot {
 }
 
 class Dot {
-    constructor(idx, x, y) {
+    constructor(idx, x, y, visible=false) {
         this.idx = idx;
         this.x = x;
         this.y = y;
-        this.will_consume = 0;
+        this.initX = x;
+        this.initY = y;
+        this.initAlpha = 230;
+        this.alpha = this.initAlpha;
+        this.clicks_consumed = 0;
         this.alive = false;
-        this.spring_size = new SpringDot(DOT_SIZE);
+        this.visible = visible;
+        this.spring_size = new SpringDot(DEAD_DOT_SIZE);
     }
 
     #drawCircle() { //Yes, we draw 2 circles because its prettier, id care
         if (this.alive) {
+            noStroke();
+            fill(255,30)
+            circle(this.x, this.y, 2*DOT_MOUSE_SENSITIVITY_RADIUS);
+
             strokeWeight(1);
             stroke(255, 190);
             fill(BACKGROUND_COLOR);
@@ -39,16 +49,10 @@ class Dot {
             stroke(255, 150);
             noFill()
             circle(this.x, this.y, this.spring_size.value);
-
-            noStroke();
-            fill(255,30)
-            circle(this.x, this.y, 2*DOT_MOUSE_SENSITIVITY_RADIUS);
         } else {
-            this.spring_size.value = DOT_SIZE - 1;
-
             strokeWeight(1);
             stroke(255, 190);
-            fill("rgba(255,255,255,0.8)");
+            fill(255,255,255,this.alpha);
             circle(this.x, this.y, this.spring_size.value);
 
             stroke(255, 150);
@@ -59,7 +63,7 @@ class Dot {
 
     #drawConnsText() {
         if (this.alive) {
-            let textC = this.will_consume == 0 ? "" : this.will_consume + "";
+            let textC = this.clicks_consumed == 0 ? "" : this.clicks_consumed + "";
 
             strokeWeight(0.5);
             fill(255,200);
@@ -71,7 +75,7 @@ class Dot {
     }
 
     #update_stuff() {
-        this.spring_size.update(DOT_SIZE);
+        this.spring_size.update(this.alive ? DOT_SIZE : DEAD_DOT_SIZE);
     }
 
     vibrate() {
@@ -79,8 +83,10 @@ class Dot {
     }
 
     update_and_draw() {
-        this.#update_stuff();
-        this.#drawCircle();
-        this.#drawConnsText();
+        if (this.visible) {
+            this.#update_stuff();
+            this.#drawCircle();
+            this.#drawConnsText();
+        }
     }
 }
