@@ -288,19 +288,21 @@ class DotsController {
     }
 
     reload() {
-        this.connections_ended_success = false;
-        this.player_connections.length = 0;
-        this.leading_connection = null;
-        this.leading_dot = null;
+        if (!this.connections_ended_success) {
+            this.connections_ended_success = false;
+            this.player_connections.length = 0;
+            this.leading_connection = null;
+            this.leading_dot = null;
 
-        for (let i = 0;i < this.dots.length;i++) {
-            this.dots[i].alive = false;
-            this.dots[i].clicks_consumed = 0;
+            for (let i = 0;i < this.dots.length;i++) {
+                this.dots[i].alive = false;
+                this.dots[i].clicks_consumed = 0;
+            }
+
+            this.clicks_consumed = 0;
+            this.expected_connections.length = 0;
+            this.#decodeConnections(this.code);
         }
-
-        this.clicks_consumed = 0;
-        this.expected_connections.length = 0;
-        this.#decodeConnections(this.code);
     }
 
     update_and_draw() {
