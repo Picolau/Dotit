@@ -1,8 +1,8 @@
 class Connection {
     constructor(is_player_conn, dot_begin=null, dot_end=null) {
         this.is_player_conn = is_player_conn;
-        this.alpha = 0;
         this.initAlpha = 102;
+        this.alpha = this.initAlpha;
         this.conn_string;
 
         if (dot_begin)

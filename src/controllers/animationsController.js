@@ -11,7 +11,6 @@ class AnimationsController {
             
             if (animation.ended()) {
                 this.game_animations.splice(i,1);
-                console.log(this.game_animations);
             } else {
                 animation.update();
                 i++;
@@ -25,5 +24,9 @@ class AnimationsController {
 
     clear_animations() {
         this.game_animations.length = 0;
+    }
+
+    is_animating() {
+        return this.game_animations.length > 0;
     }
 }

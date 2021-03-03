@@ -20,7 +20,7 @@ function draw() {
 }
 
 function keyPressed() {
-  if (keyCode === RIGHT_ARROW) {
+  /*if (keyCode === RIGHT_ARROW) {
     level_controller.next_level();
   } 
   
@@ -30,12 +30,12 @@ function keyPressed() {
 
   else if (keyCode === KEY_SPACE) {
     level_controller.print_level_created();
-  }
+  }*/
 }
 
 function mousePressed(event) {
   if (event.button === MOUSE_RIGHT_BUTTON) {
-    level_controller.reload_level();
+    level_controller.reload_dots();
   }
 }
 

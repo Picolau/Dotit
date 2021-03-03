@@ -53,7 +53,7 @@ class DotsController {
     }
 
     #canConnect(dot) {
-        return this.leading_dot != dot && dot.visible;
+        return this.leading_dot != dot && dot.visible && !this.connections_ended_success;
     }
 
     // return all dots indexes between dot_begin and dot_end not including them;
@@ -99,6 +99,12 @@ class DotsController {
         return dots_between;
     }
 
+    #handle_success() {
+        this.connections_ended_success = true;
+        //this.animations_controller.clear_animations();
+        setTimeout(this.animate_fade_in.bind(this), 1000);
+    }
+
     #updateExpectedConnections() {
         let i = 0;
         while (i < this.expected_connections.length) {
@@ -110,6 +116,10 @@ class DotsController {
                 i++;
             }
         }
+
+        if (this.expected_connections.length == 0 && this.state == STATE.PLAYING) {
+            this.#handle_success();
+        }
     }
 
     /* close the connection between the leading dot and the new_dot, then opens a connections
@@ -120,9 +130,11 @@ class DotsController {
             this.#updateExpectedConnections()
         }
 
-        this.leading_connection = new Connection(true);
-        this.leading_connection.begin(new_dot);
-        this.player_connections.push(this.leading_connection);
+        if (!this.connections_ended_success) {
+            this.leading_connection = new Connection(true);
+            this.leading_connection.begin(new_dot);
+            this.player_connections.push(this.leading_connection);
+        }
     }
 
     #updateLeadingDot(dot) {
@@ -160,8 +172,8 @@ class DotsController {
                     }
                 } else {
                     if (!dot.alive) {
-                        this.#updateLeadingDot(dot);
                         dot.alive = true;
+                        this.#updateLeadingDot(dot);
                     }
                 }
             }
@@ -180,8 +192,6 @@ class DotsController {
         for(let i = 0;i < this.player_connections.length;i++) {
             this.player_connections[i].update_and_draw();
         }
-
-        
     }
 
     #update_and_draw_clicks_available() {
@@ -213,16 +223,19 @@ class DotsController {
 
         if (clicks_available > 0) {
             fill(255);
+            stroke(150);
             textAlign(RIGHT, CENTER);
             textSize(15);
             text("Available Extra:", posRef.x-(1+HALF)*PADDING, posRef.y);
         } else if (this.state == STATE.PLAYING){
             fill(255);
+            stroke(150);
             textAlign(CENTER, CENTER);
             textSize(15);
-            text("No Available Extras.", posRef.x, posRef.y);
+            text("Click the mouse right-button to retry", posRef.x, posRef.y);
         } else {
             fill(255);
+            stroke(150);
             textAlign(CENTER, CENTER);
             textSize(15);
             text("Free to create whatever u want! :)", posRef.x, posRef.y);
@@ -241,6 +254,7 @@ class DotsController {
 
     load(code) {
         this.code = code;
+        this.connections_ended_success = false;
 
         if (code) { // PLAYING
             let values = this.#getInfoFrom(code);
@@ -274,6 +288,7 @@ class DotsController {
     }
 
     reload() {
+        this.connections_ended_success = false;
         this.player_connections.length = 0;
         this.leading_connection = null;
         this.leading_dot = null;
@@ -371,6 +386,8 @@ class DotsController {
     }
 
     animate_fade_out() {
+        animations_controller.clear_animations();
+
         for (let i = 0; i < this.dots.length; i++) {
             let dot = this.dots[i];
 
@@ -385,8 +402,16 @@ class DotsController {
 
         for (let i = 0;i < this.expected_connections.length;i++) {
             let conn = this.expected_connections[i];
-            
+            conn.alpha = 0;
             animations_controller.new_animation(new ObjAnimator(conn, 'alpha', conn.initAlpha, 0.05));
+        }
+    }
+
+    animate_fade_in() {
+        for (let i = 0; i < this.dots.length; i++) {
+            let dot = this.dots[i];
+            dot.alive = false;
+            dot.vibrate();
         }
     }
 }
