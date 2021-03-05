@@ -12,10 +12,8 @@ class MessagesController {
         let message_lines = message_code.split(';');
 
         for (let line = 0;line < message_lines.length;line++) {
-            let message_x = width / 2;
-            let message_y = height*0.04 + line*PADDING_MESSAGE_LINES;
             let messageText = message_lines[line]; 
-            let new_message_obj = new Message(messageText, message_x, message_y);
+            let new_message_obj = new Message(line, messageText);
             this.messages.push(new_message_obj);
         }
     }
@@ -39,25 +37,21 @@ class MessagesController {
 }
 
 class Message {
-    constructor(messageText, x, y) {
+    constructor(line, messageText) {
         this.messageText = messageText;
         this.alpha = 255;
-        this.initX = x;
-        this.initY = y;
-        this.x = x;
-        this.y = y;
+        this.line = line;
     }
 
     update_and_draw() {
-        let actual_x = this.initX * (windowWidth / width);
-        let actual_y = this.initY * (windowHeight / height);
-        this.x = actual_x;
-        this.y = actual_y;
+        let x = windowWidth / 2;
+        let y = windowHeight*0.04 + this.line*PADDING_MESSAGE_LINES;
+        let defaultTextSize = 18*my_scale;
 
         fill(255, this.alpha);
         stroke(150, this.alpha);
         textAlign(CENTER, BASELINE);
-        textSize(16);
-        text(this.messageText, this.x, this.y);
+        textSize(defaultTextSize);
+        text(this.messageText, x, y);
     }
 }

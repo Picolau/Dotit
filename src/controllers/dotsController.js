@@ -25,21 +25,52 @@ class DotsController {
         return pos;
     }
 
-    #init_dots(visible=false) {
-        let dots = [];
+    #getDotsContainerMeasures() {
+        let dotsPadding = DOTS_PADDING*my_scale;
 
         let dotsContainerSize = {
-            width: (this.cols - 1)*(DOTS_PADDING),
-            height: (this.rows - 1)*(DOTS_PADDING),
+            width: (this.cols - 1)*(dotsPadding),
+            height: (this.rows - 1)*(dotsPadding),
         };
 
         let horizontalMargin = (windowWidth - dotsContainerSize.width) / 2;
         let verticalMargin = (windowHeight - dotsContainerSize.height) / 2;
 
+        if (verticalMargin < 0.1*windowHeight || horizontalMargin < 0.1*windowWidth) {
+            if (verticalMargin / windowHeight < horizontalMargin/windowWidth) {
+                verticalMargin = 0.1*windowHeight;
+                dotsContainerSize.height = windowHeight - verticalMargin*2;
+                dotsPadding = dotsContainerSize.height / (this.rows - 1);
+                dotsContainerSize.width = (this.cols-1)*dotsPadding;
+                horizontalMargin = (windowWidth - dotsContainerSize.width) / 2;
+            } else {
+                horizontalMargin = 0.1*windowWidth;
+                dotsContainerSize.width =  windowWidth - horizontalMargin*2;
+                dotsPadding = dotsContainerSize.width / (this.cols - 1);
+                dotsContainerSize.height = (this.rows-1)*dotsPadding;
+                verticalMargin = (windowHeight - dotsContainerSize.height) / 2;
+            }
+        }
+
+        let containerMeasures = {
+            marginTop: verticalMargin,
+            marginLeft: horizontalMargin,
+            dotsPadding: dotsPadding
+        }
+
+        return containerMeasures;
+    }
+
+    #init_dots(visible=false) {
+        let dots = [];
+        
+        let dotsContainerMeasures = this.#getDotsContainerMeasures();
+
         for (let row = 0; row < this.rows; row++) {
             for (let col = 0; col < this.cols; col++) {
-                let dotX = horizontalMargin + col*DOTS_PADDING;
-                let dotY = verticalMargin + row*DOTS_PADDING;
+                let padding = dotsContainerMeasures.dotsPadding;
+                let dotX = dotsContainerMeasures.marginLeft + col*padding;
+                let dotY = dotsContainerMeasures.marginTop + row*padding;
 
                 dots.push(new Dot(row * this.cols + col, dotX, dotY, visible));
             }
@@ -195,8 +226,6 @@ class DotsController {
     }
 
     #update_and_draw_clicks_available() {
-        let containerHeight = (this.rows - 1)*(DOTS_PADDING);
-
         let posRef = {
             x: windowWidth/2,
             y: windowHeight*0.96
@@ -211,7 +240,7 @@ class DotsController {
                 y : posRef.y
             }
 
-            let size_dot_available = min(DOT_SIZE, DOT_SIZE*((windowWidth + windowHeight) / (width + height)));
+            let size_dot_available = DOT_SIZE * my_scale;
 
             strokeWeight(1);
             stroke(255, 190);
@@ -223,23 +252,24 @@ class DotsController {
             circle(posDraw.x, posDraw.y, size_dot_available);
         }
 
+        let availableTextSize = 17*my_scale;
         if (clicks_available > 0) {
             fill(255);
             stroke(150);
             textAlign(RIGHT, CENTER);
-            textSize(15);
-            text("Available Extra:", posRef.x-(1+HALF)*PADDING, posRef.y);
+            textSize(availableTextSize);
+            text("Extra Clicks:", posRef.x-(1+HALF)*PADDING, posRef.y);
         } else if (this.state == STATE.PLAYING){
             fill(255);
             stroke(150);
             textAlign(CENTER, CENTER);
-            textSize(15);
+            textSize(availableTextSize);
             text("Click the mouse right-button to retry", posRef.x, posRef.y);
         } else {
             fill(255);
             stroke(150);
             textAlign(CENTER, CENTER);
-            textSize(15);
+            textSize(availableTextSize);
             text("Free to create whatever u want! :)", posRef.x, posRef.y);
         }
     }
@@ -416,6 +446,22 @@ class DotsController {
             let dot = this.dots[i];
             dot.alive = false;
             dot.vibrate();
+        }
+    }
+
+    reposition_dots() {
+        let dotsContainerMeasures = this.#getDotsContainerMeasures();
+
+        for (let row = 0; row < this.rows; row++) {
+            for (let col = 0; col < this.cols; col++) {
+                let padding = dotsContainerMeasures.dotsPadding;
+                let dotX = dotsContainerMeasures.marginLeft + col*padding;
+                let dotY = dotsContainerMeasures.marginTop + row*padding;
+
+                let i = row*this.cols + col;
+                this.dots[i].x = dotX;
+                this.dots[i].y = dotY;
+            }
         }
     }
 }

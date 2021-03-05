@@ -24,6 +24,11 @@ class ObjAnimator {
         }
     }
 
+    force_end() {
+        this.obj[this.key] = this.limit_value;
+        this.#hasEnded = true;
+    }
+
     ended() {
         return this.#hasEnded;
     }

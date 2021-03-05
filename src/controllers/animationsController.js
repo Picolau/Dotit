@@ -23,7 +23,10 @@ class AnimationsController {
     }
 
     clear_animations() {
-        this.game_animations.length = 0;
+        while (this.game_animations.length) {
+            let animation = this.game_animations.pop(); 
+            animation.force_end();
+        }
     }
 
     is_animating() {

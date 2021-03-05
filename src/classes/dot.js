@@ -27,7 +27,7 @@ class Dot {
         this.y = y;
         this.initX = x;
         this.initY = y;
-        this.initAlpha = 230;
+        this.initAlpha = 250;
         this.alpha = this.initAlpha;
         this.clicks_consumed = 0;
         this.alive = false;
@@ -37,6 +37,7 @@ class Dot {
 
     #drawCircle() { //Yes, we draw 2 circles because its prettier, id care
         let size = this.spring_size.value;
+        size = size*my_scale;
 
         if (this.alive) {
             noStroke();
