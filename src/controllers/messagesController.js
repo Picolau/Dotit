@@ -27,7 +27,7 @@ class MessagesController {
         }
     }
 
-    animate_fade_out() {
+    animate_start() {
         for (let i = 0;i < this.messages.length;i++) {
             let message = this.messages[i];
             message.alpha = 0;
@@ -42,11 +42,18 @@ class Message {
     constructor(messageText, x, y) {
         this.messageText = messageText;
         this.alpha = 255;
+        this.initX = x;
+        this.initY = y;
         this.x = x;
         this.y = y;
     }
 
     update_and_draw() {
+        let actual_x = this.initX * (windowWidth / width);
+        let actual_y = this.initY * (windowHeight / height);
+        this.x = actual_x;
+        this.y = actual_y;
+
         fill(255, this.alpha);
         stroke(150, this.alpha);
         textAlign(CENTER, BASELINE);

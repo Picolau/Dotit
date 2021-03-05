@@ -36,6 +36,8 @@ class Dot {
     }
 
     #drawCircle() { //Yes, we draw 2 circles because its prettier, id care
+        let size = this.spring_size.value;
+
         if (this.alive) {
             noStroke();
             fill(255,30)
@@ -44,20 +46,20 @@ class Dot {
             strokeWeight(1);
             stroke(255, 190);
             fill(BACKGROUND_COLOR);
-            circle(this.x, this.y, this.spring_size.value);
+            circle(this.x, this.y, size);
 
             stroke(255, 150);
             noFill()
-            circle(this.x, this.y, this.spring_size.value);
+            circle(this.x, this.y, size);
         } else {
             strokeWeight(1);
             stroke(255, 190);
             fill(255,255,255,this.alpha);
-            circle(this.x, this.y, this.spring_size.value);
+            circle(this.x, this.y, size);
 
             stroke(255, 150);
             noFill()
-            circle(this.x, this.y, this.spring_size.value);
+            circle(this.x, this.y, size);
         }
     }
 

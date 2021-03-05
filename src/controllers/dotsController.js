@@ -102,7 +102,7 @@ class DotsController {
     #handle_success() {
         this.connections_ended_success = true;
         //this.animations_controller.clear_animations();
-        setTimeout(this.animate_fade_in.bind(this), 1000);
+        setTimeout(this.animate_end.bind(this), 1000);
     }
 
     #updateExpectedConnections() {
@@ -211,14 +211,16 @@ class DotsController {
                 y : posRef.y
             }
 
+            let size_dot_available = min(DOT_SIZE, DOT_SIZE*((windowWidth + windowHeight) / (width + height)));
+
             strokeWeight(1);
             stroke(255, 190);
             fill(BACKGROUND_COLOR);
-            circle(posDraw.x, posDraw.y, DOT_SIZE);
+            circle(posDraw.x, posDraw.y, size_dot_available);
 
             stroke(255, 150);
             noFill()
-            circle(posDraw.x, posDraw.y, DOT_SIZE);
+            circle(posDraw.x, posDraw.y, size_dot_available);
         }
 
         if (clicks_available > 0) {
@@ -351,7 +353,9 @@ class DotsController {
                     (conn_pos.col - min_col) + '';
         }
 
-        alert('"' + code + '",');
+        navigator.clipboard.writeText('["' + code + '"],\n\t').then(function() {
+            console.log("deu bom");
+        });
         return code;
     }
 
@@ -387,9 +391,7 @@ class DotsController {
         return [parseInt(code[0]), parseInt(code[1]), parseInt(code[2])];
     }
 
-    animate_fade_out() {
-        animations_controller.clear_animations();
-
+    animate_start() {
         for (let i = 0; i < this.dots.length; i++) {
             let dot = this.dots[i];
 
@@ -409,7 +411,7 @@ class DotsController {
         }
     }
 
-    animate_fade_in() {
+    animate_end() {
         for (let i = 0; i < this.dots.length; i++) {
             let dot = this.dots[i];
             dot.alive = false;
