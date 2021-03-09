@@ -6,10 +6,11 @@ class MessagesController {
         this.messages = [];
     }
 
-    load(message_code) {
+    load(messages_code) {
+        this.messages_code = messages_code;
         this.messages.length = 0;
 
-        let message_lines = message_code.split(';');
+        let message_lines = messages_code.split(';');
 
         for (let line = 0;line < message_lines.length;line++) {
             let messageText = message_lines[line]; 

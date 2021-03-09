@@ -1,6 +1,6 @@
 
 const DOTS_MAX_ROWS = 5; // 5
-const DOTS_MAX_COLS = 5; // 8
+const DOTS_MAX_COLS = 8; // 8
 const DOTS_PADDING = 150;
 const DOT_MOUSE_SENSITIVITY_RADIUS = (DOTS_PADDING / 4);
 

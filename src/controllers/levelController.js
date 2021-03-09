@@ -3,11 +3,13 @@ const LEVEL_MAX_COLS = 8;
 
 class LevelController {
     constructor() {
-        this.level = 50;
+        let levelItem = localStorage.getItem('level');
+        this.level = levelItem ? parseInt(levelItem) : 0;
+
         this.dots_controller;
         this.messages_controller = new MessagesController();
 
-        this.next_level();
+        this.load_level(levels[this.level]);
         this.next_level_waiting = false;
     }
 
@@ -24,18 +26,20 @@ class LevelController {
     load_level(level) {
         let dots_code = level[0];
         let messages_code = level[1];
-        if (level.length == 2) {
-            if (messages_code != "") { // when encounter "", simply let the same message
+        if (level.length == 2) { // has message
+            if (messages_code != this.messages_controller.messages_code) {
                 this.load_messages(messages_code);
                 setTimeout(this.load_dots.bind(this, dots_code), 
                 this.messages_controller.messages.length * TIME_BETWEEN_MESSAGES);
-            } else {
+            } else { // no timeout needed if its same message
                 this.load_dots(dots_code);
             }
         } else { // if theres no messages_code we show the level number
             this.load_messages((this.level+1)+"");
             setTimeout(this.load_dots.bind(this, dots_code), 250);
         }
+
+        localStorage.setItem('level', this.level);
     }
 
     load_dots(code) {
