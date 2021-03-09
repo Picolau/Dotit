@@ -24,11 +24,11 @@ function draw() {
 
 function keyPressed() {
   if (keyCode === RIGHT_ARROW) {
-    level_controller.next_level();
+    level_controller.load_next_level();
   } 
   
   else if (keyCode === LEFT_ARROW) {
-    level_controller.prev_level();
+    level_controller.load_prev_level();
   }
 
   else if (keyCode === KEY_SPACE) {
@@ -49,3 +49,18 @@ function windowResized() {
 }
 
 document.addEventListener('contextmenu', event => event.preventDefault());
+
+function handleMenuItemClick(item) {
+  level_controller.clear_level();
+
+  if (item === 'continue') {
+    level_controller.load_current_level();
+  } else if (item === 'new') {
+    level_controller.level = 0;
+    level_controller.load_current_level();
+  } else if (item === 'create') {
+    alert('CONTINUE');
+  } else if (item === 'load') {
+    alert('CONTINUE');
+  }
+}

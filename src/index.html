@@ -2,6 +2,7 @@
   <head>
     <title>Joidô</title>
     <link rel="icon" href =./images/dotsicon.png type="image/x-icon"> 
+    <link rel="stylesheet" href ="./index.css"> 
     <script src="https://cdn.jsdelivr.net/npm/p5@1.2.0/lib/p5.js"></script>
     <script src="./index.js"></script>
     <script src="./classes/connection.js"></script>
@@ -16,17 +17,11 @@
     <script src="./levels.js"></script>
   </head>
   <body>
-    <style> 
-      html, body {
-        width: 100%; 
-        height: 100%;
-        margin: 0;
-        overflow: hidden;
-      }
-      
-      canvas {
-        vertical-align: top;
-      } 
-    </style>
+    <div class="menu-container">
+      <div class="menu-item" onclick="handleMenuItemClick('continue')"><img src="./images/play.svg" title="Continue Game"></div>
+      <div class="menu-item" onclick="handleMenuItemClick('new')"><img src="./images/plus.svg" title="New Game"></div>
+      <div class="menu-item" onclick="handleMenuItemClick('create')"><img src="./images/edit.svg" title="Create a Level"></div>
+      <div class="menu-item" onclick="handleMenuItemClick('load')"><img src="./images/download.svg" title="Load a Level"></div>
+    </div>
   </body>
 </html>
