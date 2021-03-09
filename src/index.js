@@ -51,16 +51,18 @@ function windowResized() {
 document.addEventListener('contextmenu', event => event.preventDefault());
 
 function handleMenuItemClick(item) {
-  level_controller.clear_level();
+  let function_on_end;
 
   if (item === 'continue') {
-    level_controller.load_current_level();
+    function_on_end = () => {level_controller.load_current_level()};
   } else if (item === 'new') {
     level_controller.level = 0;
-    level_controller.load_current_level();
+    function_on_end = () => {level_controller.load_current_level()};
   } else if (item === 'create') {
-    alert('CONTINUE');
+    function_on_end = () => {level_controller.load_level()}
   } else if (item === 'load') {
-    alert('CONTINUE');
+    function_on_end = () => {level_controller.load_level()}
   }
+
+  level_controller.clear_level(function_on_end);
 }

@@ -22,10 +22,11 @@ class AnimationsController {
         this.game_animations.push(animation);
     }
 
-    clear_animations() {
+    clear_animations(force_end=false) {
         while (this.game_animations.length) {
-            let animation = this.game_animations.pop(); 
-            animation.force_end();
+            let animation = this.game_animations.pop();
+            if (force_end) 
+                animation.force_end();
         }
     }
 

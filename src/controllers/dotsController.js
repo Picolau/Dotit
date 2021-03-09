@@ -84,7 +84,7 @@ class DotsController {
     }
 
     #canConnect(dot) {
-        return this.leading_dot != dot && dot.visible && !this.connections_ended_success;
+        return this.leading_dot != dot && dot.visible && !this.connections_ended_success && !this.animating_shrink;
     }
 
     // return all dots indexes between dot_begin and dot_end not including them;
@@ -132,7 +132,6 @@ class DotsController {
 
     #handle_success() {
         this.connections_ended_success = true;
-        //this.animations_controller.clear_animations();
         setTimeout(this.animate_end.bind(this), 1000);
     }
 
@@ -287,6 +286,7 @@ class DotsController {
     load(code) {
         this.code = code;
         this.connections_ended_success = false;
+        this.animating_shrink = false;
 
         if (code) { // PLAYING
             let values = this.#getInfoFrom(code);
@@ -325,6 +325,7 @@ class DotsController {
             this.player_connections.length = 0;
             this.leading_connection = null;
             this.leading_dot = null;
+            this.animating_shrink = false;
 
             for (let i = 0;i < this.dots.length;i++) {
                 this.dots[i].alive = false;
@@ -419,6 +420,33 @@ class DotsController {
 
     #getInfoFrom(code) {
         return [parseInt(code[0]), parseInt(code[1]), parseInt(code[2])];
+    }
+
+    animate_shrink() {
+        this.player_connections.length = 0;
+        this.expected_connections.length = 0;
+        this.leading_dot = null;
+        this.leading_connection = null;
+        this.animating_shrink = true;
+
+        for (let i = 0; i < this.dots.length; i++) {
+            let dot = this.dots[i];
+            dot.alive = false;
+
+            animations_controller.new_animation(new ObjAnimator(dot, 'alpha', 0, 0.1));
+            animations_controller.new_animation(new ObjAnimator(dot, 'x', width/2, 0.1));
+            animations_controller.new_animation(new ObjAnimator(dot, 'y', height/2, 0.1));
+        }
+
+        for (let i = 0;i < this.expected_connections.length;i++) {
+            let conn = this.expected_connections[i];
+            animations_controller.new_animation(new ObjAnimator(conn, 'alpha', 0, 0.1));
+        }
+
+        for (let i = 0;i < this.player_connections.length;i++) {
+            let conn = this.player_connections[i];
+            animations_controller.new_animation(new ObjAnimator(conn, 'alpha', 0, 0.1));
+        }
     }
 
     animate_start() {

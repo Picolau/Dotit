@@ -45,20 +45,20 @@ class Dot {
             circle(this.x, this.y, 2*DOT_MOUSE_SENSITIVITY_RADIUS);
 
             strokeWeight(1);
-            stroke(255, 190);
+            stroke(255, this.alpha-65/*190*/);
             fill(BACKGROUND_COLOR);
             circle(this.x, this.y, size);
 
-            stroke(255, 150);
+            stroke(255, this.alpha-105/*150*/);
             noFill()
             circle(this.x, this.y, size);
         } else {
             strokeWeight(1);
-            stroke(255, 190);
+            stroke(255, this.alpha-65/*190*/);
             fill(255,255,255,this.alpha);
             circle(this.x, this.y, size);
 
-            stroke(255, 150);
+            stroke(255, this.alpha-105/*150*/);
             noFill()
             circle(this.x, this.y, size);
         }

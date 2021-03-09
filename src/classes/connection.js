@@ -1,7 +1,7 @@
 class Connection {
     constructor(is_player_conn, dot_begin=null, dot_end=null) {
         this.is_player_conn = is_player_conn;
-        this.initAlpha = 102;
+        this.initAlpha = is_player_conn ? 255 : 102;
         this.alpha = this.initAlpha;
         this.conn_string;
 
@@ -12,7 +12,7 @@ class Connection {
     }
 
     update_and_draw() {
-        this.conn_string.color = this.is_player_conn ? (this.dot_end ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.6)') : color(255,255,255,this.alpha);
+        this.conn_string.color = this.is_player_conn ? (this.dot_end ? color(255,255,255,this.alpha) : 'rgba(255,255,255,0.6)') : color(255,255,255,this.alpha);
         this.conn_string?.update_and_draw();
     }
 

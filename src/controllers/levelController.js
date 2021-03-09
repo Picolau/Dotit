@@ -11,6 +11,7 @@ class LevelController {
 
         this.load_level(levels[this.level]);
         this.next_level_waiting = false;
+        this.myTimeout;
     }
 
     #load_dots(code) {
@@ -27,9 +28,12 @@ class LevelController {
         this.messages_controller.animate_start();
     }
 
-    clear_level() {
-        this.#load_dots("000");
+    clear_level(on_end) {
+        animations_controller.clear_animations();
+        this.dots_controller.animate_shrink();
         this.#load_messages("");
+        clearTimeout(this.myTimeout);
+        this.myTimeout = setTimeout(on_end, 1000);
     }
 
     load_level(level) {
@@ -38,14 +42,16 @@ class LevelController {
         if (level.length == 2) { // has message
             if (messages_code != this.messages_controller.messages_code) {
                 this.#load_messages(messages_code);
-                setTimeout(this.#load_dots.bind(this, dots_code), 
+                clearTimeout(this.myTimeout);
+                this.myTimeout = setTimeout(this.#load_dots.bind(this, dots_code), 
                 this.messages_controller.messages.length * TIME_BETWEEN_MESSAGES);
             } else { // no timeout needed if its same message
                 this.#load_dots(dots_code);
             }
         } else { // if theres no messages_code we show the level number
             this.#load_messages((this.level+1)+"");
-            setTimeout(this.#load_dots.bind(this, dots_code), 250);
+            clearTimeout(this.myTimeout);
+            this.myTimeout = setTimeout(this.#load_dots.bind(this, dots_code), 250);
         }
 
         localStorage.setItem('level', this.level);
@@ -78,7 +84,8 @@ class LevelController {
         this.messages_controller.update_and_draw();
 
         if (this.dots_controller?.connections_ended_success && !this.next_level_waiting) {
-            setTimeout(this.load_next_level.bind(this), 2000);
+            clearTimeout(this.myTimeout); // clear if there's any timeout
+            this.myTimeout=setTimeout(this.load_next_level.bind(this), 2000);
             this.next_level_waiting = true;
         }
     }
@@ -92,7 +99,7 @@ class LevelController {
     }
 
     handle_resize() {
-        animations_controller.clear_animations();
+        animations_controller.clear_animations(true);
         this.dots_controller.reposition_dots();
     }
 }
