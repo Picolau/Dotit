@@ -9,11 +9,27 @@ class Connection {
             this.begin(dot_begin);
         if (dot_end)
             this.end(dot_end);
+        
+        this.minX=70; // because of menu
+        this.minY=0;
+        this.maxX=9999;
+        this.maxY=9999;
     }
 
     update_and_draw() {
-        this.conn_string.color = this.is_player_conn ? (this.dot_end ? color(255,255,255,this.alpha) : 'rgba(255,255,255,0.6)') : color(255,255,255,this.alpha);
-        this.conn_string?.update_and_draw();
+        let insideBoundaries = mouseX < this.maxX && mouseX > this.minX && mouseY < this.maxY && mouseY > this.minY;
+        
+        if (insideBoundaries || this.dot_end) {
+            this.conn_string.color = this.is_player_conn ? (this.dot_end ? color(255,255,255,this.alpha) : 'rgba(255,255,255,0.6)') : color(255,255,255,this.alpha);
+            this.conn_string?.update_and_draw();
+        }
+    }
+
+    set_boundaries(minX, minY, maxX, maxY) {
+        this.minX = minX;
+        this.minY = minY;
+        this.maxX = maxX;
+        this.maxY = maxY;
     }
 
     begin(dot_begin) {
@@ -114,7 +130,7 @@ class ConnString {
     update_and_draw() {
         stroke(this.color); 
         strokeWeight(4);
-
+        
         if (this.animating_springs) {
             this.animating_springs = false;
             this.#update_gravity();
@@ -130,7 +146,10 @@ class ConnString {
                         target = prev_spring;
                         line_to = prev_spring;
                     } else {
-                        target = {x: mouseX, y: mouseY};
+                        target = {
+                            x: mouseX, 
+                            y: mouseY, 
+                        };
                         line_to = target;
                     }
                 } else {

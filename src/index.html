@@ -17,6 +17,18 @@
     <script src="./levels.js"></script>
   </head>
   <body>
+    <div id="code" class="level-code-container">
+      <input onchange="updateLevelFromCodeInputText()" id="code-input" type="text" value="" disabled/>
+      <div id="code-copy" class="clipboard-container">
+        <img 
+          src="./images/copy.svg" 
+          class="clipboard-img"
+          onmouseout="reset_clipboard_tooltip_text()"
+          onclick="copy_code_to_clipboard()"
+        />
+        <span id="clipboard-tooltip" class="tooltiptext">Copy to clipboard</span>
+      </div>
+    </div>
     <div class="menu-container">
       <div class="menu-item" onclick="handleMenuItemClick('continue')"><img src="./images/play.svg" title="Continue Game"></div>
       <div class="menu-item" onclick="handleMenuItemClick('new')"><img src="./images/plus.svg" title="New Game"></div>

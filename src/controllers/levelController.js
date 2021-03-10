@@ -1,15 +1,9 @@
-const LEVEL_MAX_ROWS = 5;
-const LEVEL_MAX_COLS = 8;
-
 class LevelController {
     constructor() {
-        let levelItem = localStorage.getItem('level');
-        this.level = levelItem ? parseInt(levelItem) : 0;
-
-        this.dots_controller;
+        this.dots_controller = new DotsController("000");
         this.messages_controller = new MessagesController();
 
-        this.load_level(levels[this.level]);
+        this.load_current_level(levels[this.level]);
         this.next_level_waiting = false;
         this.myTimeout;
     }
@@ -68,22 +62,25 @@ class LevelController {
         if (this.level > 0) { 
             this.level--;
             this.load_level(levels[this.level]);
-        } else if (this.level <= 0) {
-            this.level = -1;
-            this.#load_dots();
-            this.#load_messages("");
         }
     }
 
     load_current_level() {
+        let levelItem = localStorage.getItem('level');
+        this.level = levelItem ? parseInt(levelItem) : 0;
         this.load_level(levels[this.level]);
+    }
+
+    load_creation_level() {
+        this.#load_dots();
+        this.#load_messages("");
     }
 
     update_and_draw() {
         this.dots_controller?.update_and_draw();
         this.messages_controller.update_and_draw();
 
-        if (this.dots_controller?.connections_ended_success && !this.next_level_waiting) {
+        if (this.dots_controller?.connections_ended_success && !this.next_level_waiting && menu_state === MENU_STATE.PLAYING) {
             clearTimeout(this.myTimeout); // clear if there's any timeout
             this.myTimeout=setTimeout(this.load_next_level.bind(this), 2000);
             this.next_level_waiting = true;

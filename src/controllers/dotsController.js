@@ -164,6 +164,14 @@ class DotsController {
             this.leading_connection = new Connection(true);
             this.leading_connection.begin(new_dot);
             this.player_connections.push(this.leading_connection);
+
+            if (menu_state === MENU_STATE.CREATING || menu_state === MENU_STATE.LOADING) {
+                let minX = 70;
+                let minY = this.dots[0].initY - 40;
+                let maxX = 9999;
+                let maxY = 9999;
+                this.leading_connection.set_boundaries(minX, minY, maxX, maxY);
+            }
         }
     }
 
@@ -184,6 +192,10 @@ class DotsController {
         
         this.#updateLeadingConnection(dot);
         this.leading_dot = dot;
+
+        if (menu_state == MENU_STATE.CREATING && this.player_connections.length > 1) {
+            updateCodeInputTextFromLevel(this.#encodeConnections());
+        }
     }
 
     #update_and_draw_dots() {
@@ -334,7 +346,9 @@ class DotsController {
 
             this.clicks_consumed = 0;
             this.expected_connections.length = 0;
-            this.#decodeConnections(this.code);
+
+            if (this.code)
+                this.#decodeConnections(this.code);
         }
     }
 
@@ -384,9 +398,6 @@ class DotsController {
                     (conn_pos.col - min_col) + '';
         }
 
-        navigator.clipboard.writeText('["' + code + '"],\n\t').then(function() {
-            console.log("deu bom");
-        });
         return code;
     }
 
