@@ -3,6 +3,7 @@ class Connection {
         this.is_player_conn = is_player_conn;
         this.initAlpha = is_player_conn ? 255 : 102;
         this.alpha = this.initAlpha;
+        this.conn_loose_alpha = 153;
         this.conn_string;
 
         if (dot_begin)
@@ -17,12 +18,13 @@ class Connection {
     }
 
     update_and_draw() {
-        let insideBoundaries = mouseX < this.maxX && mouseX > this.minX && mouseY < this.maxY && mouseY > this.minY;
-        
-        if (insideBoundaries || this.dot_end) {
-            this.conn_string.color = this.is_player_conn ? (this.dot_end ? color(255,255,255,this.alpha) : 'rgba(255,255,255,0.6)') : color(255,255,255,this.alpha);
-            this.conn_string?.update_and_draw();
-        }
+        if (mouseX < this.maxX && mouseX > this.minX && mouseY < this.maxY && mouseY > this.minY)
+            this.conn_loose_alpha = min(153, this.conn_loose_alpha + 10);  
+        else
+            this.conn_loose_alpha = max(0, this.conn_loose_alpha - 10);  
+
+        this.conn_string.color = this.is_player_conn ? (this.dot_end ? color(255,255,255,this.alpha) : color(255,255,255,this.conn_loose_alpha)) : color(255,255,255,this.alpha);
+        this.conn_string?.update_and_draw();
     }
 
     set_boundaries(minX, minY, maxX, maxY) {
