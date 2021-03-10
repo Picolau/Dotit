@@ -17,11 +17,11 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
 
   my_scale = ((windowWidth + windowHeight)/(displayWidth + displayHeight));
-  menu_state == "playing"
+  menu_state = MENU_STATE.PLAYING;
 
   animations_controller = new AnimationsController();
   level_controller = new LevelController();
-  bg_controller = new BackgroundController(100); 
+  bg_controller = new BackgroundController(75); 
 }
 
 function draw() {
@@ -31,8 +31,20 @@ function draw() {
 }
 
 function keyPressed() {
-  if (keyCode === KEY_SPACE) {
-    level_controller.print_level_created();
+  let min_level = 15; // corresponds to tutorial
+
+  if (keyCode === LEFT_ARROW) {
+    if (level_controller.level > min_level) {
+      level_controller.level -= 1;
+      level_controller.load_level();
+    }
+  } else if (keyCode === RIGHT_ARROW) {
+    let max_level = parseInt(localStorage.getItem('level'));
+
+    if (level_controller.level >= min_level && level_controller.level < max_level) {
+      level_controller.level += 1;
+      level_controller.load_level();
+    }
   }
 }
 

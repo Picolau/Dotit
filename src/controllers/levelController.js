@@ -31,6 +31,9 @@ class LevelController {
     }
 
     load_level(level) {
+        if (!level)
+            level = levels[this.level];
+        
         let dots_code = level[0];
         let messages_code = level[1];
         if (level.length == 2) { // has message
@@ -47,8 +50,6 @@ class LevelController {
             clearTimeout(this.myTimeout);
             this.myTimeout = setTimeout(this.#load_dots.bind(this, dots_code), 250);
         }
-
-        localStorage.setItem('level', this.level);
     }
 
     load_next_level() {
@@ -81,6 +82,7 @@ class LevelController {
         this.messages_controller.update_and_draw();
 
         if (this.dots_controller?.connections_ended_success && !this.next_level_waiting && menu_state === MENU_STATE.PLAYING) {
+            localStorage.setItem('level', this.level+1);
             clearTimeout(this.myTimeout); // clear if there's any timeout
             this.myTimeout=setTimeout(this.load_next_level.bind(this), 2000);
             this.next_level_waiting = true;
@@ -89,10 +91,6 @@ class LevelController {
 
     reload_dots() {
         this.dots_controller.reload();
-    }
-
-    print_level_created() {
-        this.dots_controller.handleFinish();
     }
 
     handle_resize() {

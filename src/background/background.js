@@ -1,4 +1,4 @@
-const BACKGROUND_COLOR = 'rgb(0,50,255)'
+const BACKGROUND_COLOR = 'rgb(50,30,255)'
 
 class BackgroundController {
     constructor(num_particles){

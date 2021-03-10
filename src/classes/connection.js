@@ -15,6 +15,8 @@ class Connection {
         this.minY=0;
         this.maxX=9999;
         this.maxY=9999;
+
+        this.fulfilled = false;
     }
 
     update_and_draw() {

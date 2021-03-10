@@ -135,47 +135,54 @@ class DotsController {
         setTimeout(this.animate_end.bind(this), 1000);
     }
 
-    #updateExpectedConnections() {
-        let i = 0;
-        while (i < this.expected_connections.length) {
-            let expected_connection = this.expected_connections[i];
-
-            if (this.leading_connection.is_equal(expected_connection)) {
-                this.expected_connections.splice(i, 1);
-            } else {
-                i++;
-            }
-        }
-
-        if (this.expected_connections.length == 0 && this.state == STATE.PLAYING) {
+    #checkConnectionSuccess() {
+        if (this.num_fulfilled_connections == this.expected_connections.length 
+            && this.state == STATE.PLAYING
+            && this.all_player_connections_are_expected_connections) {
             this.#handle_success();
         }
     }
 
-    /* close the connection between the leading dot and the new_dot, then opens a connections
-    with new_dot */
-    #updateLeadingConnection(new_dot) {
-        if (this.leading_connection) {
-            this.leading_connection.end(new_dot);
-            this.#updateExpectedConnections()
+    #updateExpectedConnections() {
+        let found_expected_connection = false;
+
+        for (let i=0;i < this.expected_connections.length;i++) {
+            let expected_connection = this.expected_connections[i];
+
+            if (this.leading_connection.is_equal(expected_connection)) {
+                found_expected_connection = true;
+
+                if (!expected_connection.fulfilled) {
+                    expected_connection.fulfilled = true;
+                    this.num_fulfilled_connections += 1
+                }
+            }
         }
 
-        if (!this.connections_ended_success) {
-            this.leading_connection = new Connection(true);
-            this.leading_connection.begin(new_dot);
-            this.player_connections.push(this.leading_connection);
+        this.all_player_connections_are_expected_connections &= found_expected_connection;
+    }
 
-            if (menu_state === MENU_STATE.CREATING || menu_state === MENU_STATE.LOADING) {
-                let minX = 70;
-                let minY = this.dots[0].initY - 40;
-                let maxX = 9999;
-                let maxY = 9999;
-                this.leading_connection.set_boundaries(minX, minY, maxX, maxY);
-            }
+    /* close the connection between the leading dot and the new_dot, then opens a connections
+    with new_dot */
+    #closeLeadingConnection(new_dot) {
+        this.leading_connection.end(new_dot);
+    }
+
+    #openLeadingConnection(new_dot) {
+        this.leading_connection = new Connection(true);
+        this.leading_connection.begin(new_dot);
+        this.player_connections.push(this.leading_connection);
+
+        if (menu_state === MENU_STATE.CREATING || menu_state === MENU_STATE.LOADING) {
+            let minX = 70;
+            let minY = this.dots[0].initY - 40;
+            let maxX = 9999;
+            let maxY = 9999;
+            this.leading_connection.set_boundaries(minX, minY, maxX, maxY);
         }
     }
 
-    #updateLeadingDot(dot) {
+    #connect(dot) {
         if (this.leading_dot) {
             let dotsIdxBetween = this.#getDotsIdxBetween(this.leading_dot, dot);
             this.leading_dot.vibrate();
@@ -186,12 +193,22 @@ class DotsController {
                 dotBetween.alive = true;
                 dotBetween.vibrate();
 
-                this.#updateLeadingConnection(dotBetween);
+                this.#closeLeadingConnection(dotBetween);
+                this.#updateExpectedConnections();
+
+                this.#openLeadingConnection(dotBetween);
             }
+
+            this.#closeLeadingConnection(dot);
+            this.#updateExpectedConnections();
+
+            this.#checkConnectionSuccess();
         }
-        
-        this.#updateLeadingConnection(dot);
-        this.leading_dot = dot;
+
+        if (!this.connections_ended_success) {
+            this.#openLeadingConnection(dot);
+            this.leading_dot = dot;
+        }
 
         if (menu_state == MENU_STATE.CREATING && this.player_connections.length > 1) {
             updateCodeInputTextFromLevel(this.#encodeConnections());
@@ -210,12 +227,12 @@ class DotsController {
                         dot.clicks_consumed += 1;
                         dot.vibrate();
                         this.clicks_consumed += 1;
-                        this.#updateLeadingDot(dot);
+                        this.#connect(dot);
                     }
                 } else {
                     if (!dot.alive) {
                         dot.alive = true;
-                        this.#updateLeadingDot(dot);
+                        this.#connect(dot);
                     }
                 }
             }
@@ -299,6 +316,8 @@ class DotsController {
         this.code = code;
         this.connections_ended_success = false;
         this.animating_shrink = false;
+        this.all_player_connections_are_expected_connections = true;
+        this.num_fulfilled_connections = 0;
 
         if (code) { // PLAYING
             let values = this.#getInfoFrom(code);
@@ -332,7 +351,9 @@ class DotsController {
     }
 
     reload() {
-        if (!this.connections_ended_success) {
+        if (!this.connections_ended_success || menu_state != MENU_STATE.PLAYING) {
+            this.all_player_connections_are_expected_connections = true;
+            this.num_fulfilled_connections = 0;
             this.connections_ended_success = false;
             this.player_connections.length = 0;
             this.leading_connection = null;
