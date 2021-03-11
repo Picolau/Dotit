@@ -46,7 +46,7 @@ class Dot {
 
             strokeWeight(1);
             stroke(255, this.alpha-65/*190*/);
-            fill(BACKGROUND_COLOR);
+            fill(bg_controller.bg_color);
             circle(this.x, this.y, size);
 
             stroke(255, this.alpha-105/*150*/);

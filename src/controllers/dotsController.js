@@ -166,6 +166,9 @@ class DotsController {
     with new_dot */
     #closeLeadingConnection(new_dot) {
         this.leading_connection.end(new_dot);
+        this.#updateExpectedConnections();
+
+        bg_controller.light_bg_color();
     }
 
     #openLeadingConnection(new_dot) {
@@ -194,13 +197,11 @@ class DotsController {
                 dotBetween.vibrate();
 
                 this.#closeLeadingConnection(dotBetween);
-                this.#updateExpectedConnections();
-
+                
                 this.#openLeadingConnection(dotBetween);
             }
 
             this.#closeLeadingConnection(dot);
-            this.#updateExpectedConnections();
 
             this.#checkConnectionSuccess();
         }
@@ -272,7 +273,7 @@ class DotsController {
 
             strokeWeight(1);
             stroke(255, 190);
-            fill(BACKGROUND_COLOR);
+            fill(bg_controller.bg_color);
             circle(posDraw.x, posDraw.y, size_dot_available);
 
             stroke(255, 150);
