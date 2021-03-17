@@ -14,6 +14,10 @@ canvas {
   margin-bottom: 30px;
   margin-top: 30px;
   margin-left: -4px;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .menu-item img {
@@ -26,6 +30,47 @@ canvas {
   cursor: pointer;
   margin-left: 4px;
   transition: all 0.1s;
+}
+
+.menu-item:hover .menu-item-desc {
+  opacity: 1;
+}
+
+input[type="color"] {
+	-webkit-appearance: none;
+  border: white 2px solid;
+  width: 32px;
+  height: 32px;
+  display: block;
+  border-radius: 4px;
+  /* box-shadow: white 0px 0px 3px 0.7px; */
+  background-color: transparent;
+}
+input[type="color"]::-webkit-color-swatch-wrapper {
+	padding: 0;
+}
+input[type="color"]::-webkit-color-swatch {
+	border: none;
+}
+input[type="color"]:focus {
+  outline: none;
+}
+input[type="color"]:hover {
+  cursor: pointer;
+}
+
+.menu-item-desc {
+  position: absolute;
+  margin-left: 50px;
+  color: white;
+  font-family: 'HelloDotStick';
+  font-weight: bold;
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
+  width: 80px;
+  opacity: 0;
+  transition: all 0.5s;
 }
 
 .menu-container {
@@ -57,7 +102,7 @@ canvas {
   justify-content: center;
 }
 
-input {
+input[type="text"] {
   text-align: center;
   border: none;
   background-color: transparent;

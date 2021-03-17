@@ -86,6 +86,11 @@ window.onload = () => {
 
   document.getElementById('clipboard-img').onmouseout = reset_clipboard_tooltip_text;
   document.getElementById('clipboard-img').onclick = copy_code_to_clipboard;
+
+  let color_picker = document.getElementById('color-picker')
+  color_picker.addEventListener('input', () => {
+    bg_controller.changeBackgroundColor(color_picker.value);
+  });
 }
 
 function handleMenuItemClick(item) {
@@ -138,10 +143,6 @@ function copy_code_to_clipboard() {
 
 function reset_clipboard_tooltip_text() {
   document.getElementById("clipboard-tooltip").innerHTML = "Copy to clipboard"
-}
-
-function updateCodeInputTextFromLevel(code_text) {
-  document.getElementById("code-input").value = code_text;
 }
 
 function updateLevelFromCodeInputText() {
