@@ -1,5 +1,5 @@
 /** Visible to all */
-class AnimationsController {
+export default class {
     constructor() {
         this.game_animations = [];
     }

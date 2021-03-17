@@ -1,71 +1,95 @@
-let dots_controller;
+import './styles/index.css';
+import * as p5 from './lib/p5.js';
+
+const BackgroundController = require('./background/background').default;
+const LevelController = require('./controllers/levelController').default;
+const AnimationsController = require('./controllers/animationsController').default;
+
+//const BackgroundController = require('./background/background').default;
+/*let dots_controller;
 let bg_controller;
 let current_level;
 let game_animations;
 let my_scale;
 let menu_state;
+*/
 
-const KEY_SPACE = 32;
 const MOUSE_RIGHT_BUTTON = 2;
 const MENU_STATE = {
   PLAYING: "playing",
   CREATING: "creating",
   LOADING: "loading",
 }
+const animations_controller = new AnimationsController();
 
-function setup() {
-  createCanvas(windowWidth, windowHeight);
+let bg_controller, level_controller;
+let menu_state, my_scale;
+let s = (sk) => {
+  sk.setup = () => {
+    menu_state = MENU_STATE.PLAYING;
+    my_scale = ((sk.windowWidth + sk.windowHeight)/(sk.displayWidth + sk.displayHeight));
 
-  my_scale = ((windowWidth + windowHeight)/(displayWidth + displayHeight));
-  menu_state = MENU_STATE.PLAYING;
+    bg_controller = new BackgroundController(75);
+    level_controller = new LevelController();
+  }
 
-  animations_controller = new AnimationsController();
-  level_controller = new LevelController();
-  bg_controller = new BackgroundController(75); 
-}
+  sk.draw = () => {
+    bg_controller.update_and_draw();
+    level_controller.update_and_draw();
+    animations_controller.update_and_draw();
+  }
 
-function draw() {
-  bg_controller.update_and_draw();
-  level_controller.update_and_draw();
-  animations_controller.update_and_draw();
-}
+  sk.windowResized = () => {
+    sk.resizeCanvas(sk.windowWidth, sk.windowHeight);
+    my_scale = ((sk.windowWidth + sk.windowHeight)/(sk.displayWidth + sk.displayHeight));
+    level_controller.handle_resize();
+  }
 
-function keyPressed() {
-  let min_level = 15; // corresponds to tutorial
-
-  if (keyCode === LEFT_ARROW) {
-    if (level_controller.level > min_level) {
-      level_controller.level -= 1;
-      level_controller.load_level();
+  sk.keyPressed = () => {
+    let min_level = 15; // corresponds to tutorial
+  
+    if (sk.keyCode === sk.LEFT_ARROW) {
+      if (level_controller.level > min_level) {
+        level_controller.level -= 1;
+        level_controller.load_level();
+      }
+    } else if (sk.keyCode === sk.RIGHT_ARROW) {
+      let max_level = parseInt(localStorage.getItem('level'));
+  
+      if (level_controller.level >= min_level && level_controller.level < max_level) {
+        level_controller.level += 1;
+        level_controller.load_level();
+      }
     }
-  } else if (keyCode === RIGHT_ARROW) {
-    let max_level = parseInt(localStorage.getItem('level'));
+  }
 
-    if (level_controller.level >= min_level && level_controller.level < max_level) {
-      level_controller.level += 1;
-      level_controller.load_level();
+  sk.mousePressed = (event) => {
+    if (event.button === MOUSE_RIGHT_BUTTON) {
+      level_controller.reload_dots();
+  
+      if (menu_state === MENU_STATE.CREATING)
+        document.getElementById("code-input").value = "";
     }
   }
 }
 
-function mousePressed(event) {
-  if (event.button === MOUSE_RIGHT_BUTTON) {
-    level_controller.reload_dots();
+const P5 = new p5(s);
 
-    if (menu_state === MENU_STATE.CREATING)
-      updateCodeInputTextFromLevel("");
-  }
+window.onload = () => {
+  document.addEventListener('contextmenu', event => event.preventDefault());
+  document.getElementById('menu-item-continue').onclick = () => handleMenuItemClick('continue');
+  document.getElementById('menu-item-new').onclick = () => handleMenuItemClick('new');
+  document.getElementById('menu-item-create').onclick = () => handleMenuItemClick('create');
+  document.getElementById('menu-item-load').onclick = () => handleMenuItemClick('load');
+
+  document.getElementById('code-input').onchange= updateLevelFromCodeInputText;
+
+  document.getElementById('clipboard-img').onmouseout = reset_clipboard_tooltip_text;
+  document.getElementById('clipboard-img').onclick = copy_code_to_clipboard;
 }
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  my_scale = ((windowWidth + windowHeight)/(displayWidth + displayHeight));
-  level_controller.handle_resize();
-}
-
-document.addEventListener('contextmenu', event => event.preventDefault());
 
 function handleMenuItemClick(item) {
+  console.log(item);
   let function_on_end;
   let code_div = document.getElementById("code");
   let code_input = document.getElementById("code-input");
@@ -128,3 +152,12 @@ function updateLevelFromCodeInputText() {
     level_controller.load_level(level_structure);
   }
 }
+
+export {
+  P5,
+  animations_controller,
+  my_scale,
+  menu_state,
+  MENU_STATE,
+  bg_controller
+};

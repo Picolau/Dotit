@@ -1,4 +1,6 @@
-class Connection {
+import {P5} from '../index';
+
+export default class {
     constructor(is_player_conn, dot_begin=null, dot_end=null) {
         this.is_player_conn = is_player_conn;
         this.initAlpha = is_player_conn ? 255 : 102;
@@ -20,12 +22,12 @@ class Connection {
     }
 
     update_and_draw() {
-        if (mouseX < this.maxX && mouseX > this.minX && mouseY < this.maxY && mouseY > this.minY)
-            this.conn_loose_alpha = min(153, this.conn_loose_alpha + 10);  
+        if (P5.mouseX < this.maxX && P5.mouseX > this.minX && P5.mouseY < this.maxY && P5.mouseY > this.minY)
+            this.conn_loose_alpha = P5.min(153, this.conn_loose_alpha + 10);  
         else
-            this.conn_loose_alpha = max(0, this.conn_loose_alpha - 10);  
+            this.conn_loose_alpha = P5.max(0, this.conn_loose_alpha - 10);  
 
-        this.conn_string.color = this.is_player_conn ? (this.dot_end ? color(255,255,255,this.alpha) : color(255,255,255,this.conn_loose_alpha)) : color(255,255,255,this.alpha);
+        this.conn_string.color = this.is_player_conn ? (this.dot_end ? P5.color(255,255,255,this.alpha) : P5.color(255,255,255,this.conn_loose_alpha)) : P5.color(255,255,255,this.alpha);
         this.conn_string?.update_and_draw();
     }
 
@@ -89,11 +91,11 @@ class ConnString {
         let last_spring  = this.springs[this.springs.length-1]; // acording to the last spring
         let dy = last_spring.y - this.begin_dot.y;
         let dx = last_spring.x - this.begin_dot.x;
-        let mouseAngle = atan2(dy, dx);
+        let mouseAngle = P5.atan2(dy, dx);
 
-        this.gravity = this.is_loose ? dist(last_spring.x, last_spring.y, this.begin_dot.x, this.begin_dot.y)/GRAVITY_MULTIPLIER : 0.0;
-        this.gravityY = -this.gravity*sin(mouseAngle);
-        this.gravityX = -this.gravity*cos(mouseAngle);
+        this.gravity = this.is_loose ? P5.dist(last_spring.x, last_spring.y, this.begin_dot.x, this.begin_dot.y)/GRAVITY_MULTIPLIER : 0.0;
+        this.gravityY = -this.gravity*P5.sin(mouseAngle);
+        this.gravityX = -this.gravity*P5.cos(mouseAngle);
     }
 
     #update_damping_stiffness() {
@@ -126,14 +128,14 @@ class ConnString {
         let h = floor(MAX_SPRINGS/2);
         for (let i = 0;i < MAX_SPRINGS;i++) {
             let spring = this.springs[i];
-            spring.vx = ((h-abs(h-i))*cos_p)/5 + cos_p;
-            spring.vy = ((h-abs(h-i))*sin_p)/5 + sin_p;
+            spring.vx = ((h-P5.abs(h-i))*cos_p)/5 + cos_p;
+            spring.vy = ((h-P5.abs(h-i))*sin_p)/5 + sin_p;
         }
     }
 
     update_and_draw() {
-        stroke(this.color); 
-        strokeWeight(4);
+        P5.stroke(this.color); 
+        P5.strokeWeight(4);
         
         if (this.animating_springs) {
             this.animating_springs = false;
@@ -151,8 +153,8 @@ class ConnString {
                         line_to = prev_spring;
                     } else {
                         target = {
-                            x: mouseX, 
-                            y: mouseY, 
+                            x: P5.mouseX, 
+                            y: P5.mouseY, 
                         };
                         line_to = target;
                     }
@@ -162,7 +164,7 @@ class ConnString {
                 }
 
                 spring.update(this, target.x, target.y);
-                line(spring.x, spring.y, line_to.x, line_to.y);
+                P5.line(spring.x, spring.y, line_to.x, line_to.y);
 
                 if (spring.animating || this.is_loose) {
                     this.animating_springs = true;
@@ -171,15 +173,15 @@ class ConnString {
             
             // draw last line (between fixed point and last spring)
             let last_spring  = this.springs[this.springs.length-1];
-            line(this.begin_dot.x, this.begin_dot.y, last_spring.x, last_spring.y);
+            P5.line(this.begin_dot.x, this.begin_dot.y, last_spring.x, last_spring.y);
         } else {
             let line_to = this.end_dot;
 
             if (!line_to) {
-                line_to = {x: mouseX, y: mouseY};
+                line_to = {x: P5.mouseX, y: P5.mouseY};
             }
 
-            line(this.begin_dot.x, this.begin_dot.y, line_to.x, line_to.y);
+            P5.line(this.begin_dot.x, this.begin_dot.y, line_to.x, line_to.y);
         }
     }
 
@@ -215,6 +217,6 @@ class SpringString {
         this.x += this.vx;
         this.y += this.vy;
 
-        this.animating = dist(this.x, this.y, targetX, targetY) >= 0.04;
+        this.animating = P5.dist(this.x, this.y, targetX, targetY) >= 0.04;
     }
 }

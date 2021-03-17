@@ -1,4 +1,11 @@
-class LevelController {
+
+const DotsController = require('./dotsController').default;
+const MessagesController = require('./messagesController').default;
+
+import levels from '../levels'
+import {animations_controller, menu_state, MENU_STATE} from '../index';
+
+export default class {
     constructor() {
         this.dots_controller = new DotsController("000");
         this.messages_controller = new MessagesController();
@@ -41,7 +48,7 @@ class LevelController {
                 this.#load_messages(messages_code);
                 clearTimeout(this.myTimeout);
                 this.myTimeout = setTimeout(this.#load_dots.bind(this, dots_code), 
-                this.messages_controller.messages.length * TIME_BETWEEN_MESSAGES);
+                this.messages_controller.messages.length * MessagesController.timeBetweenMessages());
             } else { // no timeout needed if its same message
                 this.#load_dots(dots_code);
             }

@@ -1,15 +1,19 @@
 
 const DOTS_MAX_ROWS = 5; // 5
 const DOTS_MAX_COLS = 8; // 8
-const DOTS_PADDING = 150;
-const DOT_MOUSE_SENSITIVITY_RADIUS = (DOTS_PADDING / 4);
 
 const STATE = {
     CREATING: 'creating',
     PLAYING: 'playing'
 }
 
-class DotsController {
+import {P5, my_scale, menu_state, MENU_STATE, animations_controller, bg_controller} from '../index';
+
+const Dot = require('../classes/dot').default;
+const Connection = require('../classes/connection').default;
+const ObjAnimator = require('../classes/objAnimator').default;
+
+export default class {
 
     /* PRIVATE METHODS */
     #toIdx(pos) {
@@ -18,7 +22,7 @@ class DotsController {
 
     #toPos(idx) {
         let pos = {
-            row: floor(idx / this.cols),
+            row: P5.floor(idx / this.cols),
             col: idx % this.cols
         }
 
@@ -26,29 +30,29 @@ class DotsController {
     }
 
     #getDotsContainerMeasures() {
-        let dotsPadding = DOTS_PADDING*my_scale;
+        let dotsPadding = Dot.padding()*my_scale;
 
         let dotsContainerSize = {
             width: (this.cols - 1)*(dotsPadding),
             height: (this.rows - 1)*(dotsPadding),
         };
 
-        let horizontalMargin = (windowWidth - dotsContainerSize.width) / 2;
-        let verticalMargin = (windowHeight - dotsContainerSize.height) / 2;
+        let horizontalMargin = (P5.windowWidth - dotsContainerSize.width) / 2;
+        let verticalMargin = (P5.windowHeight - dotsContainerSize.height) / 2;
 
-        if (verticalMargin < 0.1*windowHeight || horizontalMargin < 0.1*windowWidth) {
-            if (verticalMargin / windowHeight < horizontalMargin/windowWidth) {
-                verticalMargin = 0.1*windowHeight;
-                dotsContainerSize.height = windowHeight - verticalMargin*2;
+        if (verticalMargin < 0.1*P5.windowHeight || horizontalMargin < 0.1*P5.windowWidth) {
+            if (verticalMargin / P5.windowHeight < horizontalMargin/P5.windowWidth) {
+                verticalMargin = 0.1*P5.windowHeight;
+                dotsContainerSize.height = P5.windowHeight - verticalMargin*2;
                 dotsPadding = dotsContainerSize.height / (this.rows - 1);
                 dotsContainerSize.width = (this.cols-1)*dotsPadding;
-                horizontalMargin = (windowWidth - dotsContainerSize.width) / 2;
+                horizontalMargin = (P5.windowWidth - dotsContainerSize.width) / 2;
             } else {
-                horizontalMargin = 0.1*windowWidth;
-                dotsContainerSize.width =  windowWidth - horizontalMargin*2;
+                horizontalMargin = 0.1*P5.windowWidth;
+                dotsContainerSize.width = P5.windowWidth - horizontalMargin*2;
                 dotsPadding = dotsContainerSize.width / (this.cols - 1);
                 dotsContainerSize.height = (this.rows-1)*dotsPadding;
-                verticalMargin = (windowHeight - dotsContainerSize.height) / 2;
+                verticalMargin = (P5.windowHeight - dotsContainerSize.height) / 2;
             }
         }
 
@@ -80,7 +84,7 @@ class DotsController {
     }
 
     #isMouseCloseTo(dot) {
-        return dist(dot.x, dot.y, mouseX, mouseY) <= DOT_MOUSE_SENSITIVITY_RADIUS;
+        return P5.dist(dot.x, dot.y, P5.mouseX, P5.mouseY) <= Dot.mouseSensitivityRadius();
     }
 
     #canConnect(dot) {
@@ -167,8 +171,6 @@ class DotsController {
     #closeLeadingConnection(new_dot) {
         this.leading_connection.end(new_dot);
         this.#updateExpectedConnections();
-
-        bg_controller.light_bg_color();
     }
 
     #openLeadingConnection(new_dot) {
@@ -212,7 +214,7 @@ class DotsController {
         }
 
         if (menu_state == MENU_STATE.CREATING && this.player_connections.length > 1) {
-            updateCodeInputTextFromLevel(this.#encodeConnections());
+            document.getElementById("code-input").value = this.#encodeConnections();
         }
     }
 
@@ -221,7 +223,7 @@ class DotsController {
             let dot = this.dots[i];
 
             if (this.#isMouseCloseTo(dot) && this.#canConnect(dot)) {
-                let consume_click = mouseIsPressed;
+                let consume_click = P5.mouseIsPressed;
                 if (consume_click && dot.alive) {
                     if ((this.state == STATE.PLAYING && this.clicks_consumed < this.max_clicks)
                       || this.state == STATE.CREATING) {
@@ -256,8 +258,8 @@ class DotsController {
 
     #update_and_draw_clicks_available() {
         let posRef = {
-            x: windowWidth/2,
-            y: windowHeight*0.96
+            x: P5.windowWidth/2,
+            y: P5.windowHeight*0.96
         }
 
         let clicks_available = this.max_clicks - this.clicks_consumed;
@@ -269,37 +271,37 @@ class DotsController {
                 y : posRef.y
             }
 
-            let size_dot_available = DOT_SIZE * my_scale;
+            let size_dot_available = Dot.size() * my_scale;
 
-            strokeWeight(1);
-            stroke(255, 190);
-            fill(bg_controller.bg_color);
-            circle(posDraw.x, posDraw.y, size_dot_available);
+            P5.strokeWeight(1);
+            P5.stroke(255, 190);
+            P5.fill(bg_controller.bg_color);
+            P5.circle(posDraw.x, posDraw.y, size_dot_available);
 
-            stroke(255, 150);
-            noFill()
-            circle(posDraw.x, posDraw.y, size_dot_available);
+            P5.stroke(255, 150);
+            P5.noFill()
+            P5.circle(posDraw.x, posDraw.y, size_dot_available);
         }
 
         let availableTextSize = 17*my_scale;
         if (clicks_available > 0) {
-            fill(255);
-            stroke(150);
-            textAlign(RIGHT, CENTER);
-            textSize(availableTextSize);
-            text("Extra Clicks:", posRef.x-(1+HALF)*PADDING, posRef.y);
+            P5.fill(255);
+            P5.stroke(150);
+            P5.textAlign(P5.RIGHT, P5.CENTER);
+            P5.textSize(availableTextSize);
+            P5.text("Extra Clicks:", posRef.x-(1+HALF)*PADDING, posRef.y);
         } else if (this.state == STATE.PLAYING){
-            fill(255);
-            stroke(150);
-            textAlign(CENTER, CENTER);
-            textSize(availableTextSize);
-            text("Click the mouse right-button to retry", posRef.x, posRef.y);
+            P5.fill(255);
+            P5.stroke(150);
+            P5.textAlign(P5.CENTER, P5.CENTER);
+            P5.textSize(availableTextSize);
+            P5.text("Click the mouse right-button to retry", posRef.x, posRef.y);
         } else {
-            fill(255);
-            stroke(150);
-            textAlign(CENTER, CENTER);
-            textSize(availableTextSize);
-            text("Free to create whatever u want! :)", posRef.x, posRef.y);
+            P5.fill(255);
+            P5.stroke(150);
+            P5.textAlign(P5.CENTER, P5.CENTER);
+            P5.textSize(availableTextSize);
+            P5.text("Free to create whatever u want! :)", posRef.x, posRef.y);
         }
     }
 
@@ -396,11 +398,11 @@ class DotsController {
             let begin = this.#toPos(connection.dot_begin.idx);
             let end = this.#toPos(connection.dot_end.idx);
             
-            min_row = min(min_row, begin.row, end.row);
-            min_col = min(min_col, begin.col, end.col);
+            min_row = P5.min(min_row, begin.row, end.row);
+            min_col = P5.min(min_col, begin.col, end.col);
 
-            max_row = max(max_row, begin.row, end.row);
-            max_col = max(max_col, begin.col, end.col);
+            max_row = P5.max(max_row, begin.row, end.row);
+            max_col = P5.max(max_col, begin.col, end.col);
 
             connections_history.push(begin);
         }
@@ -467,8 +469,8 @@ class DotsController {
             dot.alive = false;
 
             animations_controller.new_animation(new ObjAnimator(dot, 'alpha', 0, 0.1));
-            animations_controller.new_animation(new ObjAnimator(dot, 'x', width/2, 0.1));
-            animations_controller.new_animation(new ObjAnimator(dot, 'y', height/2, 0.1));
+            animations_controller.new_animation(new ObjAnimator(dot, 'x', P5.width/2, 0.1));
+            animations_controller.new_animation(new ObjAnimator(dot, 'y', P5.height/2, 0.1));
         }
 
         for (let i = 0;i < this.expected_connections.length;i++) {
@@ -486,8 +488,8 @@ class DotsController {
         for (let i = 0; i < this.dots.length; i++) {
             let dot = this.dots[i];
 
-            dot.x = width / 2;
-            dot.y = height / 2;
+            dot.x = P5.width / 2;
+            dot.y = P5.height / 2;
             dot.alpha = 0;
 
             animations_controller.new_animation(new ObjAnimator(dot, 'alpha', dot.initAlpha, 0.05));

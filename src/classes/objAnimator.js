@@ -1,4 +1,6 @@
-class ObjAnimator {
+import {P5} from '../index';
+
+export default class {
     #hasEnded;
     #totalDistance;
 
@@ -15,7 +17,7 @@ class ObjAnimator {
     }
 
     update() {
-        this.obj[this.key] = lerp(this.obj[this.key], this.limit_value, this.lerp_value);
+        this.obj[this.key] = P5.lerp(this.obj[this.key], this.limit_value, this.lerp_value);
         let remainingDistance = Math.abs(this.obj[this.key] - this.limit_value);
 
         if (remainingDistance <= this.min_error*this.#totalDistance) {

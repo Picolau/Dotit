@@ -1,9 +1,16 @@
 const PADDING_MESSAGE_LINES = 30;
 const TIME_BETWEEN_MESSAGES = 1500;
 
-class MessagesController {
+import {P5, my_scale, animations_controller} from '../index';
+const ObjAnimator = require('../classes/objAnimator').default;
+
+export default class {
     constructor() {
         this.messages = [];
+    }
+
+    static timeBetweenMessages() {
+        return TIME_BETWEEN_MESSAGES;
     }
 
     load(messages_code) {
@@ -45,14 +52,14 @@ class Message {
     }
 
     update_and_draw() {
-        let x = windowWidth / 2;
-        let y = windowHeight*0.04 + this.line*PADDING_MESSAGE_LINES;
+        let x = P5.windowWidth / 2;
+        let y = P5.windowHeight*0.04 + this.line*PADDING_MESSAGE_LINES;
         let defaultTextSize = 18*my_scale;
 
-        fill(255, this.alpha);
-        stroke(150, this.alpha);
-        textAlign(CENTER, BASELINE);
-        textSize(defaultTextSize);
-        text(this.messageText, x, y);
+        P5.fill(255, this.alpha);
+        P5.stroke(150, this.alpha);
+        P5.textAlign(P5.CENTER, P5.BASELINE);
+        P5.textSize(defaultTextSize);
+        P5.text(this.messageText, x, y);
     }
 }

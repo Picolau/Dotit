@@ -1,18 +1,24 @@
-class BackgroundController {
+import {P5} from '../index'
+
+const Particle = require('./particle').default;
+
+
+export default class {
     constructor(num_particles){
         this.particles = [];
-        createCanvas(windowWidth, windowHeight);
+        console.log(P5);
+        P5.createCanvas(P5.windowWidth, P5.windowHeight);
 
         /* Control background particles */
         for(let i = 0;i<num_particles;i++){
             this.particles.push(new Particle());
         }
 
-        this.bg_color = color(0,0,255); 
+        this.bg_color = P5.color(0,0,255); 
     }
 
     update_and_draw() {
-        background(this.bg_color);
+        P5.background(this.bg_color);
         this.darken_bg_color();
 
         for(let i = 0;i<this.particles.length;i++) {
