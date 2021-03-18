@@ -2,6 +2,8 @@
 const DotsController = require('./dotsController').default;
 const MessagesController = require('./messagesController').default;
 
+const NUM_LEVELS_TUTORIAL = 15; 
+
 import levels from '../levels'
 import {animations_controller, menu_state, MENU_STATE} from '../index';
 
@@ -57,6 +59,8 @@ export default class {
             clearTimeout(this.myTimeout);
             this.myTimeout = setTimeout(this.#load_dots.bind(this, dots_code), 250);
         }
+
+        this.#updateLevelArrowsElements();
     }
 
     load_next_level() {
@@ -103,5 +107,21 @@ export default class {
     handle_resize() {
         animations_controller.clear_animations(true);
         this.dots_controller.reposition_dots();
+    }
+
+    #updateLevelArrowsElements() {
+        if (this.level > NUM_LEVELS_TUTORIAL) {
+            document.getElementById("change-level-left-arrow").style.display = "block";
+        } else {
+            document.getElementById("change-level-left-arrow").style.display = "none";
+        }
+
+        let max_level = parseInt(localStorage.getItem('level'));
+
+        if(this.level >= NUM_LEVELS_TUTORIAL && this.level < max_level) {
+            document.getElementById("change-level-right-arrow").style.display = "block";
+        } else {
+            document.getElementById("change-level-right-arrow").style.display = "none";
+        }
     }
 }

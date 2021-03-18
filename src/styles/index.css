@@ -34,6 +34,7 @@ canvas {
 
 .menu-item:hover .menu-item-desc {
   opacity: 1;
+  margin-left: 50px;
 }
 
 input[type="color"] {
@@ -61,7 +62,7 @@ input[type="color"]:hover {
 
 .menu-item-desc {
   position: absolute;
-  margin-left: 50px;
+  margin-left: -20px;
   color: white;
   font-family: 'HelloDotStick';
   font-weight: bold;
@@ -146,4 +147,37 @@ input::-webkit-input-placeholder {
 
 .clipboard-container:hover .tooltiptext {
   visibility: visible;
+}
+
+.change-level-arrow{
+  display: none;
+  position: absolute;
+  top: calc(50% - 20px);
+  height: 30px;
+  width: 30px;
+  transition: all 0.1s;
+  opacity: 0.5;
+}
+
+.left {
+  left: calc(50px + 5%);
+}
+
+.left:hover {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.right {
+  right: calc(50px + 5%);
+}
+
+.right:hover {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.change-level-arrow img{
+  height: 100%;
+  width: 100%;
 }

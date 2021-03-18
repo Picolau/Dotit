@@ -29,7 +29,7 @@ let s = (sk) => {
     menu_state = MENU_STATE.PLAYING;
     my_scale = ((sk.windowWidth + sk.windowHeight)/(sk.displayWidth + sk.displayHeight));
 
-    bg_controller = new BackgroundController(75);
+    bg_controller = new BackgroundController(50);
     level_controller = new LevelController();
   }
 
@@ -43,24 +43,6 @@ let s = (sk) => {
     sk.resizeCanvas(sk.windowWidth, sk.windowHeight);
     my_scale = ((sk.windowWidth + sk.windowHeight)/(sk.displayWidth + sk.displayHeight));
     level_controller.handle_resize();
-  }
-
-  sk.keyPressed = () => {
-    let min_level = 15; // corresponds to tutorial
-  
-    if (sk.keyCode === sk.LEFT_ARROW) {
-      if (level_controller.level > min_level) {
-        level_controller.level -= 1;
-        level_controller.load_level();
-      }
-    } else if (sk.keyCode === sk.RIGHT_ARROW) {
-      let max_level = parseInt(localStorage.getItem('level'));
-  
-      if (level_controller.level >= min_level && level_controller.level < max_level) {
-        level_controller.level += 1;
-        level_controller.load_level();
-      }
-    }
   }
 
   sk.mousePressed = (event) => {
@@ -81,6 +63,16 @@ window.onload = () => {
   document.getElementById('menu-item-new').onclick = () => handleMenuItemClick('new');
   document.getElementById('menu-item-create').onclick = () => handleMenuItemClick('create');
   document.getElementById('menu-item-load').onclick = () => handleMenuItemClick('load');
+
+  document.getElementById("change-level-right-arrow").onclick = () => {
+    level_controller.level++;
+    level_controller.load_level();
+  }
+
+  document.getElementById("change-level-left-arrow").onclick = () => {
+    level_controller.level--;
+    level_controller.load_level();
+  }
 
   document.getElementById('code-input').onchange= updateLevelFromCodeInputText;
 
