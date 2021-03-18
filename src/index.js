@@ -152,5 +152,6 @@ export {
   my_scale,
   menu_state,
   MENU_STATE,
-  bg_controller
+  bg_controller,
+  level_controller
 };

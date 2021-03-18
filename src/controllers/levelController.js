@@ -17,6 +17,10 @@ export default class {
         this.myTimeout;
     }
 
+    getNumTutorialLevels() {
+        return NUM_LEVELS_TUTORIAL;
+    }
+
     #load_dots(code) {
         if (!this.dots_controller)
             this.dots_controller = new DotsController()

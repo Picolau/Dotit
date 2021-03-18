@@ -7,7 +7,7 @@ const STATE = {
     PLAYING: 'playing'
 }
 
-import {P5, my_scale, menu_state, MENU_STATE, animations_controller, bg_controller} from '../index';
+import {P5, my_scale, menu_state, MENU_STATE, animations_controller, bg_controller, level_controller} from '../index';
 
 const Dot = require('../classes/dot').default;
 const Connection = require('../classes/connection').default;
@@ -88,6 +88,9 @@ export default class {
     }
 
     #canConnect(dot) {
+        if (!this.leading_dot)
+            return P5.mouseIsPressed && this.leading_dot != dot && dot.visible && !this.connections_ended_success && !this.animating_shrink;
+
         return this.leading_dot != dot && dot.visible && !this.connections_ended_success && !this.animating_shrink;
     }
 
@@ -295,7 +298,10 @@ export default class {
             P5.stroke(150);
             P5.textAlign(P5.CENTER, P5.CENTER);
             P5.textSize(availableTextSize);
-            P5.text("Click the mouse right-button to retry", posRef.x, posRef.y);
+            if (menu_state == MENU_STATE.PLAYING && level_controller.level < level_controller.getNumTutorialLevels())
+                P5.text("Click with left-button to start connecting.\nClick with right-button to retry.", posRef.x, posRef.y);
+            else
+                P5.text("No Extra Clicks", posRef.x, posRef.y);
         } else {
             P5.fill(255);
             P5.stroke(150);
