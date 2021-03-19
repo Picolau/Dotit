@@ -1,4 +1,4 @@
-const levels = [["013000102","Hi!;Welcome to Joidô!;Rules here are simple: you simply have to draw the given pattern.;Give it a try :)"],
+const levels = [["013000102","Hi!;Welcome to Joid\xF4!;Rules here are simple: you simply have to draw the given pattern.;Give it a try :)"],
     ["02210000111", "Great work! I see you got it.; How about this other pattern?"],
     ["0231101000102", "Pretty easy right?;Try this one."],
     ["0331020211101000102", "Amazing work!;Keep going..."],
