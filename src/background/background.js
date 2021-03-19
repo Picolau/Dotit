@@ -7,7 +7,8 @@ export default class {
     constructor(){
         this.particles = [];
 
-        P5.createCanvas(P5.windowWidth, P5.windowHeight);
+        const canvasElt = P5.createCanvas(P5.windowWidth, P5.windowHeight).elt;
+        canvasElt.style.width = '100%', canvasElt.style.height = '100%';
 
         /* Control background particles */
         for(let i = 0;i<NUM_PARTICLES;i++){

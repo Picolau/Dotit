@@ -27,10 +27,12 @@ let menu_state, my_scale;
 let s = (sk) => {
   sk.setup = () => {
     menu_state = MENU_STATE.PLAYING;
-    my_scale = ((sk.windowWidth + sk.windowHeight)/(sk.displayWidth + sk.displayHeight));
+    my_scale = ((sk.windowWidth + sk.windowHeight) / (sk.displayWidth + sk.displayHeight));
 
     bg_controller = new BackgroundController(50);
     level_controller = new LevelController();
+
+    sk.frameRate(120);
   }
 
   sk.draw = () => {
@@ -41,14 +43,14 @@ let s = (sk) => {
 
   sk.windowResized = () => {
     sk.resizeCanvas(sk.windowWidth, sk.windowHeight);
-    my_scale = ((sk.windowWidth + sk.windowHeight)/(sk.displayWidth + sk.displayHeight));
-    level_controller.handle_resize();
+    my_scale = ((sk.windowWidth + sk.windowHeight) / (sk.displayWidth + sk.displayHeight));
+    level_controller?.handle_resize();
   }
 
   sk.mousePressed = (event) => {
     if (event.button === MOUSE_RIGHT_BUTTON) {
       level_controller.reload_dots();
-  
+
       if (menu_state === MENU_STATE.CREATING)
         document.getElementById("code-input").value = "";
     }
@@ -58,6 +60,14 @@ let s = (sk) => {
 const P5 = new p5(s);
 
 window.onload = () => {
+  /*var supportsOrientationChange = "onorientationchange" in window;
+
+  if (supportsOrientationChange) {
+    window.addEventListener("orientationchange", function () {
+      alert('HOLY ROTATING SCREENS BATMAN:' + window.orientation + " " + screen.width);
+    }, false);
+  }*/
+
   document.addEventListener('contextmenu', event => event.preventDefault());
   document.getElementById('menu-item-continue').onclick = () => handleMenuItemClick('continue');
   document.getElementById('menu-item-new').onclick = () => handleMenuItemClick('new');
@@ -74,7 +84,7 @@ window.onload = () => {
     level_controller.load_level();
   }
 
-  document.getElementById('code-input').onchange= updateLevelFromCodeInputText;
+  document.getElementById('code-input').onchange = updateLevelFromCodeInputText;
 
   document.getElementById('clipboard-img').onmouseout = reset_clipboard_tooltip_text;
   document.getElementById('clipboard-img').onclick = copy_code_to_clipboard;
@@ -95,18 +105,18 @@ function handleMenuItemClick(item) {
   code_input.value = "";
 
   if (item === 'continue') {
-    function_on_end = () => {level_controller.load_current_level()};
+    function_on_end = () => { level_controller.load_current_level() };
     code_div.style.top = '-35px';
     code_div.style.opacity = '0';
     menu_state = MENU_STATE.PLAYING;
   } else if (item === 'new') {
     localStorage.setItem('level', 0);
-    function_on_end = () => {level_controller.load_current_level()};
+    function_on_end = () => { level_controller.load_current_level() };
     code_div.style.top = '-35px';
     code_div.style.opacity = '0';
     menu_state = MENU_STATE.PLAYING;
   } else if (item === 'create') {
-    function_on_end = () => {level_controller.load_creation_level()}
+    function_on_end = () => { level_controller.load_creation_level() }
     code_div.style.top = '3%';
     code_div.style.opacity = '1';
     code_input.disabled = true;
@@ -114,7 +124,7 @@ function handleMenuItemClick(item) {
     div_clipboard.style.display = 'block';
     menu_state = MENU_STATE.CREATING;
   } else if (item === 'load') {
-    function_on_end = () => {}
+    function_on_end = () => { }
     code_div.style.top = '3%';
     code_div.style.opacity = '1';
     code_input.disabled = false;
@@ -128,7 +138,7 @@ function handleMenuItemClick(item) {
 
 function copy_code_to_clipboard() {
   let input_value = document.getElementById("code-input").value;
-  navigator.clipboard.writeText(input_value).then(function() {
+  navigator.clipboard.writeText(input_value).then(function () {
     document.getElementById("clipboard-tooltip").innerHTML = "Copied!"
   });
 }
