@@ -1,9 +1,10 @@
-import {P5} from '../index'
+import {P5, globalEnv} from '../index'
 
 const Particle = require('./particle').default;
 
-const NUM_PARTICLES = 100;
+const NUM_PARTICLES_PER_SCREEN_SIZE = 100;
 const DEFAULT_BACKGROUND_COLOR = '#2052c5';
+
 
 export default class {
     constructor(){
@@ -12,8 +13,10 @@ export default class {
 
         /* Control background particles */
         this.particles = [];
+        
+        this.maxParticles = Math.floor(NUM_PARTICLES_PER_SCREEN_SIZE * globalEnv.screenSizeFactor);
 
-        for(let i = 0;i<NUM_PARTICLES;i++){
+        for(let i = 0;i<this.maxParticles;i++){
             this.particles.push(new Particle());
         }
 
@@ -23,7 +26,6 @@ export default class {
         this.timeElapsed = 0;
         this.framesCounter = 0;
         this.fps = 0;
-        this.maxParticles = NUM_PARTICLES;
     }
 
     #updateFPS() {

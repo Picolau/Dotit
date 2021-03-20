@@ -17,6 +17,7 @@ html, body {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
+  transition: all 0.5s;
 }
 
 .menu-item {
