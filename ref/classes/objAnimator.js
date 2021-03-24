@@ -5,29 +5,29 @@ export default class {
     #totalDistance;
 
     // obj[hey], value_limit and boundaries expected to be numbers
-    constructor (obj, key, limit_value, lerp_value, min_error=0.005) {
+    constructor (obj, key, limitValue, lerpValue, min_error=0.005) {
         this.obj = obj;
         this.key = key;
-        this.limit_value = limit_value;
-        this.lerp_value = lerp_value; 
+        this.limitValue = limitValue;
+        this.lerpValue = lerpValue; 
         this.min_error = min_error; // By Default
         
-        this.#totalDistance = Math.abs(this.obj[this.key] - this.limit_value);
+        this.#totalDistance = Math.abs(this.obj[this.key] - this.limitValue);
         this.#hasEnded = false;
     }
 
     update() {
-        this.obj[this.key] = P5.lerp(this.obj[this.key], this.limit_value, this.lerp_value);
-        let remainingDistance = Math.abs(this.obj[this.key] - this.limit_value);
+        this.obj[this.key] = P5.lerp(this.obj[this.key], this.limitValue, this.lerpValue);
+        let remainingDistance = Math.abs(this.obj[this.key] - this.limitValue);
 
         if (remainingDistance <= this.min_error*this.#totalDistance) {
-            this.obj[this.key] = this.limit_value;
+            this.obj[this.key] = this.limitValue;
             this.#hasEnded = true;
         }
     }
 
-    force_end() {
-        this.obj[this.key] = this.limit_value;
+    forceEnd() {
+        this.obj[this.key] = this.limitValue;
         this.#hasEnded = true;
     }
 

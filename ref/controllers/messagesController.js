@@ -1,65 +1,69 @@
-const PADDING_MESSAGE_LINES = 30;
-const TIME_BETWEEN_MESSAGES = 1500;
-
-import {P5, my_scale, animations_controller} from '../index';
-const ObjAnimator = require('../classes/objAnimator').default;
+const DEFAULT_CONTINUE_MESSAGE = "Click/Tap anywhere near to continue"
+const TIME_BETWEEN_MESSAGES_ANIMATION = 1500;
 
 export default class {
     constructor() {
-        this.messages = [];
+        this.messagesContainerElement = document.getElementById("messages-container");
     }
 
-    static timeBetweenMessages() {
-        return TIME_BETWEEN_MESSAGES;
+    #clear() {
+        this.messagesContainerElement.innerHTML = "";
     }
 
-    load(messages_code) {
-        this.messages_code = messages_code;
-        this.messages.length = 0;
+    #display(display) {
+        if (display)
+            this.messagesContainerElement.style.display = "flex";
+        else
+            this.messagesContainerElement.style.display = "none";
+    }
 
-        let message_lines = messages_code.split(';');
-
-        for (let line = 0;line < message_lines.length;line++) {
-            let messageText = message_lines[line]; 
-            let new_message_obj = new Message(line, messageText);
-            this.messages.push(new_message_obj);
+    #populate(messages) {
+        for (let idx = 0;idx < messages.length;idx++) {
+            let message = messages[idx];
+            this.#addMessageElement(message);
         }
+        this.#addMessageElement(DEFAULT_CONTINUE_MESSAGE, true);
     }
 
-    update_and_draw() {
-        for (let i = 0;i < this.messages.length;i++) {
-            let message = this.messages[i];
-            message.update_and_draw();
-        }
+    #addMessageElement(message, isContinue=false) {
+        if (!isContinue)
+            this.messagesContainerElement.innerHTML += "<span class='message-item'>" + message + "</span>";
+        else
+            this.messagesContainerElement.innerHTML += "<span class='continue-item'>" + message + "</span>";
     }
 
-    animate_start() {
-        for (let i = 0;i < this.messages.length;i++) {
-            let message = this.messages[i];
-            message.alpha = 0;
+    #animateAppear() {
+        let messageElements = document.getElementsByClassName("message-item");
+        let continueElement = document.getElementsByClassName("continue-item")[0];
+
+        for (let idx = 0;idx < messageElements.length;idx++) {
+            let messageElem = messageElements[idx];
             setTimeout(function() {
-                animations_controller.new_animation(new ObjAnimator(message, 'alpha', 255, 0.05))
-            }, i*TIME_BETWEEN_MESSAGES);
+                messageElem.style.opacity = 1;
+            }, idx*TIME_BETWEEN_MESSAGES_ANIMATION);
         }
-    }
-}
-
-class Message {
-    constructor(line, messageText) {
-        this.messageText = messageText;
-        this.alpha = 255;
-        this.line = line;
+        
+        setTimeout(function () {
+            continueElement.style.opacity = 1;
+        }, messageElements.length*TIME_BETWEEN_MESSAGES_ANIMATION)
     }
 
-    update_and_draw() {
-        let x = P5.windowWidth / 2;
-        let y = P5.windowHeight*0.04 + this.line*PADDING_MESSAGE_LINES;
-        let defaultTextSize = 18*my_scale;
+    loadMessages(messagesCode, continueCallback) {
+        let messages = messagesCode.split(';');
 
-        P5.fill(255, this.alpha);
-        P5.stroke(150, this.alpha);
-        P5.textAlign(P5.CENTER, P5.BASELINE);
-        P5.textSize(defaultTextSize);
-        P5.text(this.messageText, x, y);
+        this.#clear();
+        this.#display(true);
+        this.#populate(messages);
+        this.#animateAppear();
+
+        this.messagesContainerElement.onclick = () => {
+            this.unloadMessages();
+            continueCallback();
+        };
+    }
+
+    unloadMessages() {
+        this.#clear();
+        this.#display(false);
     }
 }

@@ -23,7 +23,7 @@ class SpringDot {
 }
 
 export default class {
-    constructor(idx, x, y, visible=false) {
+    constructor(idx, x, y, size, visible=false) {
         this.idx = idx;
         this.x = x;
         this.y = y;
@@ -35,10 +35,14 @@ export default class {
         this.alive = false;
         this.visible = visible;
 
-        this.sizeAlive = globalEnv.isDevice ? DOT_RADIUS_DEVICE : DOT_RADIUS_NOT_DEVICE;
+        this.setSize(size);
+        this.springLength = new SpringDot(this.sizeNotAlive);
+    }
+
+    setSize(size) {
+        this.sizeAlive = size;
         this.sizeNotAlive = this.sizeAlive * 0.75;
         this.mouseSensitivyRadius = this.sizeAlive * 1.5;
-        this.springLength = new SpringDot(this.sizeNotAlive);
     }
 
     isMouseClose() {

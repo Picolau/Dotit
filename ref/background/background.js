@@ -5,7 +5,6 @@ const Particle = require('./particle').default;
 const NUM_PARTICLES_PER_SCREEN_SIZE = 100;
 const DEFAULT_BACKGROUND_COLOR = '#2052c5';
 
-
 export default class {
     constructor(){
         const canvasElt = P5.createCanvas(P5.windowWidth, P5.windowHeight).elt;
