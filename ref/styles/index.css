@@ -149,7 +149,7 @@ input[type="color"]:hover {
   top: 0;
   text-align: center;
   background-color: transparent;
-  display: flex;
+  display: none/*flex*/;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -168,4 +168,31 @@ input[type="color"]:hover {
 .continue-item {
   position: absolute;
   bottom: 30;
+}
+
+.level-code-container {
+  height:100%;
+  width: 80%;
+  display: none/*flex*/;
+  align-self: center;
+}
+
+.level-code-container img {
+  height: 100%;
+  margin: 0px 10px !important;
+}
+
+.level-code {
+  align-self: center;
+  font-family: HelloDotStick;
+  font-weight: bold;
+  color: white;
+  font-size: 18px;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: auto;
+  display: block;
+  overflow: hidden;
+  direction: rtl;
 }

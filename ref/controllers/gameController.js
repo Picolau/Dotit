@@ -32,6 +32,24 @@ export default class {
         document.getElementById("level-info").innerHTML = text;
     }
 
+    #changeFooterElementsShowing(showArrows, showLevelCodeCopy) {
+        let arrowLeftElem = document.getElementById("arrow-left-icon");
+        let arrowRightElem = document.getElementById("arrow-right-icon");
+        let levelCodeCopyElem = document.getElementById("level-code-container");
+        
+        arrowLeftElem.style.display = "none";
+        arrowRightElem.style.display = "none";
+        levelCodeCopyElem.style.display = "none";
+
+        if (showArrows) {
+            arrowLeftElem.style.display = "block";
+            arrowRightElem.style.display = "block";
+        }
+        if (showLevelCodeCopy) {
+            levelCodeCopyElem.style.display = "flex";
+        }
+    }
+
     goToNextLevel() {
         this.levelController.goForward();
         this.continueGame();
@@ -49,7 +67,9 @@ export default class {
     continueGame() {
         this.currentLevel = this.levelController.getCurrent();
         let levelNumber = this.currentLevel.levelNumber;
+
         this.#changeHeaderText((levelNumber < 10 ? '0'+levelNumber : levelNumber) + '-' + this.currentLevel.code[0]);
+        this.#changeFooterElementsShowing(true, false);
 
         let onFinishSolvingDots = () => {
             if (this.currentLevel.isMax)
@@ -83,11 +103,15 @@ export default class {
     }
 
     createLevel() {
-
+        this.messagesController.unloadMessages();
+        this.#showFooter();
+        this.#changeFooterElementsShowing(false, true);
+        this.dotsController.loadCreate();
+        this.dotsController.animateExpand();
     }
 
     loadLevel() {
-
+        this.#changeFooterElementsShowing(false, false);
     }
 
     loadDailyChallenges() {
