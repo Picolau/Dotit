@@ -1,5 +1,7 @@
 
 import { P5 } from '../index'
+
+const MAX_ALPHA = 160;
 // this class describes the properties of a single particle.
 export default class {
     // setting the co-ordinates, radius and the
@@ -7,7 +9,7 @@ export default class {
     constructor() {
         this.x = P5.random(0, P5.width);
         this.y = P5.random(0, P5.height);
-        this.r = P5.random(2, 6);
+        this.r = P5.random(2, 4);
         this.xSpeed = P5.random(-0.5, 0.5);
         this.ySpeed = P5.random(-0.5, 0.5);
     }
@@ -21,9 +23,9 @@ export default class {
 
     // setting the particle in motion.
     moveParticle() {
-        if (this.x < 0 || this.x > P5.width)
+        if (this.x < 0 || this.x > P5.windowWidth)
             this.xSpeed *= -1;
-        if (this.y < 0 || this.y > P5.height)
+        if (this.y < 0 || this.y > P5.windowHeight)
             this.ySpeed *= -1;
         this.x += this.xSpeed;
         this.y += this.ySpeed;
@@ -36,14 +38,23 @@ export default class {
             let element = particles[i];
             if (element) {
                 let dis = P5.dist(this.x, this.y, element.x, element.y);
-                let maxDis = P5.min(250,Math.floor(11250 / totalParticles));
+                let maxDis = 150;
                 if (dis < maxDis) {
                     P5.strokeWeight(1);
-                    P5.stroke(P5.color(255, 255, 255, 200 * (1 - dis / maxDis)));
+                    P5.stroke(P5.color(255, 255, 255, MAX_ALPHA * (1 - dis / maxDis)));
                     P5.line(this.x, this.y, element.x, element.y);
                 }
             }
         }
+        // for mouse interaction also
+        /*
+        let dis = P5.dist(this.x, this.y, P5.mouseX, P5.mouseY);
+        let maxDis = 150;
+        if (dis < maxDis) {
+            P5.strokeWeight(1);
+            P5.stroke(P5.color(255, 255, 255, MAX_ALPHA * (1 - dis / maxDis)));
+            P5.line(this.x, this.y, P5.mouseX, P5.mouseY);
+        }*/
     }
 }
 

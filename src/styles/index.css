@@ -5,15 +5,101 @@ html, body {
   overflow: hidden;
 }
 
-.menu-item {
-  align-self: center;
-  margin-bottom: 30px;
-  margin-top: 30px;
-  margin-left: -4px;
+.header {
+  position: fixed;
+  margin: auto;
+  width: 100%;
+  height: min(30px, max(20px, 5vh));
+  margin-top: 10px;
 
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
+  align-items: center;
+
+  background-color:transparent;
+}
+
+.header img {
+  height: 100%;
+  opacity: 0.7;
+  margin: 10px;
+}
+
+.header img:hover {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.header .level-info {
+  color: white;
+  font-family: 'HelloDotStick';
+  font-weight: bold;
+  font-size: min(30px, max(20px, 5vh));
+  align-self: center;
+}
+
+.footer {
+  position: fixed;
+  margin: auto;
+  width: 100%;
+  height: min(30px, max(20px, 5vh));
+  margin-bottom: 10px;
+  bottom: 0;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background-color:transparent;
+}
+
+.footer img {
+  height: 100%;
+  opacity: 0.7;
+  margin: auto;
+}
+
+.footer img:hover {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.menu-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: auto;
+  width: 100%;
+  padding: 10px;
+  border-right: 2px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 1px 1px 10px 1px rgb(255 255 255 / 70%);
+  display: none;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  transition: all 0.5s;
+  opacity: 0;
+}
+
+.menu-item {
+  align-self: center;
+  margin: 10px 10px;
+  width: 153px;
+
+  display:flex;
+  justify-content: flex-start;
+}
+
+.menu-item-desc {
+  align-self: center;
+  color: white;
+  font-family: 'HelloDotStick';
+  font-weight: bold;
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
+  opacity: 0.7;
+  transition: all 0.5s;
+  margin-left: 10px;
 }
 
 .menu-item img {
@@ -24,13 +110,11 @@ html, body {
 
 .menu-item:hover {
   cursor: pointer;
-  margin-left: 4px;
   transition: all 0.1s;
 }
 
 .menu-item:hover .menu-item-desc {
   opacity: 1;
-  margin-left: 50px;
 }
 
 input[type="color"] {
@@ -56,50 +140,79 @@ input[type="color"]:hover {
   cursor: pointer;
 }
 
-.menu-item-desc {
+.messages-container {
   position: absolute;
-  margin-left: -20px;
-  color: white;
-  font-family: 'HelloDotStick';
-  font-weight: bold;
-  align-self: center;
-  margin-top: auto;
-  margin-bottom: auto;
-  width: 80px;
-  opacity: 0;
-  transition: all 0.5s;
+  margin: auto;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  text-align: center;
+  background-color: transparent;
+  display: none/*flex*/;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 80%;
 }
 
-.menu-container {
+.message-item, .continue-item {
+  font-family: HelloDotStick;
+  font-weight: bold;
+  color: white;
+  font-size: 18px;
+  opacity: 0;
+  transition: all 1s;
+}
+
+.continue-item {
   position: absolute;
+  bottom: 30;
+}
+
+.copy-level-code-container {
+  height:100%;
+  width: 80%;
+  display: none/*flex*/;
+  align-self: center;
+}
+
+.copy-level-code-container img {
   height: 100%;
-  width: 50px;
+  margin: 0px 10px !important;
+}
+
+.level-code {
+  align-self: center;
+  font-family: HelloDotStick;
+  font-weight: bold;
+  color: white;
+  font-size: 18px;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: auto;
+  display: block;
+  overflow: hidden;
+  direction: rtl;
+}
+
+.load-level-code-container {
+  position: fixed;
   top: 0;
-  left: 0;
-  background-color:transparent;
-  border-right: 2px solid rgba(255, 255, 255, 0.75);
+  bottom: 0;
+  margin: auto auto;
+  background-color: transparent;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.level-code-container {
-  opacity: 0;
-  position: absolute;
-  width: 100%;
-  top: -35px;
-  font-size: 16px;
-  font-weight: bold;
-  color: white;
-  text-align: center;
-  transition: all 1s;
-  height: 30px;
-  display: flex;
   justify-content: center;
+  align-items: center;
+  display: none;
 }
 
 input[type="text"] {
+  align-self: center;
   text-align: center;
   border: none;
   background-color: transparent;
@@ -109,71 +222,19 @@ input[type="text"] {
   border-bottom: 1px solid white;
   font-family: 'HelloDotStick';
   font-weight: bold;
-  width: 50%;
+  width: max(50%, 300px);
+  margin-bottom: 20px;
 }
 
 input::-webkit-input-placeholder {
   color: rgba(255, 255, 255, 0.7);
 }
 
-.clipboard-img {
-  height: inherit;
-}
-
-.clipboard-img:hover {
-  cursor: pointer;
-}
-
-.clipboard-container {
-  height: inherit;
-}
-
-.clipboard-container .tooltiptext {
-  visibility: hidden;
-  width: auto;
-  background-color: transparent;
+.load-level-instruction-message {
   font-family: HelloDotStick;
-  color: #fff;
+  font-weight: bold;
+  color: white;
+  font-size: 18px;
+  transition: all 1s;
   text-align: center;
-  padding: 5px 0;
-  margin-left: 6px;
-  position: absolute;
-  z-index: 1;
-}
-
-.clipboard-container:hover .tooltiptext {
-  visibility: visible;
-}
-
-.change-level-arrow{
-  display: none;
-  position: absolute;
-  top: calc(50% - 20px);
-  height: 30px;
-  width: 30px;
-  transition: all 0.1s;
-  opacity: 0.5;
-}
-
-.left {
-  left: calc(50px + 5%);
-}
-
-.left:hover {
-  cursor: pointer;
-  opacity: 1;
-}
-
-.right {
-  right: calc(50px + 5%);
-}
-
-.right:hover {
-  cursor: pointer;
-  opacity: 1;
-}
-
-.change-level-arrow img{
-  height: 100%;
-  width: 100%;
 }

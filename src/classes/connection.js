@@ -1,71 +1,72 @@
-import {P5} from '../index';
+import { P5, globalEnv } from '../index';
 
 export default class {
-    constructor(is_player_conn, dot_begin=null, dot_end=null) {
-        this.is_player_conn = is_player_conn;
-        this.initAlpha = is_player_conn ? 255 : 102;
+    constructor(isPlayerConnection, dotBegin = null, dotEnd = null) {
+        this.isPlayerConnection = isPlayerConnection;
+        this.initAlpha = isPlayerConnection ? 255 : 102;
         this.alpha = this.initAlpha;
-        this.conn_loose_alpha = 153;
-        this.conn_string;
+        this.connLooseAlpha = 153;
+        this.connectionString;
 
-        if (dot_begin)
-            this.begin(dot_begin);
-        if (dot_end)
-            this.end(dot_end);
-        
-        this.minX=70; // because of menu
-        this.minY=0;
-        this.maxX=9999;
-        this.maxY=9999;
+        if (dotBegin)
+            this.begin(dotBegin);
+        if (dotEnd)
+            this.end(dotEnd);
+
+        this.minX = 0; // because of menu
+        this.minY = 50;
+        this.maxX = 9999;
+        this.maxY = P5.windowHeight - 50;
 
         this.fulfilled = false;
     }
 
-    update_and_draw() {
-        if (P5.mouseX < this.maxX && P5.mouseX > this.minX && P5.mouseY < this.maxY && P5.mouseY > this.minY)
-            this.conn_loose_alpha = P5.min(153, this.conn_loose_alpha + 10);  
-        else
-            this.conn_loose_alpha = P5.max(0, this.conn_loose_alpha - 10);  
+    updateAndDraw() {
+        if (!globalEnv.isDevice || this.dotEnd) {
+            if (P5.mouseX < this.maxX && P5.mouseX > this.minX && P5.mouseY < this.maxY && P5.mouseY > this.minY)
+                this.connLooseAlpha = P5.min(153, this.connLooseAlpha + 10);
+            else
+                this.connLooseAlpha = P5.max(0, this.connLooseAlpha - 10);
 
-        this.conn_string.color = this.is_player_conn ? (this.dot_end ? P5.color(255,255,255,this.alpha) : P5.color(255,255,255,this.conn_loose_alpha)) : P5.color(255,255,255,this.alpha);
-        this.conn_string?.update_and_draw();
+            this.connectionString.color = this.isPlayerConnection ? (this.dotEnd ? P5.color(255, 255, 255, this.alpha) : P5.color(255, 255, 255, this.connLooseAlpha)) : P5.color(255, 255, 255, this.alpha);
+            this.connectionString?.updateAndDraw();
+        }
     }
 
-    set_boundaries(minX, minY, maxX, maxY) {
+    setBoundaries(minX, minY, maxX, maxY) {
         this.minX = minX;
         this.minY = minY;
         this.maxX = maxX;
         this.maxY = maxY;
     }
 
-    begin(dot_begin) {
-        this.dot_begin = dot_begin;
-        this.conn_string = new ConnString(dot_begin);
+    begin(dotBegin) {
+        this.dotBegin = dotBegin;
+        this.connectionString = new ConnString(dotBegin);
     }
 
-    end(dot_end) {
-        this.dot_end = dot_end;
-        this.conn_string.tighten(dot_end);
+    end(dotEnd) {
+        this.dotEnd = dotEnd;
+        this.connectionString.tighten(dotEnd);
     }
 
-    is_equal(other) {
-        return (this.dot_begin.idx == other.dot_begin.idx && this.dot_end.idx == other.dot_end.idx) ||
-        (this.dot_begin.idx == other.dot_end.idx && this.dot_end.idx == other.dot_begin.idx)
+    isEqual(other) {
+        return (this.dotBegin.idx == other.dotBegin.idx && this.dotEnd.idx == other.dotEnd.idx) ||
+            (this.dotBegin.idx == other.dotEnd.idx && this.dotEnd.idx == other.dotBegin.idx)
     }
 }
 
 /* CONN STRING */
 
 const SPRING_MASS = 3.0;
-const CONN_PARAMS = {GRAVITY: 9.0, DAMPING: 0.7, STIFFNESS: 0.21, 
-    TIGHT_DAMPING: 0.8, TIGHT_STIFFNESS: 0.3};
+const CONN_PARAMS = { GRAVITY: 9.0, DAMPING: 0.7, STIFFNESS: 0.21 };
 const MAX_SPRINGS = 5;
 const GRAVITY_MULTIPLIER = 6;
 
 class ConnString {
-    constructor(fixed_point) {
-        this.begin_dot = fixed_point;
-        this.end_dot = null;
+    constructor(fixedPoint) {
+        this.fixedPoint = fixedPoint;
+        this.endPoint = null;
 
         this.gravityX = 0.0;
         this.gravityY = 0.0;
@@ -74,125 +75,77 @@ class ConnString {
         this.damping = CONN_PARAMS.DAMPING;
         this.springs = []; // 0 loose spring;
 
-        this.is_loose = true;
-        this.animating_springs = true;
+        this.isLoose = true;
         this.color;
 
-        this.#init_springs();
+        this.#initSprings();
     }
 
-    #init_springs() {
-        for (let i = 0;i < MAX_SPRINGS;i++) {
-            this.springs.push(new SpringString(this.begin_dot.x, this.begin_dot.y));
+    #initSprings() {
+        for (let i = 0; i < MAX_SPRINGS; i++) {
+            this.springs.push(new SpringString(this.fixedPoint.x, this.fixedPoint.y));
         }
     }
 
-    #update_gravity() {
-        let last_spring  = this.springs[this.springs.length-1]; // acording to the last spring
-        let dy = last_spring.y - this.begin_dot.y;
-        let dx = last_spring.x - this.begin_dot.x;
+    #updateGravity() {
+        let lastSpring = this.springs[this.springs.length - 1]; // acording to the last spring
+        let dy = lastSpring.y - this.fixedPoint.y;
+        let dx = lastSpring.x - this.fixedPoint.x;
         let mouseAngle = P5.atan2(dy, dx);
 
-        this.gravity = this.is_loose ? P5.dist(last_spring.x, last_spring.y, this.begin_dot.x, this.begin_dot.y)/GRAVITY_MULTIPLIER : 0.0;
-        this.gravityY = -this.gravity*P5.sin(mouseAngle);
-        this.gravityX = -this.gravity*P5.cos(mouseAngle);
+        this.gravity = this.isLoose ? P5.dist(lastSpring.x, lastSpring.y, this.fixedPoint.x, this.fixedPoint.y) / GRAVITY_MULTIPLIER : 0.0;
+        this.gravityY = -this.gravity * P5.sin(mouseAngle);
+        this.gravityX = -this.gravity * P5.cos(mouseAngle);
     }
 
-    #update_damping_stiffness() {
-        this.damping = this.is_loose ? CONN_PARAMS.DAMPING : CONN_PARAMS.TIGHT_DAMPING;
-        this.stiffness = this.is_loose ? CONN_PARAMS.STIFFNESS : CONN_PARAMS.TIGHT_STIFFNESS;
-    }
-
-    tighten(tight_point) {
-        this.animating_springs = false;
-        this.is_loose = false;
-        this.end_dot = tight_point;
-
-        this.#update_damping_stiffness();
+    tighten(endPoint) {
+        this.isLoose = false;
+        this.endPoint = endPoint;
     }
 
     loose() {
-        this.is_loose = true;
-
-        this.#update_damping_stiffness();
+        this.isLoose = true;
     }
 
-    vibrate() {
-        this.animating_springs = true;
-
-        let dy = this.end_dot.y - this.begin_dot.y;
-        let dx = this.end_dot.x - this.begin_dot.x;
-        let cos_p = dy / 30;
-        let sin_p = -dx / 30;
-
-        let h = floor(MAX_SPRINGS/2);
-        for (let i = 0;i < MAX_SPRINGS;i++) {
-            let spring = this.springs[i];
-            spring.vx = ((h-P5.abs(h-i))*cos_p)/5 + cos_p;
-            spring.vy = ((h-P5.abs(h-i))*sin_p)/5 + sin_p;
-        }
-    }
-
-    update_and_draw() {
-        P5.stroke(this.color); 
+    updateAndDraw() {
+        P5.stroke(this.color);
         P5.strokeWeight(4);
-        
-        if (this.animating_springs) {
-            this.animating_springs = false;
-            this.#update_gravity();
 
-            for (let i = 0;i < this.springs.length;i++) {
+        if (this.isLoose) {
+            this.#updateGravity();
+
+            for (let i = 0; i < this.springs.length; i++) {
                 let spring = this.springs[i];
-                let prev_spring = this.springs[i-1];
+                let prev_spring = this.springs[i - 1];
                 let target;
-                let line_to;
-                
-                if (this.is_loose) {
-                    if (i > 0) {
-                        target = prev_spring;
-                        line_to = prev_spring;
-                    } else {
-                        target = {
-                            x: P5.mouseX, 
-                            y: P5.mouseY, 
-                        };
-                        line_to = target;
-                    }
+                let lineTo;
+
+                if (i > 0) {
+                    target = prev_spring;
                 } else {
-                    target = this.#linePointTarget(i,this.end_dot.x,this.end_dot.y,this.begin_dot.x,this.begin_dot.y);
-                    line_to = i > 0 ? prev_spring : this.end_dot;
+                    target = {
+                        x: P5.mouseX,
+                        y: P5.mouseY,
+                    };
                 }
 
+                lineTo = target;
                 spring.update(this, target.x, target.y);
-                P5.line(spring.x, spring.y, line_to.x, line_to.y);
-
-                if (spring.animating || this.is_loose) {
-                    this.animating_springs = true;
-                }
+                P5.line(spring.x, spring.y, lineTo.x, lineTo.y);
             }
-            
+
             // draw last line (between fixed point and last spring)
-            let last_spring  = this.springs[this.springs.length-1];
-            P5.line(this.begin_dot.x, this.begin_dot.y, last_spring.x, last_spring.y);
+            let lastSpring = this.springs[this.springs.length - 1];
+            P5.line(this.fixedPoint.x, this.fixedPoint.y, lastSpring.x, lastSpring.y);
         } else {
-            let line_to = this.end_dot;
+            let lineTo = this.endPoint;
 
-            if (!line_to) {
-                line_to = {x: P5.mouseX, y: P5.mouseY};
+            if (!lineTo) {
+                lineTo = { x: P5.mouseX, y: P5.mouseY };
             }
 
-            P5.line(this.begin_dot.x, this.begin_dot.y, line_to.x, line_to.y);
+            P5.line(this.fixedPoint.x, this.fixedPoint.y, lineTo.x, lineTo.y);
         }
-    }
-
-    #linePointTarget(idx, x1, y1, x2, y2) {
-        let dx = (x2-x1) / (MAX_SPRINGS + 1);
-        let dy = (y2-y1) / (MAX_SPRINGS + 1);
-        
-        let xx = x1 + dx*(idx+1);
-        let yy = y1 + dy*(idx+1);
-        
-        return {x: xx, y: yy};
     }
 }
 
@@ -202,21 +155,18 @@ class SpringString {
         this.y = initY;
         this.vx = 0.0;
         this.vy = 0.0;
-        this.animating = true;
     }
 
     update(cs, targetX, targetY) {
         let forceX = (targetX - this.x) * cs.stiffness;
-            forceX += cs.gravityX;
+        forceX += cs.gravityX;
         let forceY = (targetY - this.y) * cs.stiffness;
-            forceY += cs.gravityY;
+        forceY += cs.gravityY;
         let ax = forceX / SPRING_MASS;
         let ay = forceY / SPRING_MASS;
         this.vx = cs.damping * (this.vx + ax);
         this.vy = cs.damping * (this.vy + ay);
         this.x += this.vx;
         this.y += this.vy;
-
-        this.animating = P5.dist(this.x, this.y, targetX, targetY) >= 0.04;
     }
 }

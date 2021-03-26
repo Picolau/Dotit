@@ -1,13 +1,14 @@
 
 const DOTS_MAX_ROWS = 5; // 5
 const DOTS_MAX_COLS = 8; // 8
+const MAX_PADDING = 140;
 
 const STATE = {
     CREATING: 'creating',
-    PLAYING: 'playing'
+    SOLVING: 'solving'
 }
 
-import {P5, my_scale, menu_state, MENU_STATE, animations_controller, bg_controller, level_controller} from '../index';
+import { P5, animationsController } from '../index';
 
 const Dot = require('../classes/dot').default;
 const Connection = require('../classes/connection').default;
@@ -29,18 +30,23 @@ export default class {
         return pos;
     }
 
+    // gets the dots container measures and return left margin and top margin and paddings
     #getDotsContainerMeasures() {
-        let dotsPadding = Dot.padding()*my_scale;
+        let horizontalMargin = 30/*0.075 * P5.windowWidth*/;
+        let verticalMargin = 60;
+
+        let horizontalPadding = (P5.windowWidth - 2 * horizontalMargin) / (this.cols - 1);
+        let verticalPadding = (P5.windowHeight - 2 * verticalMargin) / (this.rows - 1);
+        let dotsPadding = P5.min(MAX_PADDING, horizontalPadding, verticalPadding);
 
         let dotsContainerSize = {
-            width: (this.cols - 1)*(dotsPadding),
-            height: (this.rows - 1)*(dotsPadding),
+            width: (this.cols - 1) * (dotsPadding),
+            height: (this.rows - 1) * (dotsPadding),
         };
 
-        let horizontalMargin = (P5.windowWidth - dotsContainerSize.width) / 2;
-        let verticalMargin = (P5.windowHeight - dotsContainerSize.height) / 2;
-
-        if (verticalMargin < 0.1*P5.windowHeight || horizontalMargin < 0.1*P5.windowWidth) {
+        verticalMargin = (P5.windowHeight - dotsContainerSize.height) / 2;
+        horizontalMargin = (P5.windowWidth - dotsContainerSize.width) / 2;
+        /*if (verticalMargin < 0.1*P5.windowHeight || horizontalMargin < 0.1*P5.windowWidth) {
             if (verticalMargin / P5.windowHeight < horizontalMargin/P5.windowWidth) {
                 verticalMargin = 0.1*P5.windowHeight;
                 dotsContainerSize.height = P5.windowHeight - verticalMargin*2;
@@ -54,80 +60,93 @@ export default class {
                 dotsContainerSize.height = (this.rows-1)*dotsPadding;
                 verticalMargin = (P5.windowHeight - dotsContainerSize.height) / 2;
             }
+        }*/
+
+        let dotSize = dotsPadding / 8;
+        if (dotsPadding > 100) {
+            dotSize = 20;
+        } else if (dotsPadding > 80) {
+            dotSize = 16;
+        } else {
+            dotSize = 12;
         }
 
         let containerMeasures = {
             marginTop: verticalMargin,
             marginLeft: horizontalMargin,
-            dotsPadding: dotsPadding
+            dotsPadding: dotsPadding,
+            dotSize: dotSize
         }
 
         return containerMeasures;
     }
 
-    #init_dots(visible=false) {
+    //self explanatory
+    #initializeDots(visible = false) {
         let dots = [];
-        
+
         let dotsContainerMeasures = this.#getDotsContainerMeasures();
 
         for (let row = 0; row < this.rows; row++) {
             for (let col = 0; col < this.cols; col++) {
                 let padding = dotsContainerMeasures.dotsPadding;
-                let dotX = dotsContainerMeasures.marginLeft + col*padding;
-                let dotY = dotsContainerMeasures.marginTop + row*padding;
+                let dotX = dotsContainerMeasures.marginLeft + col * padding;
+                let dotY = dotsContainerMeasures.marginTop + row * padding;
+                let dotSize = dotsContainerMeasures.dotSize;
 
-                dots.push(new Dot(row * this.cols + col, dotX, dotY, visible));
+                dots.push(new Dot(row * this.cols + col, dotX, dotY, dotSize, visible));
             }
         }
 
         return dots;
     }
 
+    //self explanatory
     #isMouseCloseTo(dot) {
-        return P5.dist(dot.x, dot.y, P5.mouseX, P5.mouseY) <= Dot.mouseSensitivityRadius();
+        return dot.isMouseClose();
     }
 
+    //self explanatory
     #canConnect(dot) {
-        if (!this.leading_dot)
-            return P5.mouseIsPressed && this.leading_dot != dot && dot.visible && !this.connections_ended_success && !this.animating_shrink;
-
-        return this.leading_dot != dot && dot.visible && !this.connections_ended_success && !this.animating_shrink;
+        if (!this.leadingDot)
+            return P5.mouseIsPressed && this.leadingDot != dot && dot.visible && !this.connectionsEndedSuccess && !this.animatingShrink;
+        return this.leadingDot != dot && dot.visible && !this.connectionsEndedSuccess && !this.animatingShrink;
     }
 
-    // return all dots indexes between dot_begin and dot_end not including them;
-    #getDotsIdxBetween(dot_begin, dot_end) {
+    // return all dots indexes between dotBegin and dotEnd not including them;
+    #getDotsIdxBetween(dotBegin, dotEnd) {
         let dots_between = [];
 
-        let begin = this.#toPos(dot_begin.idx);
-        let end = this.#toPos(dot_end.idx);
+        let begin = this.#toPos(dotBegin.idx);
+        let end = this.#toPos(dotEnd.idx);
 
         let delta = {
             row: end.row - begin.row,
             col: end.col - begin.col
         }
-        
-        let step = { 
-            row: delta.row, 
-            col: delta.col 
+
+        let step = {
+            row: delta.row,
+            col: delta.col
         };
-        
+
         if (delta.row == 0) {
             step.col = delta.col > 0 ? 1 : -1;
         } else if (delta.col == 0) {
             step.row = delta.row > 0 ? 1 : -1;
         } else if (Math.abs(delta.row) < Math.abs(delta.col) && Math.abs(delta.col) % Math.abs(delta.row) == 0) {
             step.row = delta.row > 0 ? 1 : -1;
-            let m = Math.abs(delta.col / delta.row); 
+            let m = Math.abs(delta.col / delta.row);
             step.col = delta.col > 0 ? m : -m;
         } else if (Math.abs(delta.col) <= Math.abs(delta.row) && delta.row % delta.col == 0) {
             step.col = delta.col > 0 ? 1 : -1;
-            let m = Math.abs(delta.row / delta.col); 
+            let m = Math.abs(delta.row / delta.col);
             step.row = delta.row > 0 ? m : -m;
         }
 
         let stepIdx = this.#toIdx(step);
-        let posIdx = dot_begin.idx + stepIdx;
-        let endIdx = dot_end.idx;
+        let posIdx = dotBegin.idx + stepIdx;
+        let endIdx = dotEnd.idx;
 
         while (posIdx != endIdx) {
             dots_between.push(posIdx);
@@ -137,102 +156,101 @@ export default class {
         return dots_between;
     }
 
-    #handle_success() {
-        this.connections_ended_success = true;
-        setTimeout(this.animate_end.bind(this), 1000);
+    //self explanatory
+    #handleConnectionSuccess() {
+        this.connectionsEndedSuccess = true;
+        setTimeout(this.animateSuccess.bind(this), 1000);
+        
+        if (this.successCallback)
+            setTimeout(this.successCallback.bind(this), 2000);
     }
 
+    //self explanatory
     #checkConnectionSuccess() {
-        if (this.num_fulfilled_connections == this.expected_connections.length 
-            && this.state == STATE.PLAYING
-            && this.all_player_connections_are_expected_connections) {
-            this.#handle_success();
+        if (this.numFulfilledConnections == this.expectedConnections.length
+            && this.state == STATE.SOLVING
+            && this.allPlayerConnectionsAreExpectedConnections) {
+            this.#handleConnectionSuccess();
         }
     }
 
+    // check if the leading connections matches one of the expected connections 
+    // and update the connection with fulfilled or not
     #updateExpectedConnections() {
-        let found_expected_connection = false;
+        let foundExpectedConnection = false;
 
-        for (let i=0;i < this.expected_connections.length;i++) {
-            let expected_connection = this.expected_connections[i];
+        for (let i = 0; i < this.expectedConnections.length; i++) {
+            let expectedConnection = this.expectedConnections[i];
 
-            if (this.leading_connection.is_equal(expected_connection)) {
-                found_expected_connection = true;
+            if (this.leadingConnection.isEqual(expectedConnection)) {
+                foundExpectedConnection = true;
 
-                if (!expected_connection.fulfilled) {
-                    expected_connection.fulfilled = true;
-                    this.num_fulfilled_connections += 1
+                if (!expectedConnection.fulfilled) {
+                    expectedConnection.fulfilled = true;
+                    this.numFulfilledConnections += 1
                 }
             }
         }
 
-        this.all_player_connections_are_expected_connections &= found_expected_connection;
+        this.allPlayerConnectionsAreExpectedConnections &= foundExpectedConnection;
     }
 
-    /* close the connection between the leading dot and the new_dot, then opens a connections
-    with new_dot */
+    /* close the connection between the leading dot and the newDot */
     #closeLeadingConnection(new_dot) {
-        this.leading_connection.end(new_dot);
+        this.leadingConnection.end(new_dot);
         this.#updateExpectedConnections();
     }
 
-    #openLeadingConnection(new_dot) {
-        this.leading_connection = new Connection(true);
-        this.leading_connection.begin(new_dot);
-        this.player_connections.push(this.leading_connection);
 
-        if (menu_state === MENU_STATE.CREATING || menu_state === MENU_STATE.LOADING) {
-            let minX = 70;
-            let minY = this.dots[0].initY - 40;
-            let maxX = 9999;
-            let maxY = 9999;
-            this.leading_connection.set_boundaries(minX, minY, maxX, maxY);
-        }
+    // opens a leading connection (the loose string we see when moving the mouse)
+    #openLeadingConnection(newDot) {
+        this.leadingConnection = new Connection(true);
+        this.leadingConnection.begin(newDot);
+        this.playerConnections.push(this.leadingConnection);
     }
 
+    // main connect function, responsible for updating leading dot and leading connection
+    // and make the animations
     #connect(dot) {
-        if (this.leading_dot) {
-            let dotsIdxBetween = this.#getDotsIdxBetween(this.leading_dot, dot);
-            this.leading_dot.vibrate();
+        if (this.leadingDot) {
+            let dotsIdxBetween = this.#getDotsIdxBetween(this.leadingDot, dot);
+            this.leadingDot.vibrate();
 
-            for (let i = 0;i < dotsIdxBetween.length;i++) {
+            for (let i = 0; i < dotsIdxBetween.length; i++) {
                 let dotIdx = dotsIdxBetween[i];
                 let dotBetween = this.dots[dotIdx];
                 dotBetween.alive = true;
                 dotBetween.vibrate();
 
                 this.#closeLeadingConnection(dotBetween);
-                
                 this.#openLeadingConnection(dotBetween);
             }
 
             this.#closeLeadingConnection(dot);
-
             this.#checkConnectionSuccess();
         }
-
-        if (!this.connections_ended_success) {
+        this.playerConnections.length - 1
+        if (!this.connectionsEndedSuccess) {
             this.#openLeadingConnection(dot);
-            this.leading_dot = dot;
+            this.leadingDot = dot;
         }
 
-        if (menu_state == MENU_STATE.CREATING && this.player_connections.length > 1) {
-            document.getElementById("code-input").value = this.#encodeConnections();
-        }
+        if (this.connMadeCallback && this.playerConnections.length && this.playerConnections[0].dotEnd)
+            this.connMadeCallback();
     }
 
-    #update_and_draw_dots() {
-        for (let i = 0;i < this.dots.length; i++) {
+    #updateAndDrawDots() {
+        for (let i = 0; i < this.dots.length; i++) {
             let dot = this.dots[i];
 
             if (this.#isMouseCloseTo(dot) && this.#canConnect(dot)) {
                 let consume_click = P5.mouseIsPressed;
                 if (consume_click && dot.alive) {
-                    if ((this.state == STATE.PLAYING && this.clicks_consumed < this.max_clicks)
-                      || this.state == STATE.CREATING) {
-                        dot.clicks_consumed += 1;
+                    if ((this.state == STATE.SOLVING && this.clicksConsumed < this.maxClicks)
+                        || this.state == STATE.CREATING) {
+                        dot.clicksConsumed += 1;
                         dot.vibrate();
-                        this.clicks_consumed += 1;
+                        this.clicksConsumed += 1;
                         this.#connect(dot);
                     }
                 } else {
@@ -243,254 +261,129 @@ export default class {
                 }
             }
 
-            dot.update_and_draw();
+            dot.updateAndDraw();
         }
     }
 
-    #update_and_draw_connections() {
+    #updateAndDrawConnections() {
         //expected connections
-        for(let i = 0;i < this.expected_connections.length;i++) {
-            this.expected_connections[i].update_and_draw();
+        for (let i = 0; i < this.expectedConnections.length; i++) {
+            this.expectedConnections[i].updateAndDraw();
         }
 
         // player connections
-        for(let i = 0;i < this.player_connections.length;i++) {
-            this.player_connections[i].update_and_draw();
-        }
-    }
-
-    #update_and_draw_clicks_available() {
-        let posRef = {
-            x: P5.windowWidth/2,
-            y: P5.windowHeight*0.96
-        }
-
-        let clicks_available = this.max_clicks - this.clicks_consumed;
-        const PADDING = 30;
-        const HALF = (clicks_available-1)/2;
-        for (let i = 0; i < clicks_available;i++) {
-            let posDraw = {
-                x: posRef.x + (i - HALF) * PADDING,
-                y : posRef.y
-            }
-
-            let size_dot_available = Dot.size() * my_scale;
-
-            P5.strokeWeight(1);
-            P5.stroke(255, 190);
-            P5.fill(bg_controller.bg_color);
-            P5.circle(posDraw.x, posDraw.y, size_dot_available);
-
-            P5.stroke(255, 150);
-            P5.noFill()
-            P5.circle(posDraw.x, posDraw.y, size_dot_available);
-        }
-
-        let availableTextSize = 17*my_scale;
-        if (clicks_available > 0) {
-            P5.fill(255);
-            P5.stroke(150);
-            P5.textAlign(P5.RIGHT, P5.CENTER);
-            P5.textSize(availableTextSize);
-            P5.text("Extra Clicks:", posRef.x-(1+HALF)*PADDING, posRef.y);
-        } else if (this.state == STATE.PLAYING){
-            P5.fill(255);
-            P5.stroke(150);
-            P5.textAlign(P5.CENTER, P5.CENTER);
-            P5.textSize(availableTextSize);
-            if (menu_state == MENU_STATE.PLAYING && level_controller.level < level_controller.getNumTutorialLevels())
-                P5.text("Click with left-button to start connecting.\nClick with right-button to retry.", posRef.x, posRef.y);
-            else
-                P5.text("No Extra Clicks", posRef.x, posRef.y);
-        } else {
-            P5.fill(255);
-            P5.stroke(150);
-            P5.textAlign(P5.CENTER, P5.CENTER);
-            P5.textSize(availableTextSize);
-            P5.text("Free to create whatever u want! :)", posRef.x, posRef.y);
+        for (let i = 0; i < this.playerConnections.length; i++) {
+            this.playerConnections[i].updateAndDraw();
         }
     }
 
     /** PUBLIC METHODS */
 
-    constructor(code) {
-        this.load(code);
+    constructor() {
+        this.waitingLoad = true;
     }
 
-    handleFinish() {
-        this.#encodeConnections();
-    }
-
-    load(code) {
+    loadSolve(code, successCallback, connMadeCallback) {
+        this.waitingLoad = false;
+        this.successCallback = successCallback;
+        this.connMadeCallback = connMadeCallback;
         this.code = code;
-        this.connections_ended_success = false;
-        this.animating_shrink = false;
-        this.all_player_connections_are_expected_connections = true;
-        this.num_fulfilled_connections = 0;
+        this.connectionsEndedSuccess = false;
+        this.animatingShrink = false;
+        this.allPlayerConnectionsAreExpectedConnections = true;
+        this.numFulfilledConnections = 0;
 
-        if (code) { // PLAYING
+        if (code) { // SOLVING
             let values = this.#getInfoFrom(code);
-            this.max_clicks = values[0];
+            this.maxClicks = values[0];
             this.rows = values[1];
             this.cols = values[2];
-            
-            this.dots = this.#init_dots();
-            this.player_connections = [];
-            this.expected_connections = [];
-            this.leading_connection = null;
+
+            this.dots = this.#initializeDots();
+            this.playerConnections = [];
+            this.expectedConnections = [];
+            this.leadingConnection = null;
 
             this.#decodeConnections(code);
 
-            this.leading_dot = null;
-            this.clicks_consumed = 0;
-            this.state = STATE.PLAYING;
-        } else { // CREATING
-            this.rows = DOTS_MAX_ROWS;
-            this.cols = DOTS_MAX_COLS;
-
-            this.dots = this.#init_dots(true);
-            this.player_connections = [];
-            this.expected_connections = [];
-            this.leading_connection = null;
-            this.leading_dot = null;
-            this.clicks_consumed = 0;
-            this.max_clicks = 0;
-            this.state = STATE.CREATING;
+            this.leadingDot = null;
+            this.clicksConsumed = 0;
+            this.state = STATE.SOLVING;
         }
     }
 
-    reload() {
-        if (!this.connections_ended_success || menu_state != MENU_STATE.PLAYING) {
-            this.all_player_connections_are_expected_connections = true;
-            this.num_fulfilled_connections = 0;
-            this.connections_ended_success = false;
-            this.player_connections.length = 0;
-            this.leading_connection = null;
-            this.leading_dot = null;
-            this.animating_shrink = false;
+    loadCreate(connMadeCallback) {
+        this.waitingLoad = false;
+        this.connMadeCallback = connMadeCallback;
 
-            for (let i = 0;i < this.dots.length;i++) {
+        this.rows = DOTS_MAX_ROWS;
+        this.cols = DOTS_MAX_COLS;
+
+        this.dots = this.#initializeDots(true);
+        this.playerConnections = [];
+        this.expectedConnections = [];
+        this.leadingConnection = null;
+        this.leadingDot = null;
+        this.clicksConsumed = 0;
+        this.maxClicks = 0;
+        this.state = STATE.CREATING;
+        this.connectionsEndedSuccess = false;
+        this.animatingShrink = false;
+    }
+
+    reload() {
+        if (this.state == STATE.CREATING || !this.connectionsEndedSuccess) {
+            this.allPlayerConnectionsAreExpectedConnections = true;
+            this.numFulfilledConnections = 0;
+            this.connectionsEndedSuccess = false;
+            this.playerConnections.length = 0;
+            this.leadingConnection = null;
+            this.leadingDot = null;
+            this.animatingShrink = false;
+            this.clicksConsumed = 0;
+
+            for (let i = 0; i < this.dots.length; i++) {
                 this.dots[i].alive = false;
-                this.dots[i].clicks_consumed = 0;
+                this.dots[i].clicksConsumed = 0;
             }
 
-            this.clicks_consumed = 0;
-            this.expected_connections.length = 0;
+            this.expectedConnections.length = 0;
 
-            if (this.code)
+            if (this.state == STATE.SOLVING)
                 this.#decodeConnections(this.code);
         }
     }
 
-    update_and_draw() {
-        this.#update_and_draw_connections();
-        this.#update_and_draw_dots();
-        this.#update_and_draw_clicks_available();
+    updateAndDraw() {
+        if (!this.waitingLoad) {
+            this.#updateAndDrawConnections();
+            this.#updateAndDrawDots();
+        }
     }
 
-    /*transform player_connections to the level code (used in case we are creating a level)*/
-    #encodeConnections() {
-        /* FIRST: WE TRIM THE DOTS AND CALCULATE THE REAL ROWS AND COLS USED */
-        let min_row = 99;
-        let max_row = -1;
+    animateShrink() {
+        animationsController.clearAnimations(true);
+        if (!this.waitingLoad) {
+            this.playerConnections.length = 0;
+            this.expectedConnections.length = 0;
+            this.leadingDot = null;
+            this.leadingConnection = null;
+            this.animatingShrink = true;
 
-        let min_col = 99;
-        let max_col = -1;
+            for (let i = 0; this.dots && i < this.dots.length; i++) {
+                let dot = this.dots[i];
+                dot.alive = false;
 
-        let connections_history = [];
-
-        for (let i = 0; i < this.player_connections.length-1;i++) {
-            let connection = this.player_connections[i];
-            let begin = this.#toPos(connection.dot_begin.idx);
-            let end = this.#toPos(connection.dot_end.idx);
-            
-            min_row = P5.min(min_row, begin.row, end.row);
-            min_col = P5.min(min_col, begin.col, end.col);
-
-            max_row = P5.max(max_row, begin.row, end.row);
-            max_col = P5.max(max_col, begin.col, end.col);
-
-            connections_history.push(begin);
-        }
-
-        let last = this.#toPos(this.leading_connection.dot_begin.idx);
-        connections_history.push(last)
-
-        let real_rows = max_row - min_row + 1;
-        let real_cols = max_col - min_col + 1;
-
-        let code = this.clicks_consumed + '' + real_rows + '' + real_cols + '';
-
-        for (let i = 0; i < connections_history.length;i++) {
-            let conn_pos = connections_history[i];
-            
-            code += (conn_pos.row - min_row) + '' + 
-                    (conn_pos.col - min_col) + '';
-        }
-
-        return code;
-    }
-
-    /* transform code to the expected connections (used in case we are playing the level) */
-    #decodeConnections(code) {
-        for (let i = 3; i < code.length; i+=2) {
-            let idxFrom = parseInt(code[i])*this.cols + parseInt(code[i+1]);
-            let idxTo   = parseInt(code[i+2])*this.cols + parseInt(code[i+3]);
-            
-            let dotFrom = this.dots[idxFrom];
-            let dotTo   = this.dots[idxTo];
-
-            if (dotFrom && dotTo) {
-                dotFrom.visible = true;
-                dotTo.visible = true;
-                let connection = new Connection(false, dotFrom, dotTo);
-                let already_there = false;
-
-                for (let i = 0;i < this.expected_connections.length;i++) {
-                    let other_conn = this.expected_connections[i];
-                    if (connection.is_equal(other_conn)) {
-                        already_there = true;
-                        break;
-                    }
-                }
-                if (!already_there)
-                    this.expected_connections.push(connection);
+                animationsController.newAnimation(new ObjAnimator(dot, 'alpha', 0, 0.1));
+                animationsController.newAnimation(new ObjAnimator(dot, 'x', P5.width / 2, 0.1));
+                animationsController.newAnimation(new ObjAnimator(dot, 'y', P5.height / 2, 0.1));
             }
         }
     }
 
-    #getInfoFrom(code) {
-        return [parseInt(code[0]), parseInt(code[1]), parseInt(code[2])];
-    }
+    animateExpand() {
+        animationsController.clearAnimations();
 
-    animate_shrink() {
-        this.player_connections.length = 0;
-        this.expected_connections.length = 0;
-        this.leading_dot = null;
-        this.leading_connection = null;
-        this.animating_shrink = true;
-
-        for (let i = 0; i < this.dots.length; i++) {
-            let dot = this.dots[i];
-            dot.alive = false;
-
-            animations_controller.new_animation(new ObjAnimator(dot, 'alpha', 0, 0.1));
-            animations_controller.new_animation(new ObjAnimator(dot, 'x', P5.width/2, 0.1));
-            animations_controller.new_animation(new ObjAnimator(dot, 'y', P5.height/2, 0.1));
-        }
-
-        for (let i = 0;i < this.expected_connections.length;i++) {
-            let conn = this.expected_connections[i];
-            animations_controller.new_animation(new ObjAnimator(conn, 'alpha', 0, 0.1));
-        }
-
-        for (let i = 0;i < this.player_connections.length;i++) {
-            let conn = this.player_connections[i];
-            animations_controller.new_animation(new ObjAnimator(conn, 'alpha', 0, 0.1));
-        }
-    }
-
-    animate_start() {
         for (let i = 0; i < this.dots.length; i++) {
             let dot = this.dots[i];
 
@@ -498,19 +391,19 @@ export default class {
             dot.y = P5.height / 2;
             dot.alpha = 0;
 
-            animations_controller.new_animation(new ObjAnimator(dot, 'alpha', dot.initAlpha, 0.05));
-            animations_controller.new_animation(new ObjAnimator(dot, 'x', dot.initX, 0.05));
-            animations_controller.new_animation(new ObjAnimator(dot, 'y', dot.initY, 0.05));
+            animationsController.newAnimation(new ObjAnimator(dot, 'alpha', dot.initAlpha, 0.05));
+            animationsController.newAnimation(new ObjAnimator(dot, 'x', dot.initX, 0.05));
+            animationsController.newAnimation(new ObjAnimator(dot, 'y', dot.initY, 0.05));
         }
 
-        for (let i = 0;i < this.expected_connections.length;i++) {
-            let conn = this.expected_connections[i];
+        for (let i = 0; i < this.expectedConnections.length; i++) {
+            let conn = this.expectedConnections[i];
             conn.alpha = 0;
-            animations_controller.new_animation(new ObjAnimator(conn, 'alpha', conn.initAlpha, 0.05));
+            animationsController.newAnimation(new ObjAnimator(conn, 'alpha', conn.initAlpha, 0.05));
         }
     }
 
-    animate_end() {
+    animateSuccess() {
         for (let i = 0; i < this.dots.length; i++) {
             let dot = this.dots[i];
             dot.alive = false;
@@ -518,19 +411,97 @@ export default class {
         }
     }
 
-    reposition_dots() {
+    repositionDots() {
         let dotsContainerMeasures = this.#getDotsContainerMeasures();
 
         for (let row = 0; row < this.rows; row++) {
             for (let col = 0; col < this.cols; col++) {
                 let padding = dotsContainerMeasures.dotsPadding;
-                let dotX = dotsContainerMeasures.marginLeft + col*padding;
-                let dotY = dotsContainerMeasures.marginTop + row*padding;
+                let dotX = dotsContainerMeasures.marginLeft + col * padding;
+                let dotY = dotsContainerMeasures.marginTop + row * padding;
+                let dotSize = dotsContainerMeasures.dotSize;
 
-                let i = row*this.cols + col;
+                let i = row * this.cols + col;
                 this.dots[i].x = dotX;
                 this.dots[i].y = dotY;
+                this.dots[i].setSize(dotSize);
             }
         }
+    }
+
+    /*transform playerConnections to the level code (used in case we are creating a level)*/
+    encodeConnections() {
+        /* FIRST: WE TRIM THE DOTS AND CALCULATE THE REAL ROWS AND COLS USED */
+        let minRow = 99;
+        let maxRow = -1;
+
+        let minCol = 99;
+        let maxCol = -1;
+
+        let connectionsHistory = [];
+
+        for (let i = 0; i < this.playerConnections.length - 1; i++) {
+            let connection = this.playerConnections[i];
+            let begin = this.#toPos(connection.dotBegin.idx);
+            let end = this.#toPos(connection.dotEnd.idx);
+
+            minRow = P5.min(minRow, begin.row, end.row);
+            minCol = P5.min(minCol, begin.col, end.col);
+
+            maxRow = P5.max(maxRow, begin.row, end.row);
+            maxCol = P5.max(maxCol, begin.col, end.col);
+
+            connectionsHistory.push(begin);
+        }
+
+        let last = this.#toPos(this.leadingConnection.dotBegin.idx);
+        connectionsHistory.push(last)
+
+        let real_rows = maxRow - minRow + 1;
+        let real_cols = maxCol - minCol + 1;
+
+        let code = this.clicksConsumed + '' + real_rows + '' + real_cols + '';
+
+        for (let i = 0; i < connectionsHistory.length; i++) {
+            let conn_pos = connectionsHistory[i];
+
+            code += (conn_pos.row - minRow) + '' +
+                (conn_pos.col - minCol) + '';
+        }
+
+        return code;
+    }
+
+    /* transform code to the expected connections (used in case we are playing the level) */
+    #decodeConnections(code) {
+        for (let i = 3; i < code.length; i += 2) {
+            let idxFrom = parseInt(code[i]) * this.cols + parseInt(code[i + 1]);
+            let idxTo = parseInt(code[i + 2]) * this.cols + parseInt(code[i + 3]);
+
+            let dotFrom = this.dots[idxFrom];
+            let dotTo = this.dots[idxTo];
+
+            if (dotFrom && dotTo) {
+                dotFrom.visible = true;
+                dotTo.visible = true;
+                let connection = new Connection(false, dotFrom, dotTo);
+                let alreadyThere = false;
+
+                for (let i = 0; i < this.expectedConnections.length; i++) {
+                    let otherConn = this.expectedConnections[i];
+                    if (connection.isEqual(otherConn)) {
+                        alreadyThere = true;
+                        break;
+                    }
+                }
+                if (!alreadyThere)
+                    this.expectedConnections.push(connection);
+            }
+        }
+    }
+
+    // gets row, col and max clicks from code
+    #getInfoFrom(code) {
+        return [parseInt(code[0]), parseInt(code[1]), parseInt(code[2])];
     }
 }

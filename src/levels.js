@@ -1,13 +1,14 @@
-const levels = [["013000102","Hi!;Welcome to Joid\xF4!;Rules here are simple: you simply have to draw the given pattern.;Give it a try :)"],
+const levels = [
+    ["013000102","Hi!;Welcome to Joid\xF4!;Rules here are simple: you simply have to draw the given pattern.;Give it a try :)"],
     ["02210000111", "Great work! I see you got it.; How about this other pattern?"],
     ["0231101000102", "Pretty easy right?;Try this one."],
     ["0331020211101000102", "Amazing work!;Keep going..."],
-    ["032111020100001", "Amazing work!;Keep going..."],
-    ["0321110201000011121", "Amazing work!;Keep going..."],
-    ["03321111000010212222120", "Amazing work!;Keep going..."],
-    ["023100102010011", "Amazing work!;Keep going..."],
-    ["0331011212221201000", "Amazing work!;Keep going..."],
-    ["1221000011110", "Wow, congratulations! I'm very impressed!; OK, so here's a catch: you can reconnect dots by clicking on them in case you have some extra clicks available!; The number of extra clicks can be seen down there ↓;Go ahead and give it a shot :D"],
+    ["032111020100001"],
+    ["0321110201000011121"],
+    ["03321111000010212222120"],
+    ["023100102010011"],
+    ["0331011212221201000"],
+    ["1221000011110", "Wow, congratulations! I'm very impressed!; OK, so here's a catch: you can reconnect dots by clicking on them in case you have some extra clicks available!; The number of extra clicks can be seen up there;Go ahead and give it a shot :D"],
     ["13312112111011110", "OK! I can feel you got the spirit of it!; Can you do this one?!"],
     ["14512130212222324333231202122", "That's amazing!;I mean... You are amazing!; So let's see if we can do some drawing!; What do you think about my boat?"],
     ["133200122100221001220", "Yes, i'm so happy!; Let's draw a star to celebrate!"],
@@ -66,9 +67,10 @@ const levels = [["013000102","Hi!;Welcome to Joid\xF4!;Rules here are simple: yo
     ["8432011223120100112211021122211011120102131"], // 3
     ["03310111201112120100001021222"], // INICIO NIVEL 3
     ["144112122121312111020212223130312213020100011223323"],
-    ["355202122232423223242322212020102031221302010213243424132231424342312010010203040414243443424140403"],
+    ["255202122232423223242322212020102031221302010213243424132231424342312010010203040414243443424140403"],
     ["135121303122111121314131211102021221202030414"], 
-    ["23521111011122221201011121314040313120203"], 
+    ["13521111011122221201011121314040313120203"],
+    ["1473121222313141505041424232221203031322212131415160605"],
 	["2341001122313031221100011221302112010"],
     ["23400112213021120212223120110211203020100"], 
     ["43301112111101112021120212211000102122221201000"],
@@ -85,6 +87,7 @@ const levels = [["013000102","Hi!;Welcome to Joid\xF4!;Rules here are simple: yo
     ["048303121223231323323221213231303041413232414243433343525241415252636353637"], // 3
     ["1441312111000011121221202010203132322323323"], // 3
     ["155100001111011120201112122122232332322121303020313233343443433232434241413140403"], // 4
+    ["157354544343332222324141525242322213132333435364645444333231314151626252423222120303132332313030212131211010201001011"],
     ["255110102121303020111121314242313233334242333324243333231414232313020213121111020100001020304142434444342414030"],
 ];
 // 244001122332322121101000102121323130302

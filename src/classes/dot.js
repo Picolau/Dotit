@@ -1,9 +1,7 @@
-const DOT_SIZE = 20;
-const DEAD_DOT_SIZE = 15;
-const DOT_PADDING = 150;
-const DOT_MOUSE_SENSITIVITY_RADIUS = (DOT_PADDING / 4);
+const DOT_RADIUS_DEVICE = 16;
+const DOT_RADIUS_NOT_DEVICE = 20;
 
-import {P5, my_scale, bg_controller} from '../index';
+import {P5, backgroundController, globalEnv} from '../index';
 
 class SpringDot {
     constructor(value) {
@@ -25,7 +23,7 @@ class SpringDot {
 }
 
 export default class {
-    constructor(idx, x, y, visible=false) {
+    constructor(idx, x, y, size, visible=false) {
         this.idx = idx;
         this.x = x;
         this.y = y;
@@ -33,36 +31,51 @@ export default class {
         this.initY = y;
         this.initAlpha = 250;
         this.alpha = this.initAlpha;
-        this.clicks_consumed = 0;
+        this.clicksConsumed = 0;
         this.alive = false;
         this.visible = visible;
-        this.spring_size = new SpringDot(DEAD_DOT_SIZE);
+
+        this.setSize(size);
+        this.springLength = new SpringDot(this.sizeNotAlive);
     }
 
-    static size() {
-        return DOT_SIZE;
+    setSize(size) {
+        this.sizeAlive = size;
+        this.sizeNotAlive = this.sizeAlive * 0.75;
+        this.mouseSensitivyRadius = this.sizeAlive * 1.5;
     }
 
-    static mouseSensitivityRadius() {
-        return DOT_MOUSE_SENSITIVITY_RADIUS;
+    isMouseClose() {
+        return P5.dist(P5.mouseX, P5.mouseY, this.x, this.y) < this.mouseSensitivyRadius;
     }
-    
-    static padding() {
-        return DOT_PADDING;
+
+    vibrate() {
+        this.springLength.value = this.sizeAlive + 5;
+    }
+
+    updateAndDraw() {
+        if (this.visible) {
+            this.#updateSpringLength();
+            this.#drawCircle();
+            this.#drawClicksConsumedText();
+        }
+    }
+
+    #updateSpringLength() {
+        this.springLength.update(this.alive ? this.sizeAlive : this.sizeNotAlive);
     }
 
     #drawCircle() { //Yes, we draw 2 circles because its prettier, id care
-        let size = this.spring_size.value;
-        size = size*my_scale;
+        let size = this.springLength.value;
 
         if (this.alive) {
             P5.noStroke();
             P5.fill(255,30)
-            P5.circle(this.x, this.y, 2*DOT_MOUSE_SENSITIVITY_RADIUS);
+            P5.circle(this.x, this.y, 2*this.mouseSensitivyRadius);
 
             P5.strokeWeight(1);
             P5.stroke(255, this.alpha-65/*190*/);
-            P5.fill(bg_controller.bg_color);
+            P5.fill(backgroundController.bgColor);
             P5.circle(this.x, this.y, size);
 
             P5.stroke(255, this.alpha-105/*150*/);
@@ -80,9 +93,9 @@ export default class {
         }
     }
 
-    #drawConnsText() {
+    #drawClicksConsumedText() {
         if (this.alive) {
-            let textC = this.clicks_consumed == 0 ? "" : this.clicks_consumed + "";
+            let textC = this.clicksConsumed == 0 ? "" : this.clicksConsumed + "";
 
             P5.strokeWeight(0.5);
             P5.fill(255,200);
@@ -93,19 +106,6 @@ export default class {
         }
     }
 
-    #update_stuff() {
-        this.spring_size.update(this.alive ? DOT_SIZE : DEAD_DOT_SIZE);
-    }
+    
 
-    vibrate() {
-        this.spring_size.value = DOT_SIZE + 5;
-    }
-
-    update_and_draw() {
-        if (this.visible) {
-            this.#update_stuff();
-            this.#drawCircle();
-            this.#drawConnsText();
-        }
-    }
 }
