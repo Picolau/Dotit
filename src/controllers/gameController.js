@@ -39,7 +39,6 @@ export default class {
             headerText += ' : ' + (this.dotsController.maxClicks - this.dotsController.clicksConsumed);
             document.getElementById("level-info").innerText = headerText;
         } else if (this.state === GAME_STATE.PLAYING_CREATE) {
-            console.log("entrou");
             document.getElementById("level-info").innerText = "Free";  
         } else if (this.state === GAME_STATE.PLAYING_LOAD) {
             let headerText = "AV: "+(this.dotsController.maxClicks - this.dotsController.clicksConsumed);
