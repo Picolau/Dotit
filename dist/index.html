@@ -1,0 +1,62 @@
+<html>
+  <head>
+    <title>Joidô</title>
+    <script src="./bundle.js"></script>
+    <style>
+      @font-face {
+      font-family: HelloDotStick;
+      src: url(./fonts/HelloDotStick.ttf);
+    }
+    </style>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <div class="header">
+      <img src="./images/menu.svg" id="menu-icon" alt="" class="menu-icon">
+      <span id="level-info" class="level-info">01</span>
+      <img src="./images/fullscreen.svg" id="fullscreen-icon" alt="">
+    </div>
+    <div class="footer" id="footer">
+      <img src="./images/arrow-left.svg" id="arrow-left-icon" alt="">
+      <img src="./images/arrow-right.svg" id="arrow-right-icon" alt="">
+      <div class="copy-level-code-container" id="copy-level-code-container">
+        <img src="./images/copy.svg" id="copy-icon" alt="">
+        <span class="level-code" id="level-code"></span>
+      </div>
+      <img src="./images/retry.svg" id="retry-icon" alt="" class="retry-icon">
+    </div>
+    <div id="messages-container" class="messages-container">
+    </div>
+    <div class="load-level-code-container" id="load-level-code-container">
+      <input type="text" id="code-input"/>
+      <span class='load-level-instruction-message'>Paste the pattern code here and press Enter!</span>
+    </div>
+    <div id="menu-container" class="menu-container">
+      <div class="menu-item" id='menu-item-continue'>
+        <img class="menu-item-icon" src="./images/play.svg">
+        <div class="menu-item-desc">Continue game</div>
+      </div>
+      <div class="menu-item" id='menu-item-new'>
+        <img class="menu-item-icon" src="./images/plus.svg">
+        <div class="menu-item-desc">Start New Game</div>
+      </div>
+      <div class="menu-item" id='menu-item-challenge'>
+        <img class="menu-item-icon" src="./images/thunderbolt.svg">
+        <div class="menu-item-desc">Daily Challenges</div>
+      </div>
+      <div class="menu-item" id='menu-item-create'>
+        <img class="menu-item-icon" src="./images/edit.svg">
+        <div class="menu-item-desc">Create a Level</div>
+      </div>
+      <div class="menu-item" id='menu-item-load'>
+        <img class="menu-item-icon" src="./images/download.svg">
+        <div class="menu-item-desc">Load a Level</div>
+      </div>
+      <div class="menu-item" id='menu-item-color'>
+        <input class="menu-item-icon" type='color' id='color-picker'/>
+        <div class="menu-item-desc">Background Color</div>
+      </div>
+    </div>
+  </body>
+</html>
