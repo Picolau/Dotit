@@ -110,7 +110,6 @@ export default class {
     #canConnect(dot) {
         if (!this.leadingDot)
             return P5.mouseIsPressed && this.leadingDot != dot && dot.visible && !this.connectionsEndedSuccess && !this.animatingShrink;
-
         return this.leadingDot != dot && dot.visible && !this.connectionsEndedSuccess && !this.animatingShrink;
     }
 
@@ -161,7 +160,9 @@ export default class {
     #handleConnectionSuccess() {
         this.connectionsEndedSuccess = true;
         setTimeout(this.animateSuccess.bind(this), 1000);
-        setTimeout(this.successCallback.bind(this), 2000);
+        
+        if (this.successCallback)
+            setTimeout(this.successCallback.bind(this), 2000);
     }
 
     //self explanatory
@@ -222,19 +223,20 @@ export default class {
                 dotBetween.vibrate();
 
                 this.#closeLeadingConnection(dotBetween);
-
                 this.#openLeadingConnection(dotBetween);
             }
 
             this.#closeLeadingConnection(dot);
-
             this.#checkConnectionSuccess();
         }
-
+        this.playerConnections.length - 1
         if (!this.connectionsEndedSuccess) {
             this.#openLeadingConnection(dot);
             this.leadingDot = dot;
         }
+
+        if (this.connMadeCallback && this.playerConnections.length && this.playerConnections[0].dotEnd)
+            this.connMadeCallback();
     }
 
     #updateAndDrawDots() {
@@ -278,12 +280,13 @@ export default class {
     /** PUBLIC METHODS */
 
     constructor() {
-        this.inactive = true;
+        this.waitingLoad = true;
     }
 
-    loadSolve(code, successCallback) {
-        this.inactive = false;
+    loadSolve(code, successCallback, connMadeCallback) {
+        this.waitingLoad = false;
         this.successCallback = successCallback;
+        this.connMadeCallback = connMadeCallback;
         this.code = code;
         this.connectionsEndedSuccess = false;
         this.animatingShrink = false;
@@ -309,8 +312,10 @@ export default class {
         }
     }
 
-    loadCreate() {
-        this.inactive = false;
+    loadCreate(connMadeCallback) {
+        this.waitingLoad = false;
+        this.connMadeCallback = connMadeCallback;
+
         this.rows = DOTS_MAX_ROWS;
         this.cols = DOTS_MAX_COLS;
 
@@ -322,10 +327,12 @@ export default class {
         this.clicksConsumed = 0;
         this.maxClicks = 0;
         this.state = STATE.CREATING;
+        this.connectionsEndedSuccess = false;
+        this.animatingShrink = false;
     }
 
     reload() {
-        if (!this.connectionsEndedSuccess) {
+        if (this.state == STATE.CREATING || !this.connectionsEndedSuccess) {
             this.allPlayerConnectionsAreExpectedConnections = true;
             this.numFulfilledConnections = 0;
             this.connectionsEndedSuccess = false;
@@ -333,22 +340,22 @@ export default class {
             this.leadingConnection = null;
             this.leadingDot = null;
             this.animatingShrink = false;
+            this.clicksConsumed = 0;
 
             for (let i = 0; i < this.dots.length; i++) {
                 this.dots[i].alive = false;
                 this.dots[i].clicksConsumed = 0;
             }
 
-            this.clicksConsumed = 0;
             this.expectedConnections.length = 0;
 
-            if (this.code)
+            if (this.state == STATE.SOLVING)
                 this.#decodeConnections(this.code);
         }
     }
 
     updateAndDraw() {
-        if (!this.inactive) {
+        if (!this.waitingLoad) {
             this.#updateAndDrawConnections();
             this.#updateAndDrawDots();
         }
@@ -356,23 +363,27 @@ export default class {
 
     animateShrink() {
         animationsController.clearAnimations(true);
-        this.playerConnections.length = 0;
-        this.expectedConnections.length = 0;
-        this.leadingDot = null;
-        this.leadingConnection = null;
-        this.animatingShrink = true;
+        if (!this.waitingLoad) {
+            this.playerConnections.length = 0;
+            this.expectedConnections.length = 0;
+            this.leadingDot = null;
+            this.leadingConnection = null;
+            this.animatingShrink = true;
 
-        for (let i = 0; this.dots && i < this.dots.length; i++) {
-            let dot = this.dots[i];
-            dot.alive = false;
+            for (let i = 0; this.dots && i < this.dots.length; i++) {
+                let dot = this.dots[i];
+                dot.alive = false;
 
-            animationsController.newAnimation(new ObjAnimator(dot, 'alpha', 0, 0.1));
-            animationsController.newAnimation(new ObjAnimator(dot, 'x', P5.width / 2, 0.1));
-            animationsController.newAnimation(new ObjAnimator(dot, 'y', P5.height / 2, 0.1));
+                animationsController.newAnimation(new ObjAnimator(dot, 'alpha', 0, 0.1));
+                animationsController.newAnimation(new ObjAnimator(dot, 'x', P5.width / 2, 0.1));
+                animationsController.newAnimation(new ObjAnimator(dot, 'y', P5.height / 2, 0.1));
+            }
         }
     }
 
     animateExpand() {
+        animationsController.clearAnimations();
+
         for (let i = 0; i < this.dots.length; i++) {
             let dot = this.dots[i];
 
@@ -419,7 +430,7 @@ export default class {
     }
 
     /*transform playerConnections to the level code (used in case we are creating a level)*/
-    #encodeConnections() {
+    encodeConnections() {
         /* FIRST: WE TRIM THE DOTS AND CALCULATE THE REAL ROWS AND COLS USED */
         let minRow = 99;
         let maxRow = -1;

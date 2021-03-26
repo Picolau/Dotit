@@ -13,7 +13,6 @@ let animationsController;
 
 let globalEnv = {
   isDevice: window.mobileCheck(),
-  screenSizeFactor: 1
 };
 
 const BackgroundController = require('./background/background').default;
@@ -41,13 +40,16 @@ let p5Sketch = (sk) => {
     animationsController?.clearAnimations(true);
     backgroundController?.handleResize();
     gameController?.handleResize();
+
+    updateFullscreenIcon();
   }
 }
 
 const P5 = new p5(p5Sketch);
-let isFullscreen = false;
 
 window.onload = () => {
+  let colorPicker = document.getElementById('color-picker');
+  
   setMenuBgColor();
 
   // close menu when click outside menu
@@ -55,7 +57,7 @@ window.onload = () => {
     let menuContainerDiv = document.getElementById("menu-container");
     let isMenuActive = menuContainerDiv.style.display != "none";
     let clickedOutsideMenu = true;
-    for (let i = 0;i < event.path.length;i++) {
+    for (let i = 0; i < event.path.length; i++) {
       let elem = event.path[i];
       if (elem.id == 'menu-container') {
         clickedOutsideMenu = false;
@@ -67,24 +69,23 @@ window.onload = () => {
       event.stopPropagation();
     }
   });
-  document.getElementById("menu-icon").onclick = (event) => { 
+  document.getElementById("menu-icon").onclick = (event) => {
     showMenu();
     event.stopPropagation();
   };
+  
   document.getElementById("fullscreen-icon").onclick = () => {
-    if (!isFullscreen) {
-      document.documentElement.requestFullscreen({navigationUI: 'hide'}).then(() => {
-        document.getElementById("fullscreen-icon").src = "./images/minimize.svg";
-        isFullscreen = true;
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen({ navigationUI: 'hide' }).then(() => {
+        updateFullscreenIcon();
       });
     } else {
       document.exitFullscreen().then(() => {
-        document.getElementById("fullscreen-icon").src = "./images/fullscreen.svg";
-        isFullscreen = false;
+        updateFullscreenIcon();
       });
     }
-    isFullscreen = !isFullscreen;
   }
+
   document.getElementById("arrow-left-icon").onclick = (event) => {
     gameController.goToPrevLevel();
   };
@@ -94,31 +95,43 @@ window.onload = () => {
   document.getElementById("retry-icon").onclick = (event) => {
     gameController.reloadLevel()
   }
-  
-  document.addEventListener('contextmenu', event => event.preventDefault());
-  document.getElementById('menu-item-continue').onclick = () => {
-    gameController.continueGame();
-    hideMenu();
-  };
-  document.getElementById('menu-item-new').onclick = () => {
-    gameController.startNewGame();
-    hideMenu();
-  }
-  document.getElementById('menu-item-create').onclick = () => {
-    gameController.createLevel();
-    hideMenu();
-  };
-  //document.getElementById('menu-item-load').onclick = () => handleMenuItemClick('load');
-
   document.getElementById('copy-icon').addEventListener('click', () => {
     copyTextToClipboard(document.getElementById('level-code').innerText);
   })
 
-  let colorPicker = document.getElementById('color-picker')
+  document.addEventListener('contextmenu', event => event.preventDefault());
+  document.getElementById('menu-item-continue').onclick = () => {
+    gameController.clearScreen();
+    gameController.continueGame();
+    hideMenu();
+  };
+  document.getElementById('menu-item-new').onclick = () => {
+    gameController.clearScreen();
+    gameController.startNewGame();
+    hideMenu();
+  }
+  document.getElementById('menu-item-create').onclick = () => {
+    gameController.clearScreen();
+    gameController.createLevel();
+    hideMenu();
+  };
+  document.getElementById('menu-item-load').onclick = () => {
+    gameController.clearScreen();
+    gameController.loadLevel();
+    hideMenu();
+  };
   colorPicker.addEventListener('input', () => {
     backgroundController.changeBackgroundColor(colorPicker.value);
     setMenuBgColor();
   });
+}
+
+function updateFullscreenIcon() {
+  if (document.fullscreenElement) {
+    document.getElementById("fullscreen-icon").src = "./images/minimize.svg";
+  } else {
+    document.getElementById("fullscreen-icon").src = "./images/fullscreen.svg";
+  }
 }
 
 function setMenuBgColor() {
@@ -142,10 +155,28 @@ function showMenu() {
   }, 50)
 }
 
+const CLIPBOARD_SUCCESS_MESSAGE = "!Copied to clipboard";
+const CLIPBOARD_ERROR_MESSAGE = ".Error copying to clip";
+let displayingClipboardMessage = false;
+
+function displayClipboardMessage(levelCode, successCopying) {
+  if (!displayingClipboardMessage) {
+    if (successCopying)
+      document.getElementById("level-code").innerText = CLIPBOARD_SUCCESS_MESSAGE;
+    else
+      document.getElementById("level-code").innerText = CLIPBOARD_ERROR_MESSAGE;
+    displayingClipboardMessage = true;
+    setTimeout(function () {
+      document.getElementById("level-code").innerText = levelCode;
+      displayingClipboardMessage = false;
+    }, 2000);
+  }
+}
+
 function fallbackCopyTextToClipboard(text) {
   var textArea = document.createElement("textarea");
   textArea.value = text;
-  
+
   // Avoid scrolling to bottom
   textArea.style.top = "0";
   textArea.style.left = "0";
@@ -156,11 +187,13 @@ function fallbackCopyTextToClipboard(text) {
   textArea.select();
 
   try {
-    var successful = document.execCommand('copy');
-    var msg = successful ? 'successful' : 'unsuccessful';
-    console.log('Fallback: Copying text command was ' + msg);
+    if (document.execCommand('copy')) {
+      displayClipboardMessage(text, true);
+    } else {
+      displayClipboardMessage(text, false);
+    }
   } catch (err) {
-    console.error('Fallback: Oops, unable to copy', err);
+    displayClipboardMessage(text, false);
   }
 
   document.body.removeChild(textArea);
@@ -171,10 +204,10 @@ function copyTextToClipboard(text) {
     fallbackCopyTextToClipboard(text);
     return;
   }
-  navigator.clipboard.writeText(text).then(function() {
-    console.log('Async: Copying to clipboard was successful!');
-  }, function(err) {
-    console.error('Async: Could not copy text: ', err);
+  navigator.clipboard.writeText(text).then(function () {
+    displayClipboardMessage(text, true);
+  }, function (err) {
+    displayClipboardMessage(text, false);
   });
 }
 

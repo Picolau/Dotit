@@ -45,7 +45,7 @@ export default class {
         
         setTimeout(function () {
             continueElement.style.opacity = 1;
-        }, messageElements.length*TIME_BETWEEN_MESSAGES_ANIMATION)
+        }, (messageElements.length-1)*TIME_BETWEEN_MESSAGES_ANIMATION)
     }
 
     loadMessages(messagesCode, continueCallback) {

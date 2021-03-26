@@ -4,11 +4,14 @@ const MessagesController = require('./messagesController').default;
 const LevelController = require('./levelController').default;
 
 const GAME_STATE = {
-    CONTINUE: 'continue',
+    PLAYING_GAME: 'playing-game',
+    PLAYING_LOAD: 'playing-load',
+    PLAYING_CREATE: 'playing-create',
+    PLAYING_CHALLENGE: 'playing-challenge',
 }
 
 
-import {} from '../index';
+import { } from '../index';
 
 export default class {
     constructor() {
@@ -16,7 +19,8 @@ export default class {
         this.messagesController = new MessagesController();
         this.dotsController = new DotsController();
 
-        this.state = GAME_STATE.CONTINUE;
+        this.state = GAME_STATE.PLAYING_GAME;
+        this.#clearHeaderText();
         this.continueGame();
     }
 
@@ -28,15 +32,30 @@ export default class {
         document.getElementById("footer").style.display = "flex";
     }
 
-    #changeHeaderText(text) {
-        document.getElementById("level-info").innerHTML = text;
+    #updateHeaderText() {
+        if (this.state === GAME_STATE.PLAYING_GAME) {
+            let levelNumber = this.currentLevel.levelNumber;
+            let headerText = (levelNumber < 10 ? '0' + levelNumber : levelNumber);
+            headerText += ' : ' + (this.dotsController.maxClicks - this.dotsController.clicksConsumed);
+            document.getElementById("level-info").innerText = headerText;
+        } else if (this.state === GAME_STATE.PLAYING_CREATE) {
+            console.log("entrou");
+            document.getElementById("level-info").innerText = "Free";  
+        } else if (this.state === GAME_STATE.PLAYING_LOAD) {
+            let headerText = "AV: "+(this.dotsController.maxClicks - this.dotsController.clicksConsumed);
+            document.getElementById("level-info").innerText = headerText;
+        }
     }
 
+    #clearHeaderText() {
+        document.getElementById("level-info").innerText = "";  
+    }
+    
     #changeFooterElementsShowing(showArrows, showLevelCodeCopy) {
         let arrowLeftElem = document.getElementById("arrow-left-icon");
         let arrowRightElem = document.getElementById("arrow-right-icon");
-        let levelCodeCopyElem = document.getElementById("level-code-container");
-        
+        let levelCodeCopyElem = document.getElementById("copy-level-code-container");
+
         arrowLeftElem.style.display = "none";
         arrowRightElem.style.display = "none";
         levelCodeCopyElem.style.display = "none";
@@ -62,13 +81,12 @@ export default class {
 
     reloadLevel() {
         this.dotsController.reload();
+        this.#updateHeaderText();
     }
 
     continueGame() {
+        this.state = GAME_STATE.PLAYING_GAME;
         this.currentLevel = this.levelController.getCurrent();
-        let levelNumber = this.currentLevel.levelNumber;
-
-        this.#changeHeaderText((levelNumber < 10 ? '0'+levelNumber : levelNumber) + '-' + this.currentLevel.code[0]);
         this.#changeFooterElementsShowing(true, false);
 
         let onFinishSolvingDots = () => {
@@ -76,24 +94,29 @@ export default class {
                 this.levelController.progressNext();
             else
                 this.levelController.goForward();
-                
+
             this.continueGame();
         };
 
-        if (this.currentLevel.hasMessage) { // has message
-            let onFinishReadingMessages = () => {
-                this.dotsController.loadSolve(this.currentLevel.code, onFinishSolvingDots);
-                this.dotsController.animateExpand();
-                this.#showFooter();
-            };
+        let onConnectionMade = () => {
+            this.#updateHeaderText();
+        }
 
-            if (!this.dotsController.inactive)
-                this.dotsController.animateShrink();
+        let loadDots = () => {
+            this.dotsController.loadSolve(this.currentLevel.code, onFinishSolvingDots, onConnectionMade);
+            this.dotsController.animateExpand();
+            this.#updateHeaderText();
+            this.#showFooter();
+        };
+
+        if (this.currentLevel.hasMessage) { // has message
+            let onFinishReadingMessages = loadDots;
+
+            this.dotsController.animateShrink();
             this.messagesController.loadMessages(this.currentLevel.message, onFinishReadingMessages);
             this.#hideFooter();
         } else {
-            this.dotsController.loadSolve(this.currentLevel.code, onFinishSolvingDots);
-            this.dotsController.animateExpand();
+            loadDots();
         }
     }
 
@@ -103,15 +126,42 @@ export default class {
     }
 
     createLevel() {
-        this.messagesController.unloadMessages();
-        this.#showFooter();
+        document.getElementById('level-code').innerText = "";
+
+        let onConnectionMade = () => {
+            document.getElementById('level-code').innerText = this.dotsController.encodeConnections();
+        }
+
+        this.state = GAME_STATE.PLAYING_CREATE;
         this.#changeFooterElementsShowing(false, true);
-        this.dotsController.loadCreate();
+        this.dotsController.loadCreate(onConnectionMade);
         this.dotsController.animateExpand();
+        this.#updateHeaderText();
+        this.#showFooter();
     }
 
     loadLevel() {
-        this.#changeFooterElementsShowing(false, false);
+        this.state = GAME_STATE.PLAYING_LOAD;
+        let levelCodeContainerElement = document.getElementById("load-level-code-container");
+        let levelCodeInput = document.getElementById('code-input');
+            levelCodeInput.value = "";
+
+        let onConnectionMade = () => {
+            this.#updateHeaderText();
+        };
+
+        let loadDotsFromInput = () => {
+            let code = levelCodeInput.value;
+            levelCodeContainerElement.style.display = "none";
+            this.dotsController.loadSolve(code, null, onConnectionMade);
+            this.dotsController.animateExpand();
+            this.#changeFooterElementsShowing(false, false);
+            this.#showFooter();
+            this.#updateHeaderText();
+        }
+
+        levelCodeContainerElement.style.display = "flex";
+        levelCodeInput.onchange = loadDotsFromInput;
     }
 
     loadDailyChallenges() {
@@ -128,5 +178,13 @@ export default class {
 
     handleResize() {
         this.dotsController.repositionDots();
+    }
+
+    clearScreen() {
+        this.dotsController.animateShrink();
+        this.messagesController.unloadMessages();
+        this.#changeFooterElementsShowing(false, false);
+        this.#hideFooter();
+        this.#clearHeaderText();
     }
 }

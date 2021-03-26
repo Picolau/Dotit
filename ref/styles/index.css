@@ -56,7 +56,7 @@ html, body {
 .footer img {
   height: 100%;
   opacity: 0.7;
-  margin: 10px;
+  margin: auto;
 }
 
 .footer img:hover {
@@ -170,14 +170,14 @@ input[type="color"]:hover {
   bottom: 30;
 }
 
-.level-code-container {
+.copy-level-code-container {
   height:100%;
   width: 80%;
   display: none/*flex*/;
   align-self: center;
 }
 
-.level-code-container img {
+.copy-level-code-container img {
   height: 100%;
   margin: 0px 10px !important;
 }
@@ -195,4 +195,46 @@ input[type="color"]:hover {
   display: block;
   overflow: hidden;
   direction: rtl;
+}
+
+.load-level-code-container {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  margin: auto auto;
+  background-color: transparent;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  display: none;
+}
+
+input[type="text"] {
+  align-self: center;
+  text-align: center;
+  border: none;
+  background-color: transparent;
+  color: white;
+  font-size: 20px;
+  outline: none;
+  border-bottom: 1px solid white;
+  font-family: 'HelloDotStick';
+  font-weight: bold;
+  width: max(50%, 300px);
+  margin-bottom: 20px;
+}
+
+input::-webkit-input-placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.load-level-instruction-message {
+  font-family: HelloDotStick;
+  font-weight: bold;
+  color: white;
+  font-size: 18px;
+  transition: all 1s;
+  text-align: center;
 }
