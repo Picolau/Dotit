@@ -8,7 +8,7 @@ const STATE = {
     SOLVING: 'solving'
 }
 
-import { P5, animationsController } from '../index';
+import { P5, animationsController, globalEnv } from '../index';
 
 const Dot = require('../classes/dot').default;
 const Connection = require('../classes/connection').default;
@@ -244,8 +244,9 @@ export default class {
             let dot = this.dots[i];
 
             if (this.#isMouseCloseTo(dot) && this.#canConnect(dot)) {
-                let consume_click = P5.mouseIsPressed;
-                if (consume_click && dot.alive) {
+                let consumeClick = (globalEnv.isDevice && !P5.mouseIsPressed) 
+                                || (!globalEnv.isDevice && P5.mouseIsPressed);
+                if (consumeClick && dot.alive) {
                     if ((this.state == STATE.SOLVING && this.clicksConsumed < this.maxClicks)
                         || this.state == STATE.CREATING) {
                         dot.clicksConsumed += 1;

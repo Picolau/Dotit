@@ -238,3 +238,67 @@ input::-webkit-input-placeholder {
   transition: all 1s;
   text-align: center;
 }
+
+.end-screen-container {
+  position: fixed;
+  max-height: 80%;
+  max-width: 90%;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: auto auto;
+  background-color: transparent;
+  padding: 10px;
+  overflow-y: auto;
+  display: none;
+}
+
+.end-screen-container p{
+  font-family: HelloDotStick;
+  font-weight: bold;
+  color: white;
+  font-size: 19px;
+  text-shadow: 0.5px 0.5px 3px rgb(0, 0, 0, 0.5);
+}
+
+.end-screen-container span {
+  font-family: HelloDotStick;
+  font-weight: bold;
+  color: white;
+  font-size: 32px;
+  text-shadow: 1px 1px 5px rgb(0, 0, 0, 0.5);
+}
+
+.other-span {
+  color: rgba(255,255,255,0.9) !important;
+  font-size: 20px !important;
+}
+
+.results-card p {
+  margin: 0 !important;
+}
+
+.results-card {
+  box-shadow: 0 0 4px 1px rgb(255 255 255 / 80%);
+  padding: 10px;
+  margin: 15px auto;
+}
+
+.end-screen-container::-webkit-scrollbar-track
+{
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.end-screen-container::-webkit-scrollbar
+{
+  width: 4px;
+  background-color: transparent;
+}
+
+.end-screen-container::-webkit-scrollbar-thumb
+{
+  border-radius: 4px;
+  background-color: #FFF;
+}

@@ -1,11 +1,11 @@
 import { P5, globalEnv } from '../index';
-
+const CONN_LOOSE_ALPHA = 255;
 export default class {
     constructor(isPlayerConnection, dotBegin = null, dotEnd = null) {
         this.isPlayerConnection = isPlayerConnection;
         this.initAlpha = isPlayerConnection ? 255 : 102;
         this.alpha = this.initAlpha;
-        this.connLooseAlpha = 153;
+        this.connLooseAlpha = CONN_LOOSE_ALPHA;
         this.connectionString;
 
         if (dotBegin)
@@ -24,7 +24,7 @@ export default class {
     updateAndDraw() {
         if (!globalEnv.isDevice || this.dotEnd) {
             if (P5.mouseX < this.maxX && P5.mouseX > this.minX && P5.mouseY < this.maxY && P5.mouseY > this.minY)
-                this.connLooseAlpha = P5.min(153, this.connLooseAlpha + 10);
+                this.connLooseAlpha = P5.min(CONN_LOOSE_ALPHA, this.connLooseAlpha + 10);
             else
                 this.connLooseAlpha = P5.max(0, this.connLooseAlpha - 10);
 
