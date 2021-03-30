@@ -49,4 +49,8 @@ export default class {
         localStorage.setItem("level", 0);
         return this.getCurrent();
     }
+
+    progressEnded() {
+        return this.storageLevelIndex == levels.length;
+    }
 }

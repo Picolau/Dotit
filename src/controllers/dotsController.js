@@ -253,6 +253,7 @@ export default class {
                         dot.vibrate();
                         this.clicksConsumed += 1;
                         this.#connect(dot);
+                        navigator.vibrate(100);
                     }
                 } else {
                     if (!dot.alive) {

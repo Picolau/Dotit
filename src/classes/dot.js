@@ -34,7 +34,6 @@ export default class {
         this.clicksConsumed = 0;
         this.alive = false;
         this.visible = visible;
-        this.neighboursIdx = [];
 
         this.setSize(size);
         this.springLength = new SpringDot(this.sizeNotAlive);
@@ -106,7 +105,4 @@ export default class {
             P5.strokeWeight(1);
         }
     }
-
-    
-
 }

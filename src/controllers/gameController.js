@@ -24,6 +24,15 @@ export default class {
         this.continueGame();
     }
 
+    #hideEndScreen() {
+        document.getElementById("end-screen-container").style.display = "none";
+    }
+
+    #showEndScreen() {
+        this.clearScreen();
+        document.getElementById("end-screen-container").style.display = "block";
+    }
+
     #hideFooter() {
         document.getElementById("footer").style.display = "none";
     }
@@ -84,38 +93,42 @@ export default class {
     }
 
     continueGame() {
-        this.state = GAME_STATE.PLAYING_GAME;
-        this.currentLevel = this.levelController.getCurrent();
-        this.#changeFooterElementsShowing(true, false);
+        if (!this.levelController.progressEnded()) {
+            this.state = GAME_STATE.PLAYING_GAME;
+            this.currentLevel = this.levelController.getCurrent();
+            this.#changeFooterElementsShowing(true, false);
 
-        let onFinishSolvingDots = () => {
-            if (this.currentLevel.isMax)
-                this.levelController.progressNext();
-            else
-                this.levelController.goForward();
+            let onFinishSolvingDots = () => {
+                if (this.currentLevel.isMax)
+                    this.levelController.progressNext();
+                else
+                    this.levelController.goForward();
 
-            this.continueGame();
-        };
+                this.continueGame();
+            };
 
-        let onConnectionMade = () => {
-            this.#updateHeaderText();
-        }
+            let onConnectionMade = () => {
+                this.#updateHeaderText();
+            }
 
-        let loadDots = () => {
-            this.dotsController.loadSolve(this.currentLevel.code, onFinishSolvingDots, onConnectionMade);
-            this.dotsController.animateExpand();
-            this.#updateHeaderText();
-            this.#showFooter();
-        };
+            let loadDots = () => {
+                this.dotsController.loadSolve(this.currentLevel.code, onFinishSolvingDots, onConnectionMade);
+                this.dotsController.animateExpand();
+                this.#updateHeaderText();
+                this.#showFooter();
+            };
 
-        if (this.currentLevel.hasMessage) { // has message
-            let onFinishReadingMessages = loadDots;
+            if (this.currentLevel.hasMessage) { // has message
+                let onFinishReadingMessages = loadDots;
 
-            this.dotsController.animateShrink();
-            this.messagesController.loadMessages(this.currentLevel.message, onFinishReadingMessages);
-            this.#hideFooter();
+                this.dotsController.animateShrink();
+                this.messagesController.loadMessages(this.currentLevel.message, onFinishReadingMessages);
+                this.#hideFooter();
+            } else {
+                loadDots();
+            }
         } else {
-            loadDots();
+            this.#showEndScreen();
         }
     }
 
@@ -184,6 +197,7 @@ export default class {
         this.messagesController.unloadMessages();
         this.#changeFooterElementsShowing(false, false);
         this.#hideFooter();
+        this.#hideEndScreen();
         this.#clearHeaderText();
     }
 }
