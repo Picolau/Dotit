@@ -17,8 +17,8 @@ export default class {
         let level = levels[this.currentLevelIndex]
         let levelObj = {
             hasMessage: level.length == 2,
-            message: level[1],
             code: level[0],
+            message: level[1],
             levelNumber: this.currentLevelIndex+1,
             isMax: this.currentLevelIndex == this.storageLevelIndex
         }

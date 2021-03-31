@@ -86,6 +86,9 @@ window.onload = () => {
     }
   }
 
+  document.getElementById("tip-icon").onclick = (event) => {
+    gameController.showTip();
+  };
   document.getElementById("arrow-left-icon").onclick = (event) => {
     gameController.goToPrevLevel();
   };

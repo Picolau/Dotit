@@ -60,6 +60,7 @@ export default class {
     }
     
     #changeFooterElementsShowing(showArrows, showLevelCodeCopy) {
+        let tipElem = document.getElementById("tip-icon");
         let arrowLeftElem = document.getElementById("arrow-left-icon");
         let arrowRightElem = document.getElementById("arrow-right-icon");
         let levelCodeCopyElem = document.getElementById("copy-level-code-container");
@@ -67,14 +68,20 @@ export default class {
         arrowLeftElem.style.display = "none";
         arrowRightElem.style.display = "none";
         levelCodeCopyElem.style.display = "none";
+        tipElem.style.display = "none";
 
         if (showArrows) {
             arrowLeftElem.style.display = "block";
             arrowRightElem.style.display = "block";
+            tipElem.style.display = "block";
         }
         if (showLevelCodeCopy) {
             levelCodeCopyElem.style.display = "flex";
         }
+    }
+
+    showTip() {
+        //this.dotsController.showTip(this.currentLevel.tip);
     }
 
     goToNextLevel() {

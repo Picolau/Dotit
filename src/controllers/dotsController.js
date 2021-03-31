@@ -9,6 +9,7 @@ const STATE = {
 }
 
 import { P5, animationsController, globalEnv } from '../index';
+import p5 from '../lib/p5';
 
 const Dot = require('../classes/dot').default;
 const Connection = require('../classes/connection').default;
@@ -114,11 +115,8 @@ export default class {
     }
 
     // return all dots indexes between dotBegin and dotEnd not including them;
-    #getDotsIdxBetween(dotBegin, dotEnd) {
+    #getDotsIdxBetween(begin, end) {
         let dots_between = [];
-
-        let begin = this.#toPos(dotBegin.idx);
-        let end = this.#toPos(dotEnd.idx);
 
         let delta = {
             row: end.row - begin.row,
@@ -145,8 +143,8 @@ export default class {
         }
 
         let stepIdx = this.#toIdx(step);
-        let posIdx = dotBegin.idx + stepIdx;
-        let endIdx = dotEnd.idx;
+        let posIdx = this.#toIdx(begin) + stepIdx;
+        let endIdx = this.#toIdx(end);
 
         while (posIdx != endIdx) {
             dots_between.push(posIdx);
@@ -159,6 +157,7 @@ export default class {
     //self explanatory
     #handleConnectionSuccess() {
         this.connectionsEndedSuccess = true;
+        console.log(this.encodeConnections());
         setTimeout(this.animateSuccess.bind(this), 1000);
         
         if (this.successCallback)
@@ -212,8 +211,15 @@ export default class {
     // main connect function, responsible for updating leading dot and leading connection
     // and make the animations
     #connect(dot) {
+        this.positionsHistory.push(this.#toPos(dot.idx));
+        navigator.vibrate(50);
+        this.showingTip = false;
+
         if (this.leadingDot) {
-            let dotsIdxBetween = this.#getDotsIdxBetween(this.leadingDot, dot);
+            let dotsIdxBetween = this.#getDotsIdxBetween(
+                this.#toPos(this.leadingDot.idx), 
+                this.#toPos(dot.idx)
+            );
             this.leadingDot.vibrate();
 
             for (let i = 0; i < dotsIdxBetween.length; i++) {
@@ -229,7 +235,7 @@ export default class {
             this.#closeLeadingConnection(dot);
             this.#checkConnectionSuccess();
         }
-        this.playerConnections.length - 1
+
         if (!this.connectionsEndedSuccess) {
             this.#openLeadingConnection(dot);
             this.leadingDot = dot;
@@ -237,8 +243,6 @@ export default class {
 
         if (this.connMadeCallback && this.playerConnections.length && this.playerConnections[0].dotEnd)
             this.connMadeCallback();
-        
-        navigator.vibrate(50);
     }
 
     #updateAndDrawDots() {
@@ -262,6 +266,15 @@ export default class {
                         this.#connect(dot);
                     }
                 }
+            }
+
+            if (this.showingTip && this.tipDotIdx == i) {
+                //P5.strokeWeight(1);
+                P5.noStroke();
+                P5.fill("#FFF");
+                P5.textSize(12);
+                P5.textAlign(P5.CENTER, P5.CENTER);
+                P5.text('Start\nhere', dot.x, dot.y - 30);
             }
 
             dot.updateAndDraw();
@@ -295,6 +308,8 @@ export default class {
         this.animatingShrink = false;
         this.allPlayerConnectionsAreExpectedConnections = true;
         this.numFulfilledConnections = 0;
+        this.showingTip = false;
+        this.positionsHistory = [];
 
         if (code) { // SOLVING
             let values = this.#getInfoFrom(code);
@@ -316,7 +331,9 @@ export default class {
     }
 
     loadCreate(connMadeCallback) {
+        this.positionsHistory = [];
         this.waitingLoad = false;
+        this.showingTip = false;
         this.connMadeCallback = connMadeCallback;
 
         this.rows = DOTS_MAX_ROWS;
@@ -336,7 +353,9 @@ export default class {
 
     reload() {
         if (this.state == STATE.CREATING || !this.connectionsEndedSuccess) {
+            this.positionsHistory = [];
             this.allPlayerConnectionsAreExpectedConnections = true;
+            this.showingTip = false;
             this.numFulfilledConnections = 0;
             this.connectionsEndedSuccess = false;
             this.playerConnections.length = 0;
@@ -364,14 +383,25 @@ export default class {
         }
     }
 
+    showTip(tip) {
+        let row = parseInt(tip[0]);
+        let col = parseInt(tip[1]);
+        let idx = this.#toIdx({row: row, col: col});
+        this.showingTip = true;
+        this.tipDotIdx = idx;
+        this.dots[idx].vibrate();
+    }
+
     animateShrink() {
         animationsController.clearAnimations(true);
+        
         if (!this.waitingLoad) {
             this.playerConnections.length = 0;
             this.expectedConnections.length = 0;
             this.leadingDot = null;
             this.leadingConnection = null;
             this.animatingShrink = true;
+            this.showingTip = false;
 
             for (let i = 0; this.dots && i < this.dots.length; i++) {
                 let dot = this.dots[i];
@@ -434,42 +464,35 @@ export default class {
 
     /*transform playerConnections to the level code (used in case we are creating a level)*/
     encodeConnections() {
-        /* FIRST: WE TRIM THE DOTS AND CALCULATE THE REAL ROWS AND COLS USED */
-        let minRow = 99;
-        let maxRow = -1;
+        let max = {row: -1, col: -1};
+        let min = {row: 10, col: 10};
+        let total = {row: 0, col: 0};
+        
+        for (let i = 0; i < this.positionsHistory.length; i++) {
+            let pos = this.positionsHistory[i];
 
-        let minCol = 99;
-        let maxCol = -1;
-
-        let connectionsHistory = [];
-
-        for (let i = 0; i < this.playerConnections.length - 1; i++) {
-            let connection = this.playerConnections[i];
-            let begin = this.#toPos(connection.dotBegin.idx);
-            let end = this.#toPos(connection.dotEnd.idx);
-
-            minRow = P5.min(minRow, begin.row, end.row);
-            minCol = P5.min(minCol, begin.col, end.col);
-
-            maxRow = P5.max(maxRow, begin.row, end.row);
-            maxCol = P5.max(maxCol, begin.col, end.col);
-
-            connectionsHistory.push(begin);
+            if (pos.row > max.row) {
+                max.row = pos.row;
+            }
+            if (pos.col > max.col) {
+                max.col = pos.col;
+            }
+            if (pos.row < min.row) {
+                min.row = pos.row;
+            }
+            if (pos.col < min.col) {
+                min.col = pos.col;
+            }
         }
 
-        let last = this.#toPos(this.leadingConnection.dotBegin.idx);
-        connectionsHistory.push(last)
+        total.row = max.row - min.row + 1;
+        total.col = max.col - min.col + 1;
 
-        let real_rows = maxRow - minRow + 1;
-        let real_cols = maxCol - minCol + 1;
-
-        let code = this.clicksConsumed + '' + real_rows + '' + real_cols + '';
-
-        for (let i = 0; i < connectionsHistory.length; i++) {
-            let conn_pos = connectionsHistory[i];
-
-            code += (conn_pos.row - minRow) + '' +
-                (conn_pos.col - minCol) + '';
+        let code = this.clicksConsumed + '' + total.row + '' + total.col + '';
+        
+        for (let i = 0; i < this.positionsHistory.length; i++) {
+            let pos = this.positionsHistory[i];
+            code += (pos.row - min.row) + '' + (pos.col - min.col); 
         }
 
         return code;
@@ -485,20 +508,33 @@ export default class {
             let dotTo = this.dots[idxTo];
 
             if (dotFrom && dotTo) {
+                let dotsIdxBetween = this.#getDotsIdxBetween(this.#toPos(idxFrom), this.#toPos(idxTo));
+                dotsIdxBetween.push(idxTo);
+                let connections = [];
+                
                 dotFrom.visible = true;
-                dotTo.visible = true;
-                let connection = new Connection(false, dotFrom, dotTo);
-                let alreadyThere = false;
-
-                for (let i = 0; i < this.expectedConnections.length; i++) {
-                    let otherConn = this.expectedConnections[i];
-                    if (connection.isEqual(otherConn)) {
-                        alreadyThere = true;
-                        break;
-                    }
+                for (let j = 0;j < dotsIdxBetween.length;j++) {
+                    let dotIdx = dotsIdxBetween[j];
+                    dotTo = this.dots[dotIdx];
+                    dotTo.visible = true;
+                    connections.push(new Connection(false, dotFrom, dotTo));
+                    dotFrom = dotTo;
                 }
-                if (!alreadyThere)
-                    this.expectedConnections.push(connection);
+                for (let j = 0;j<connections.length;j++) {
+                    let connection = connections[j];
+                    let alreadyThere = false;
+
+                    for (let i = 0; i < this.expectedConnections.length; i++) {
+                        let otherConn = this.expectedConnections[i];
+                        if (connection.isEqual(otherConn)) {
+                            alreadyThere = true;
+                            break;
+                        }
+                    }
+
+                    if (!alreadyThere)
+                        this.expectedConnections.push(connection);
+                }
             }
         }
     }
