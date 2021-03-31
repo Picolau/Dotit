@@ -22,7 +22,7 @@ export default class {
     }
 
     updateAndDraw() {
-        if (!globalEnv.isDevice || this.dotEnd) {
+        if (/*!globalEnv.isDevice || this.dotEnd*/true) {
             if (P5.mouseX < this.maxX && P5.mouseX > this.minX && P5.mouseY < this.maxY && P5.mouseY > this.minY)
                 this.connLooseAlpha = P5.min(CONN_LOOSE_ALPHA, this.connLooseAlpha + 10);
             else

@@ -237,6 +237,8 @@ export default class {
 
         if (this.connMadeCallback && this.playerConnections.length && this.playerConnections[0].dotEnd)
             this.connMadeCallback();
+        
+        navigator.vibrate(50);
     }
 
     #updateAndDrawDots() {
@@ -253,7 +255,6 @@ export default class {
                         dot.vibrate();
                         this.clicksConsumed += 1;
                         this.#connect(dot);
-                        navigator.vibrate(100);
                     }
                 } else {
                     if (!dot.alive) {
