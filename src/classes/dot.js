@@ -34,6 +34,7 @@ export default class {
         this.clicksConsumed = 0;
         this.alive = false;
         this.visible = visible;
+        this.tip = 0;
 
         this.setSize(size);
         this.springLength = new SpringDot(this.sizeNotAlive);
@@ -58,11 +59,32 @@ export default class {
             this.#updateSpringLength();
             this.#drawCircle();
             this.#drawClicksConsumedText();
+            this.#drawTip();
         }
     }
 
     #updateSpringLength() {
         this.springLength.update(this.alive ? this.sizeAlive : this.sizeNotAlive);
+    }
+
+    #drawTip() {
+        if (this.tip) {
+            let tipText = this.tip;
+            if (this.tip == 1)
+                tipText += "";
+            else if (this.tip == 2)
+                tipText += "";
+            else if (this.tip == 3)
+                tipText += "";
+            else
+                tipText += "";
+
+            P5.noStroke();
+            P5.fill("#FFF");
+            P5.textSize(14);
+            P5.textAlign(P5.CENTER, P5.CENTER);
+            P5.text(tipText, this.x+10, this.y-20);
+        }
     }
 
     #drawCircle() { //Yes, we draw 2 circles because its prettier, id care

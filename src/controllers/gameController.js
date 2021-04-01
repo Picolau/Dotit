@@ -81,7 +81,7 @@ export default class {
     }
 
     showTip() {
-        //this.dotsController.showTip(this.currentLevel.tip);
+        this.dotsController.showNextTip();
     }
 
     goToNextLevel() {

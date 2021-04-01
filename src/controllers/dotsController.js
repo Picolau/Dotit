@@ -213,7 +213,6 @@ export default class {
     #connect(dot) {
         this.positionsHistory.push(this.#toPos(dot.idx));
         navigator.vibrate(50);
-        this.showingTip = false;
 
         if (this.leadingDot) {
             let dotsIdxBetween = this.#getDotsIdxBetween(
@@ -268,15 +267,6 @@ export default class {
                 }
             }
 
-            if (this.showingTip && this.tipDotIdx == i) {
-                //P5.strokeWeight(1);
-                P5.noStroke();
-                P5.fill("#FFF");
-                P5.textSize(12);
-                P5.textAlign(P5.CENTER, P5.CENTER);
-                P5.text('Start\nhere', dot.x, dot.y - 30);
-            }
-
             dot.updateAndDraw();
         }
     }
@@ -308,7 +298,6 @@ export default class {
         this.animatingShrink = false;
         this.allPlayerConnectionsAreExpectedConnections = true;
         this.numFulfilledConnections = 0;
-        this.showingTip = false;
         this.positionsHistory = [];
 
         if (code) { // SOLVING
@@ -322,7 +311,8 @@ export default class {
             this.expectedConnections = [];
             this.leadingConnection = null;
 
-            this.#decodeConnections(code);
+            this.tips = this.#decodeConnections(code);
+            this.tipId = 0;
 
             this.leadingDot = null;
             this.clicksConsumed = 0;
@@ -333,7 +323,6 @@ export default class {
     loadCreate(connMadeCallback) {
         this.positionsHistory = [];
         this.waitingLoad = false;
-        this.showingTip = false;
         this.connMadeCallback = connMadeCallback;
 
         this.rows = DOTS_MAX_ROWS;
@@ -355,7 +344,6 @@ export default class {
         if (this.state == STATE.CREATING || !this.connectionsEndedSuccess) {
             this.positionsHistory = [];
             this.allPlayerConnectionsAreExpectedConnections = true;
-            this.showingTip = false;
             this.numFulfilledConnections = 0;
             this.connectionsEndedSuccess = false;
             this.playerConnections.length = 0;
@@ -383,13 +371,13 @@ export default class {
         }
     }
 
-    showTip(tip) {
-        let row = parseInt(tip[0]);
-        let col = parseInt(tip[1]);
-        let idx = this.#toIdx({row: row, col: col});
-        this.showingTip = true;
-        this.tipDotIdx = idx;
-        this.dots[idx].vibrate();
+    showNextTip() {
+        if (this.tipId < this.tips.length) {
+            let idx = this.tips[this.tipId];
+            this.tipId += 1;
+            this.dots[idx].vibrate();
+            this.dots[idx].tip = this.tipId;
+        }
     }
 
     animateShrink() {
@@ -398,14 +386,16 @@ export default class {
         if (!this.waitingLoad) {
             this.playerConnections.length = 0;
             this.expectedConnections.length = 0;
+            /*this.tips.length = 0;
+            this.tipId = 0;*/
             this.leadingDot = null;
             this.leadingConnection = null;
             this.animatingShrink = true;
-            this.showingTip = false;
 
             for (let i = 0; this.dots && i < this.dots.length; i++) {
                 let dot = this.dots[i];
                 dot.alive = false;
+                dot.tip = 0;
 
                 animationsController.newAnimation(new ObjAnimator(dot, 'alpha', 0, 0.1));
                 animationsController.newAnimation(new ObjAnimator(dot, 'x', P5.width / 2, 0.1));
@@ -500,9 +490,12 @@ export default class {
 
     /* transform code to the expected connections (used in case we are playing the level) */
     #decodeConnections(code) {
+        let codeTips = [];
         for (let i = 3; i < code.length; i += 2) {
             let idxFrom = parseInt(code[i]) * this.cols + parseInt(code[i + 1]);
             let idxTo = parseInt(code[i + 2]) * this.cols + parseInt(code[i + 3]);
+
+            codeTips.push(idxFrom);
 
             let dotFrom = this.dots[idxFrom];
             let dotTo = this.dots[idxTo];
@@ -537,6 +530,7 @@ export default class {
                 }
             }
         }
+        return codeTips;
     }
 
     // gets row, col and max clicks from code
