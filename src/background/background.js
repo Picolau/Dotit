@@ -44,7 +44,7 @@ export default class {
     #updateNumParticles() {
         if (this.fps < 50) {
             let newParticlesLength = Math.floor(this.particles.length*0.75);
-            this.particles.length = newParticlesLength;
+            this.particles.length = Math.max(5, newParticlesLength);
         }
     }
 

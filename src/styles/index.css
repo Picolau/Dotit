@@ -30,12 +30,18 @@ html, body {
   opacity: 1;
 }
 
-.header .level-info {
+.header .header-info {
   color: white;
   font-family: 'HelloDotStick';
   font-weight: bold;
-  font-size: min(30px, max(20px, 5vh));
+  font-size: 25px;
   align-self: center;
+  opacity: 0.8;
+}
+
+.header-info span {
+  font-size: 15px;
+  opacity: 0.8;
 }
 
 .footer {
@@ -204,6 +210,7 @@ input[type="color"]:hover {
   margin: auto auto;
   background-color: transparent;
   width: 100%;
+  height: 80%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -301,4 +308,16 @@ input::-webkit-input-placeholder {
 {
   border-radius: 4px;
   background-color: #FFF;
+}
+
+.level-number {
+  color: white;
+  font-size: min(30px, max(20px, 5vh));
+  font-weight: bold;
+  font-family: 'HelloDotStick';
+  width: 100%;
+  position: absolute;
+  opacity: 0.8;
+  text-align: center;
+  z-index: -1;
 }

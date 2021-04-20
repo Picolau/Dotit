@@ -2,6 +2,7 @@
 const DotsController = require('./dotsController').default;
 const MessagesController = require('./messagesController').default;
 const LevelController = require('./levelController').default;
+const HintsController = require('./hintsController').default;
 
 const GAME_STATE = {
     PLAYING_GAME: 'playing-game',
@@ -16,6 +17,7 @@ import { } from '../index';
 export default class {
     constructor() {
         this.levelController = new LevelController();
+        this.hintsController = new HintsController();
         this.messagesController = new MessagesController();
         this.dotsController = new DotsController();
 
@@ -41,47 +43,67 @@ export default class {
         document.getElementById("footer").style.display = "flex";
     }
 
-    #updateHeaderText() {
+    #updateLevelInfo() {
         if (this.state === GAME_STATE.PLAYING_GAME) {
             let levelNumber = this.currentLevel.levelNumber;
-            let headerText = (levelNumber < 10 ? '0' + levelNumber : levelNumber);
-            headerText += ' : ' + (this.dotsController.maxClicks - this.dotsController.clicksConsumed);
-            document.getElementById("level-info").innerText = headerText;
+            let levelNumberText = (levelNumber < 10 ? '0' + levelNumber : levelNumber);
+            let extraClicksText = (this.dotsController.maxClicks - this.dotsController.clicksConsumed) + " ";
+            let totalHintsText = this.hintsController.getTotal()+"";
+            let headerInfoHTML  = "<span>Extra: </span>"
+                headerInfoHTML += extraClicksText;
+                headerInfoHTML += "<span>Hints: </span>";
+                headerInfoHTML += totalHintsText;
+
+            document.getElementById("header-info").innerHTML = headerInfoHTML;
+            document.getElementById("level-number").innerText = levelNumberText;
         } else if (this.state === GAME_STATE.PLAYING_CREATE) {
-            document.getElementById("level-info").innerText = "Free";  
+            document.getElementById("header-info").innerText = "Free";  
+            document.getElementById("level-number").innerText = "";
         } else if (this.state === GAME_STATE.PLAYING_LOAD) {
-            let headerText = "AV: "+(this.dotsController.maxClicks - this.dotsController.clicksConsumed);
-            document.getElementById("level-info").innerText = headerText;
+            let extraClicksText = '' + (this.dotsController.maxClicks - this.dotsController.clicksConsumed);
+            let headerInfoHTML  = "<span>Extra: </span>";
+                headerInfoHTML += extraClicksText;
+
+            document.getElementById("header-info").innerHTML = headerInfoHTML;
+            document.getElementById("level-number").innerText = "";
         }
     }
 
     #clearHeaderText() {
-        document.getElementById("level-info").innerText = "";  
+        document.getElementById("header-info").innerText = "";  
     }
     
     #changeFooterElementsShowing(showArrows, showLevelCodeCopy) {
-        let tipElem = document.getElementById("tip-icon");
-        let arrowLeftElem = document.getElementById("arrow-left-icon");
-        let arrowRightElem = document.getElementById("arrow-right-icon");
+        let hintElem          = document.getElementById("hint-icon");
+        let arrowLeftElem     = document.getElementById("arrow-left-icon");
+        let arrowRightElem    = document.getElementById("arrow-right-icon");
+        let levelNumberElem   = document.getElementById("level-number");
         let levelCodeCopyElem = document.getElementById("copy-level-code-container");
 
-        arrowLeftElem.style.display = "none";
-        arrowRightElem.style.display = "none";
+        hintElem.style.display          = "none";
+        arrowLeftElem.style.display     = "none";
+        arrowRightElem.style.display    = "none";
+        levelNumberElem.style.display   = "none";
         levelCodeCopyElem.style.display = "none";
-        tipElem.style.display = "none";
 
         if (showArrows) {
-            arrowLeftElem.style.display = "block";
-            arrowRightElem.style.display = "block";
-            tipElem.style.display = "block";
+            hintElem.style.display        = "block";
+            arrowLeftElem.style.display   = "block";
+            arrowRightElem.style.display  = "block";
+            levelNumberElem.style.display = "block";
         }
+
         if (showLevelCodeCopy) {
             levelCodeCopyElem.style.display = "flex";
         }
     }
 
-    showTip() {
-        this.dotsController.showNextTip();
+    showHint() {
+        if (this.hintsController.hasAny()) {
+            this.hintsController.useOne();
+            this.dotsController.showNextHint();
+            this.#updateLevelInfo();
+        }
     }
 
     goToNextLevel() {
@@ -96,7 +118,7 @@ export default class {
 
     reloadLevel() {
         this.dotsController.reload();
-        this.#updateHeaderText();
+        this.#updateLevelInfo();
     }
 
     continueGame() {
@@ -106,22 +128,25 @@ export default class {
             this.#changeFooterElementsShowing(true, false);
 
             let onFinishSolvingDots = () => {
-                if (this.currentLevel.isMax)
+                if (this.currentLevel.isMax) {
                     this.levelController.progressNext();
-                else
+                    if (this.currentLevel.levelNumber % 3 == 0)
+                        this.hintsController.addOne();
+                } else {
                     this.levelController.goForward();
+                }
 
                 this.continueGame();
             };
 
             let onConnectionMade = () => {
-                this.#updateHeaderText();
+                this.#updateLevelInfo();
             }
 
             let loadDots = () => {
                 this.dotsController.loadSolve(this.currentLevel.code, onFinishSolvingDots, onConnectionMade);
                 this.dotsController.animateExpand();
-                this.#updateHeaderText();
+                this.#updateLevelInfo();
                 this.#showFooter();
             };
 
@@ -155,7 +180,7 @@ export default class {
         this.#changeFooterElementsShowing(false, true);
         this.dotsController.loadCreate(onConnectionMade);
         this.dotsController.animateExpand();
-        this.#updateHeaderText();
+        this.#updateLevelInfo();
         this.#showFooter();
     }
 
@@ -166,7 +191,7 @@ export default class {
             levelCodeInput.value = "";
 
         let onConnectionMade = () => {
-            this.#updateHeaderText();
+            this.#updateLevelInfo();
         };
 
         let loadDotsFromInput = () => {
@@ -176,7 +201,7 @@ export default class {
             this.dotsController.animateExpand();
             this.#changeFooterElementsShowing(false, false);
             this.#showFooter();
-            this.#updateHeaderText();
+            this.#updateLevelInfo();
         }
 
         levelCodeContainerElement.style.display = "flex";

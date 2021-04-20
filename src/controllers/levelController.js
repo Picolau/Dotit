@@ -1,7 +1,4 @@
 
-//const DotsController = require('./dotsController').default;
-//const MessagesController = require('./messagesController').default;
-
 const NUM_LEVELS_TUTORIAL = 15;
 
 import levels from '../levels';

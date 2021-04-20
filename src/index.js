@@ -25,7 +25,7 @@ let p5Sketch = (sk) => {
     animationsController = new AnimationsController();
     backgroundController = new BackgroundController();
     gameController = new GameController();
-    sk.frameRate(120);
+    sk.frameRate(61);
   }
 
   sk.draw = () => {
@@ -86,8 +86,8 @@ window.onload = () => {
     }
   }
 
-  document.getElementById("tip-icon").onclick = (event) => {
-    gameController.showTip();
+  document.getElementById("hint-icon").onclick = (event) => {
+    gameController.showHint();
   };
   document.getElementById("arrow-left-icon").onclick = (event) => {
     gameController.goToPrevLevel();
