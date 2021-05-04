@@ -3,6 +3,7 @@ const DotsController = require('./dotsController').default;
 const MessagesController = require('./messagesController').default;
 const LevelController = require('./levelController').default;
 const HintsController = require('./hintsController').default;
+const PerformanceController = require('./performanceController').default;
 
 const GAME_STATE = {
     PLAYING_GAME: 'playing-game',
@@ -16,23 +17,125 @@ import { } from '../index';
 
 export default class {
     constructor() {
-        this.levelController = new LevelController();
-        this.hintsController = new HintsController();
-        this.messagesController = new MessagesController();
-        this.dotsController = new DotsController();
+        this.levelController       = new LevelController();
+        this.hintsController       = new HintsController();
+        this.messagesController    = new MessagesController();
+        this.dotsController        = new DotsController();
+        this.performanceController = new PerformanceController();
 
         this.state = GAME_STATE.PLAYING_GAME;
         this.#clearHeaderText();
         this.continueGame();
     }
 
+    #handleGameEnded() {
+        const levelsPerformance = this.performanceController.results();
+        console.log(levelsPerformance);
+        fetch('http://localhost:4100/results', {
+            method: 'POST',
+            body: levelsPerformance,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then((response) => {
+            response.json().then((resultsApi) => {
+                const resultsMax = this.performanceController.resultsMax();
+                const results = {
+                    time: {
+                        score: resultsApi.time.myScore,
+                        scoreOthers: resultsApi.time.meanScore,
+                        betterThan: resultsApi.time.percent,
+                        max: {
+                            score: resultsMax.time.value,
+                            level: resultsMax.time.level,
+                        }
+                    },
+                    hints: {
+                        score: resultsApi.hints.myScore,
+                        scoreOthers: resultsApi.hints.meanScore,
+                        betterThan: resultsApi.hints.percent,
+                        max: {
+                            score: resultsMax.hints.value,
+                            level: resultsMax.hints.level,
+                        }
+                    },
+                    retries: {
+                        score: resultsApi.retries.myScore,
+                        scoreOthers: resultsApi.retries.meanScore,
+                        betterThan: resultsApi.time.percent,
+                        max: {
+                            score: resultsMax.retries.value,
+                            level: resultsMax.retries.level,
+                        }
+                    },
+                }
+
+                this.#showEndScreen(results);
+            })
+        });
+    }
+
     #hideEndScreen() {
         document.getElementById("end-screen-container").style.display = "none";
     }
 
-    #showEndScreen() {
+    #showEndScreen(results) {
         this.clearScreen();
+
+        function msToClock(timems) {
+            let time = Math.round(timems / 1000);
+            let hours = Math.floor(time / 3600);
+            let minutes = Math.floor((time % 3600) / 60);
+            let seconds = Math.floor((time % 60));
+
+            let clock = ''
+            
+            if (hours > 0) {
+                clock += hours < 10 ? '0' + hours : '' + hours;
+                clock += 'h:';
+            }
+            
+            clock += minutes < 10 ? '0' + minutes : '' + minutes;
+            clock += 'm:';
+            clock += seconds < 10 ? '0' + seconds : '' + seconds;
+            clock += 's';
+
+            return clock;
+        }
+
+        function percToStr(perc) {
+            return (Math.round(perc*1000)/10)+"%";
+        }
+
         document.getElementById("end-screen-container").style.display = "block";
+
+        /** Primeiro card */
+        document.getElementById("total-time").innerText = msToClock(results.time.score);
+        document.getElementById("total-time-others").innerText = ' / ' + msToClock(results.time.scoreOthers);
+        document.getElementById("time-percentage").innerText = percToStr(results.time.betterThan);
+
+        /** Segundo card */
+        document.getElementById("total-retries").innerText = results.retries.score;
+        document.getElementById("total-retries-others").innerText = ' / ' + Math.round(results.retries.scoreOthers);
+        document.getElementById("retries-percentage").innerText = percToStr(results.retries.betterThan);
+        
+        /** Terceiro card */
+        document.getElementById("total-hints").innerText = results.hints.score;
+        document.getElementById("total-hints-others").innerText = ' / ' + Math.round(results.hints.scoreOthers);
+        document.getElementById("hints-percentage").innerText = percToStr(results.hints.betterThan);
+        
+        /** Quarto card */
+        document.getElementById("max-time-level").innerText = results.time.max.level;
+        document.getElementById("max-time").innerText = msToClock(results.time.max.score);
+
+        /** Quinto card */
+        document.getElementById("max-retries-level").innerText = results.retries.max.level;
+        document.getElementById("max-retries").innerText = results.retries.max.score;
+
+        /** Sexto card */
+        document.getElementById("max-hints-level").innerText = results.hints.max.level;
+        document.getElementById("max-hints").innerText = results.hints.max.score;
+        
     }
 
     #hideFooter() {
@@ -103,6 +206,9 @@ export default class {
             this.hintsController.useOne();
             this.dotsController.showNextHint();
             this.#updateLevelInfo();
+
+            if (this.currentLevel.isMax)
+                this.performanceController.incHints(this.currentLevel.code);
         }
     }
 
@@ -119,6 +225,9 @@ export default class {
     reloadLevel() {
         this.dotsController.reload();
         this.#updateLevelInfo();
+
+        if (this.currentLevel.isMax)
+            this.performanceController.incRetries(this.currentLevel.code);
     }
 
     continueGame() {
@@ -129,6 +238,7 @@ export default class {
 
             let onFinishSolvingDots = () => {
                 if (this.currentLevel.isMax) {
+                    this.performanceController.setClockEnd(this.currentLevel.code);
                     this.levelController.progressNext();
                     if (this.currentLevel.levelNumber % 3 == 0)
                         this.hintsController.addOne();
@@ -148,6 +258,9 @@ export default class {
                 this.dotsController.animateExpand();
                 this.#updateLevelInfo();
                 this.#showFooter();
+
+                if (this.currentLevel.isMax)
+                    this.performanceController.setClockStart(this.currentLevel.code);
             };
 
             if (this.currentLevel.hasMessage) { // has message
@@ -159,12 +272,15 @@ export default class {
             } else {
                 loadDots();
             }
-        } else {
-            this.#showEndScreen();
+        }
+
+        if (this.levelController.progressEnded()) {
+            this.#handleGameEnded();
         }
     }
 
     startNewGame() {
+        this.performanceController.reset();
         this.levelController.resetProgress();
         this.continueGame();
     }

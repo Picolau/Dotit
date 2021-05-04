@@ -157,7 +157,6 @@ export default class {
     //self explanatory
     #handleConnectionSuccess() {
         this.connectionsEndedSuccess = true;
-        console.log(this.encodeConnections());
         setTimeout(this.animateSuccess.bind(this), 1000);
         
         if (this.successCallback)
@@ -212,7 +211,9 @@ export default class {
     // and make the animations
     #connect(dot) {
         this.positionsHistory.push(this.#toPos(dot.idx));
-        navigator.vibrate(50);
+        
+        if (navigator && navigator.vibrate)
+            navigator.vibrate(50);
 
         if (this.leadingDot) {
             let dotsIdxBetween = this.#getDotsIdxBetween(

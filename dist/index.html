@@ -15,7 +15,6 @@
     <div class="header">
       <img src="./images/menu.svg" id="menu-icon" alt="" class="menu-icon">
       <div id="header-info" class="header-info">
-        
       </div>
       <img src="./images/fullscreen.svg" id="fullscreen-icon" alt="">
     </div>
@@ -31,7 +30,7 @@
       <img src="./images/retry.svg" id="retry-icon" alt="" class="retry-icon">
     </div>
     <div id="end-screen-container" class="end-screen-container">
-      <span>Congratulations! </span>
+      <span>Congratulations!</span>
       <div class="congratulation-messages">
         <p>
           You've made it! Thanks a lot for playing the game! 
@@ -53,27 +52,35 @@
       <div class="results-container">
         <div class="results-card">
           <p>Total time taken: </p>
-          <span>1h:30m:54s</span><span class="other-span"> / 45m:13s</span>
+          <span id="total-time">1h:30m:54s</span><span id="total-time-others" class="other-span"> / 45m:13s</span>
+          <p>You performed better than <span id="time-percentage">84%</span> of people</p>
         </div>
         <div class="results-card">
           <p>Total retries: </p>
-          <span>876</span><span class="other-span"> / 1013</span>
+          <span id="total-retries">876</span><span id="total-retries-others" class="other-span"> / 1013</span>
+          <p>You performed better than <span id="retries-percentage">53%</span> of people</p>
         </div>
         <div class="results-card">
-          <p>70 was the level that took you the longest: </p>
-          <span>5m:54s</span><span class="other-span"> / 7m:20s</span>
+          <p>Total hints used: </p>
+          <span id="total-hints">15</span><span id="total-hints-others" class="other-span"> / 12</span>
+          <p>You performed better than <span id="hints-percentage">12%</span> of people</p>
         </div>
         <div class="results-card">
-          <p>50 was the level you retried the most: </p>
-          <span>67</span><span class="other-span"> / 34</span>
+          <p>The level <span id="max-time-level">70</span> was the one that took you the longest: </p>
+          <span id="max-time">5m:54s</span>
         </div>
         <div class="results-card">
+          <p>The level <span id="max-retries-level">50</span> was the one you retried the most: </p>
+          <span id="max-retries">67</span>
+        </div>
+        <div class="results-card">
+          <p>The level <span id="max-hints-level">89</span> was the one you used the most hints: </p>
+          <span id="max-hints">9</span>
+        </div>
+        <!--<div class="results-card">
           <p>Your final placement: </p>
           <span>113º</span><span class="other-span"> / 547</span>
-        </div>
-        <div class="results-card">
-          <p>You performed better than <span>84%</span> of people</p>
-        </div>
+        </div>-->
       </div>
       <span>Curiosities</span>
       <div class="curiosities-messages">

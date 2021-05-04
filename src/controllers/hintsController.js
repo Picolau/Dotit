@@ -1,7 +1,3 @@
-
-//const DotsController = require('./dotsController').default;
-//const MessagesController = require('./messagesController').default;
-
 export default class {
     constructor() {
         let hints = localStorage.getItem("hints");
