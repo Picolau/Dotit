@@ -30,72 +30,68 @@
       <img src="./images/retry.svg" id="retry-icon" alt="" class="retry-icon">
     </div>
     <div id="end-screen-container" class="end-screen-container">
-      <span>Congratulations!</span>
+      <span id="congratulations-text">Congratulations!</span>
       <div class="congratulation-messages">
-        <p>
+        <p id="congratulations-1">
           You've made it! Thanks a lot for playing the game! 
           Fortunately, things don't end just here... You can create levels and share it with your friends,
           or load some of their created levels! Also, there are daily challenges available for you, and you can replay the entire game if you wish too, by accessing 'Start New Game' on menu. 
         </p>
-        <p>
+        <p id="congratulations-2">
           We are open to receive feedback or suggestions to improve the game, so send us an e-mail if you want to, we will be happy to hear from you!
           Also, you can create levels and share it with us to so we can put it on the daily challenges :D
           <br/> E-mail: contact@joido.xyz
         </p>
-        <p>
+        <p id="congratulations-3">
           Down here you can see the results of your game compared to others that are playing too.
           And some curiosities and stories about us and the creation of this game.
           Thank you again and have a great day!
         </p>
       </div>
-      <span>Results</span><span class="other-span"> (You / Others)</span>
+      <span id="results-text">Results</span><span id="you-others-text" class="other-span"> (You / Others)</span>
       <div class="results-container">
         <div class="results-card">
-          <p>Total time taken: </p>
+          <p id="total-time-text">Total time taken: </p>
           <span id="total-time">1h:30m:54s</span><span id="total-time-others" class="other-span"> / 45m:13s</span>
-          <p>You performed better than <span id="time-percentage">84%</span> of people</p>
+          <p id="time-better-than">You performed better than <span id="time-percentage">84%</span> of people</p>
         </div>
         <div class="results-card">
-          <p>Total retries: </p>
+          <p id="total-retries-text">Total retries: </p>
           <span id="total-retries">876</span><span id="total-retries-others" class="other-span"> / 1013</span>
-          <p>You performed better than <span id="retries-percentage">53%</span> of people</p>
+          <p id="retries-better-than">You performed better than <span id="retries-percentage">53%</span> of people</p>
         </div>
         <div class="results-card">
-          <p>Total hints used: </p>
+          <p id="total-hints-text">Total hints used: </p>
           <span id="total-hints">15</span><span id="total-hints-others" class="other-span"> / 12</span>
-          <p>You performed better than <span id="hints-percentage">12%</span> of people</p>
+          <p id="hints-better-than">You performed better than <span id="hints-percentage">12%</span> of people</p>
         </div>
         <div class="results-card">
-          <p>The level <span id="max-time-level">70</span> was the one that took you the longest: </p>
+          <p id="max-time-text">The level <span id="max-time-level">70</span> was the one that took you the longest: </p>
           <span id="max-time">5m:54s</span>
         </div>
         <div class="results-card">
-          <p>The level <span id="max-retries-level">50</span> was the one you retried the most: </p>
+          <p id="max-retries-text">The level <span id="max-retries-level">50</span> was the one you retried the most: </p>
           <span id="max-retries">67</span>
         </div>
         <div class="results-card">
-          <p>The level <span id="max-hints-level">89</span> was the one you used the most hints: </p>
+          <p id="max-hints-text">The level <span id="max-hints-level">89</span> was the one you used the most hints: </p>
           <span id="max-hints">9</span>
         </div>
-        <!--<div class="results-card">
-          <p>Your final placement: </p>
-          <span>113º</span><span class="other-span"> / 547</span>
-        </div>-->
       </div>
-      <span>Curiosities</span>
+      <span id="curiosities-text">Curiosities</span>
       <div class="curiosities-messages">
-        <p>Ok, for those who stuck around, here are some curiosities about this game: </p>
-        <p><span>1. </span>The name Joido actually come from cutting and concatenating the words "Join" and "Dots". It just sounded cool! </p>
-        <p><span>2. </span>This game was inspired by some of our friends who wanted to see what cool patterns he could draw on smartphones about 5 years ago; Well, he eventually started drawing some very challenging patterns and the idea started growing from there.</p>
-        <p><span>3. </span>Initially, this game was to be released as a native Android app, but we didn't know how to do some crazy good animations back there. Then we learned some javascript over the years and the thing kinda grew!</p>
-        <p><span>4. </span>There's no algorithm to check the minimum amount of clicks possible to perform a given pattern, we just had to brute force trial and error until we guessed what would be the optimal solution. (Wish you good luck if you are going to try to implement it :D) </p>
+        <p id="curiosities-info">Ok, for those who stuck around, here are some curiosities about this game: </p>
+        <p id="curiosities-1"><span>1. </span>The name Joido actually come from cutting and concatenating the words "Join" and "Dots". It just sounded cool! </p>
+        <p id="curiosities-2"><span>2. </span>This game was inspired by some of our friends who wanted to see what cool patterns he could draw on smartphones about 5 years ago; Well, he eventually started drawing some very challenging patterns and the idea started growing from there.</p>
+        <p id="curiosities-3"><span>3. </span>Initially, this game was to be released as a native Android app, but we didn't know how to do some crazy good animations back there. Then we learned some javascript over the years and the thing kinda grew!</p>
+        <p id="curiosities-4"><span>4. </span>There's no algorithm to check the minimum amount of clicks possible to perform a given pattern, we just had to brute force trial and error until we guessed what would be the optimal solution. (Wish you good luck if you are going to try to implement it :D) </p>
       </div>
     </div>
     <div id="messages-container" class="messages-container">
     </div>
     <div class="load-level-code-container" id="load-level-code-container">
       <input type="text" id="code-input"/>
-      <span class='load-level-instruction-message'>Paste the pattern code here and press Enter!</span>
+      <span id="load-level-message" class='load-level-instruction-message'>Paste the pattern code here and press Enter!</span>
     </div>
     <div id="menu-container" class="menu-container">
       <div class="menu-item" id='menu-item-continue'>
@@ -108,7 +104,7 @@
       </div>
       <div class="menu-item" id='menu-item-challenge'>
         <img class="menu-item-icon" src="./images/thunderbolt.svg">
-        <div class="menu-item-desc">Daily Challenges</div>
+        <div class="menu-item-desc">Daily Challenge</div>
       </div>
       <div class="menu-item" id='menu-item-create'>
         <img class="menu-item-icon" src="./images/edit.svg">

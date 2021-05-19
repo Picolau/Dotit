@@ -2,6 +2,7 @@
 const NUM_LEVELS_TUTORIAL = 15;
 
 import levels from '../levels';
+import { i18n } from '../translate/i18n'
 
 export default class {
     constructor() {
@@ -15,7 +16,7 @@ export default class {
         let levelObj = {
             hasMessage: level.length == 2,
             code: level[0],
-            message: level[1],
+            message: i18n.t(level[1]),
             levelNumber: this.currentLevelIndex+1,
             isMax: this.currentLevelIndex == this.storageLevelIndex
         }

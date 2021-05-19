@@ -1,20 +1,20 @@
 const levels = 
 [
-    ["0130002","Hi!;Welcome to Joid\xF4!;Rules here are simple: you simply have to draw the given pattern.;Give it a try :)"],
-    ["02210000111", "Great work! I see you got it.; How about this other pattern?"],
-    ["02311010002", "Pretty easy right?;Try this one."],
-    ["033102021010002", "Amazing work!;Keep going...;And if you feel stuck, you can use a hint, which you'll earn for every 3 patterns completed"],
+    ["0130002","messages.tutorial.0"],
+    ["02210000111", "messages.tutorial.1"],
+    ["02311010002", "messages.tutorial.2"],
+    ["033102021010002", "messages.tutorial.3"],
     ["0321110200001"],
     ["032111020000121"],
     ["03321111000022220"],
     ["0231001020011"],
     ["033101121222000"],
-    ["1221000011110", "Wow, congratulations! I'm very impressed!; OK, so here's a catch: you can reconnect dots by clicking on them in case you have some extra clicks available!; The number of extra clicks can be seen up there;Go ahead and give it a shot :D"],
-    ["1331012112101", "OK! I can feel you got the spirit of it!; Can you do this one?!"],
-    ["145121302222433312022", "That's amazing!;I mean... You are amazing!; So let's see if we can do some drawing!; What do you think about my boat?"],
-    ["133200122100221001220", "Yes, i'm so happy!; Let's draw a star to celebrate!"],
-    ["3440010011110010033", "And now, i hope that this looks like a kite!; Can you do it with the 3 extra clicks?"],
-    ["024110102121310", "Really great, you've completed the tutorial!;There are 90 levels at total, that tends to increase in difficulty as you move on.;I hope you enjoy the rest of the game and good luck!"],
+    ["1221000011110", "messages.tutorial.4"],
+    ["1331012112101", "messages.tutorial.5"],
+    ["145121302222433312022", "messages.tutorial.6"],
+    ["133200122100221001220", "messages.tutorial.7"],
+    ["3440010011110010033", "messages.tutorial.8"],
+    ["024110102121310", "messages.tutorial.9"],
     ["033101202202101"],
     ["23301122110010222200001"], 
     ["1231101101201"], 
@@ -89,10 +89,19 @@ const levels =
     ["1441013232101023233030010"],
     ["1551410000121243432020343440400"],
     ["157110102121424223234444535312125151000034346363020261615"],
-    ["25502121121201014242333324243030131303431414000044441"],
+    ["25502121121201014242333324243030131303431414000044441"]
 ];
-// 244001122332322121101000102121323130302
-// 4440011010011221211223323223233322221111000102021203031213132332313120201020313
-// 344101112132322211101021222323323130302010010001122332312010213
-// 85430414233231302011020303132222111120242410111101323203033
+
+const dailyChallenges = 
+[
+    ["144001122332322121101000102121323130302"],
+    ["3440011010011221211223323223233322221111000102021203031213132332313120201020313"],
+    ["344101112132322211101021222323323130302010010001122332312010213"],
+    ["85430414233231302011020303132222111120242410111101323203033"],
+    ["15402204241230100224043210301"],
+    ["1541011313020222313123233430302424101004043"],
+    ["1473223343513313303363003"]
+]
+
+
 export default levels;

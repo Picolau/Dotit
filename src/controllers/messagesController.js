@@ -1,4 +1,5 @@
-const DEFAULT_CONTINUE_MESSAGE = "Click/Tap anywhere near to continue"
+import { i18n } from '../translate/i18n'
+
 const TIME_BETWEEN_MESSAGES_ANIMATION = 1500;
 
 export default class {
@@ -22,7 +23,7 @@ export default class {
             let message = messages[idx];
             this.#addMessageElement(message);
         }
-        this.#addMessageElement(DEFAULT_CONTINUE_MESSAGE, true);
+        this.#addMessageElement(i18n.t('messages.continue'), true);
     }
 
     #addMessageElement(message, isContinue=false) {

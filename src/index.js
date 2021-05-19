@@ -1,5 +1,6 @@
 import './styles/index.css';
 import * as p5 from './lib/p5.js';
+import { i18n } from './translate/i18n'
 
 window.mobileCheck = function () {
   let check = false;
@@ -50,7 +51,8 @@ const P5 = new p5(p5Sketch);
 window.onload = () => {
   let colorPicker = document.getElementById('color-picker');
   
-  setMenuBgColor();
+  initMenu();
+  translate();
 
   // close menu when click outside menu
   document.addEventListener("click", (event) => {
@@ -112,7 +114,12 @@ window.onload = () => {
     gameController.clearScreen();
     gameController.startNewGame();
     hideMenu();
-  }
+  };
+  document.getElementById('menu-item-challenge').onclick = () => {
+    gameController.clearScreen();
+    gameController.loadDailyChallenges();
+    hideMenu();
+  };
   document.getElementById('menu-item-create').onclick = () => {
     gameController.clearScreen();
     gameController.createLevel();
@@ -123,9 +130,12 @@ window.onload = () => {
     gameController.loadLevel();
     hideMenu();
   };
+  document.getElementById('menu-item-color').onclick = () => {
+    colorPicker.click();
+  };
   colorPicker.addEventListener('input', () => {
     backgroundController.changeBackgroundColor(colorPicker.value);
-    setMenuBgColor();
+    initMenu();
   });
 }
 
@@ -137,7 +147,55 @@ function updateFullscreenIcon() {
   }
 }
 
-function setMenuBgColor() {
+function translate() {
+  /** Translate menu */
+  document.getElementById("menu-item-continue")
+  .getElementsByClassName("menu-item-desc")[0].innerText = i18n.t('menu.continue')
+
+  document.getElementById("menu-item-new")
+  .getElementsByClassName("menu-item-desc")[0].innerText = i18n.t('menu.new')
+
+  document.getElementById("menu-item-challenge")
+  .getElementsByClassName("menu-item-desc")[0].innerText = i18n.t('menu.challenge')
+
+  document.getElementById("menu-item-create")
+  .getElementsByClassName("menu-item-desc")[0].innerText = i18n.t('menu.create')
+
+  document.getElementById("menu-item-load")
+  .getElementsByClassName("menu-item-desc")[0].innerText = i18n.t('menu.load')
+
+  document.getElementById("menu-item-color")
+  .getElementsByClassName("menu-item-desc")[0].innerText = i18n.t('menu.color')
+
+  /* Translate end screen */
+  document.getElementById("congratulations-text").innerText = i18n.t('endScreen.congratulationsText');
+  document.getElementById("congratulations-1").innerText = i18n.t('endScreen.congratulations1')
+  document.getElementById("congratulations-2").innerText = i18n.t('endScreen.congratulations2')
+  document.getElementById("congratulations-3").innerText = i18n.t('endScreen.congratulations3')
+
+  document.getElementById("results-text").innerText = i18n.t('endScreen.resultsText')
+  document.getElementById("you-others-text").innerText = i18n.t('endScreen.youOthersText')
+  document.getElementById("total-time-text").innerText = i18n.t('endScreen.totalTimeText')
+  document.getElementById("total-retries-text").innerText = i18n.t('endScreen.totalRetriesText')
+  document.getElementById("total-hints-text").innerText = i18n.t('endScreen.totalHintsText')
+
+  document.getElementById("time-better-than").innerHTML = i18n.t('endScreen.betterThan') + " <span id='time-percentage'></span> " + i18n.t('endScreen.ofPeople')
+  document.getElementById("retries-better-than").innerHTML = i18n.t('endScreen.betterThan') + " <span id='retries-percentage'></span> " + i18n.t('endScreen.ofPeople')
+  document.getElementById("hints-better-than").innerHTML = i18n.t('endScreen.betterThan') + " <span id='hints-percentage'></span> " + i18n.t('endScreen.ofPeople')
+
+  document.getElementById("max-time-text").innerHTML = i18n.t('endScreen.theLevel') + " <span id='max-time-level'></span> " + i18n.t('endScreen.maxTimeText') 
+  document.getElementById("max-retries-text").innerHTML = i18n.t('endScreen.theLevel') + " <span id='max-retries-level'></span> " + i18n.t('endScreen.maxRetriesText') 
+  document.getElementById("max-hints-text").innerHTML = i18n.t('endScreen.theLevel') + " <span id='max-hints-level'></span> " + i18n.t('endScreen.maxHintsText') 
+  
+  document.getElementById("curiosities-text").innerText = i18n.t('endScreen.curiositiesText');
+  document.getElementById("curiosities-info").innerText = i18n.t('endScreen.curiositiesInfo')
+  document.getElementById("curiosities-1").innerHTML = "<span>1. </span>" + i18n.t('endScreen.curiosities1')
+  document.getElementById("curiosities-2").innerHTML = "<span>2. </span>" + i18n.t('endScreen.curiosities2')
+  document.getElementById("curiosities-3").innerHTML = "<span>3. </span>" + i18n.t('endScreen.curiosities3')
+  document.getElementById("curiosities-4").innerHTML = "<span>4. </span>" + i18n.t('endScreen.curiosities4')
+}
+
+function initMenu() {
   let menuContainerDiv = document.getElementById("menu-container");
   menuContainerDiv.style.backgroundColor = backgroundController.bgColor;
 }
@@ -158,16 +216,14 @@ function showMenu() {
   }, 50)
 }
 
-const CLIPBOARD_SUCCESS_MESSAGE = "!Copied to clipboard";
-const CLIPBOARD_ERROR_MESSAGE = ".Error copying to clip";
 let displayingClipboardMessage = false;
 
 function displayClipboardMessage(levelCode, successCopying) {
   if (!displayingClipboardMessage) {
     if (successCopying)
-      document.getElementById("level-code").innerText = CLIPBOARD_SUCCESS_MESSAGE;
+      document.getElementById("level-code").innerText = i18n.t("messages.clipboard.success");
     else
-      document.getElementById("level-code").innerText = CLIPBOARD_ERROR_MESSAGE;
+      document.getElementById("level-code").innerText = i18n.t("messages.clipboard.error");
     displayingClipboardMessage = true;
     setTimeout(function () {
       document.getElementById("level-code").innerText = levelCode;

@@ -14,6 +14,7 @@ const GAME_STATE = {
 
 
 import { } from '../index';
+import { i18n } from '../translate/i18n';
 
 export default class {
     constructor() {
@@ -29,50 +30,57 @@ export default class {
     }
 
     #handleGameEnded() {
-        const levelsPerformance = this.performanceController.results();
-        console.log(levelsPerformance);
-        fetch('http://localhost:4100/results', {
-            method: 'POST',
-            body: levelsPerformance,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then((response) => {
-            response.json().then((resultsApi) => {
-                const resultsMax = this.performanceController.resultsMax();
-                const results = {
-                    time: {
-                        score: resultsApi.time.myScore,
-                        scoreOthers: resultsApi.time.meanScore,
-                        betterThan: resultsApi.time.percent,
-                        max: {
-                            score: resultsMax.time.value,
-                            level: resultsMax.time.level,
-                        }
-                    },
-                    hints: {
-                        score: resultsApi.hints.myScore,
-                        scoreOthers: resultsApi.hints.meanScore,
-                        betterThan: resultsApi.hints.percent,
-                        max: {
-                            score: resultsMax.hints.value,
-                            level: resultsMax.hints.level,
-                        }
-                    },
-                    retries: {
-                        score: resultsApi.retries.myScore,
-                        scoreOthers: resultsApi.retries.meanScore,
-                        betterThan: resultsApi.time.percent,
-                        max: {
-                            score: resultsMax.retries.value,
-                            level: resultsMax.retries.level,
-                        }
-                    },
-                }
+        let finalResults = localStorage.getItem("final-results");
+        if (finalResults) {
+            finalResults = JSON.parse(finalResults);
+            this.#showEndScreen(finalResults);
+        } else {
+            const levelsPerformance = this.performanceController.results();
 
-                this.#showEndScreen(results);
-            })
-        });
+            fetch('http://localhost:4100/results', {
+                method: 'POST',
+                body: levelsPerformance,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then((response) => {
+                response.json().then((resultsApi) => {
+                    const resultsMax = this.performanceController.resultsMax();
+                    const finalResults = {
+                        time: {
+                            score: resultsApi.time.myScore,
+                            scoreOthers: resultsApi.time.meanScore,
+                            betterThan: resultsApi.time.percent,
+                            max: {
+                                score: resultsMax.time.value,
+                                level: resultsMax.time.level,
+                            }
+                        },
+                        hints: {
+                            score: resultsApi.hints.myScore,
+                            scoreOthers: resultsApi.hints.meanScore,
+                            betterThan: resultsApi.hints.percent,
+                            max: {
+                                score: resultsMax.hints.value,
+                                level: resultsMax.hints.level,
+                            }
+                        },
+                        retries: {
+                            score: resultsApi.retries.myScore,
+                            scoreOthers: resultsApi.retries.meanScore,
+                            betterThan: resultsApi.time.percent,
+                            max: {
+                                score: resultsMax.retries.value,
+                                level: resultsMax.retries.level,
+                            }
+                        },
+                    }
+
+                    localStorage.setItem("final-results", JSON.stringify(finalResults));
+                    this.#showEndScreen(finalResults);
+                })
+            });
+        }
     }
 
     #hideEndScreen() {
@@ -152,17 +160,17 @@ export default class {
             let levelNumberText = (levelNumber < 10 ? '0' + levelNumber : levelNumber);
             let extraClicksText = (this.dotsController.maxClicks - this.dotsController.clicksConsumed) + " ";
             let totalHintsText = this.hintsController.getTotal()+"";
-            let headerInfoHTML  = "<span>Extra: </span>"
+            let headerInfoHTML  = "<span>" + i18n.t('info.extra') + ": </span>";
                 headerInfoHTML += extraClicksText;
-                headerInfoHTML += "<span>Hints: </span>";
+                headerInfoHTML += "<span>" + i18n.t('info.tips') + ": </span>";
                 headerInfoHTML += totalHintsText;
 
             document.getElementById("header-info").innerHTML = headerInfoHTML;
             document.getElementById("level-number").innerText = levelNumberText;
         } else if (this.state === GAME_STATE.PLAYING_CREATE) {
-            document.getElementById("header-info").innerText = "Free";  
+            document.getElementById("header-info").innerText = i18n.t('info.free');  
             document.getElementById("level-number").innerText = "";
-        } else if (this.state === GAME_STATE.PLAYING_LOAD) {
+        } else if (this.state === GAME_STATE.PLAYING_LOAD || this.state === GAME_STATE.PLAYING_CHALLENGE) {
             let extraClicksText = '' + (this.dotsController.maxClicks - this.dotsController.clicksConsumed);
             let headerInfoHTML  = "<span>Extra: </span>";
                 headerInfoHTML += extraClicksText;
@@ -223,7 +231,8 @@ export default class {
     }
 
     reloadLevel() {
-        this.dotsController.reload();
+        let forceReload = this.state != GAME_STATE.PLAYING_GAME ? true : false;
+        this.dotsController.reload(forceReload);
         this.#updateLevelInfo();
 
         if (this.currentLevel.isMax)
@@ -305,6 +314,7 @@ export default class {
         let levelCodeContainerElement = document.getElementById("load-level-code-container");
         let levelCodeInput = document.getElementById('code-input');
             levelCodeInput.value = "";
+        document.getElementById("load-level-message").innerHTML = i18n.t('messages.loadLevel.info');
 
         let onConnectionMade = () => {
             this.#updateLevelInfo();
@@ -312,12 +322,17 @@ export default class {
 
         let loadDotsFromInput = () => {
             let code = levelCodeInput.value;
-            levelCodeContainerElement.style.display = "none";
-            this.dotsController.loadSolve(code, null, onConnectionMade);
-            this.dotsController.animateExpand();
-            this.#changeFooterElementsShowing(false, false);
-            this.#showFooter();
-            this.#updateLevelInfo();
+            if (this.dotsController.loadSolve(code, null, onConnectionMade)) {
+                this.dotsController.waitingLoad = false;
+                levelCodeContainerElement.style.display = "none";
+                this.dotsController.animateExpand();
+                this.#changeFooterElementsShowing(false, false);
+                this.#showFooter();
+                this.#updateLevelInfo();
+            } else {
+                this.dotsController.waitingLoad = true;
+                document.getElementById("load-level-message").innerHTML = i18n.t('messages.loadLevel.error');
+            }
         }
 
         levelCodeContainerElement.style.display = "flex";
@@ -325,11 +340,28 @@ export default class {
     }
 
     loadDailyChallenges() {
+        this.state = GAME_STATE.PLAYING_CHALLENGE;
 
-    }
+        let onConnectionMade = () => {
+            this.#updateLevelInfo();
+        };
 
-    changeBackground() {
-
+        fetch('http://localhost:4100/levels/daily-challenge', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then((response) => {
+            response.json().then((level) => {
+                let code = level._id;
+                this.dotsController.loadSolve(code, null, onConnectionMade)
+                this.dotsController.waitingLoad = false;
+                this.dotsController.animateExpand();
+                this.#changeFooterElementsShowing(false, false);
+                this.#showFooter();
+                this.#updateLevelInfo();
+            })
+        });
     }
 
     updateAndDraw() {
@@ -347,5 +379,6 @@ export default class {
         this.#hideFooter();
         this.#hideEndScreen();
         this.#clearHeaderText();
+        document.getElementById("load-level-code-container").style.display = "none";
     }
 }

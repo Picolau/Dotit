@@ -319,6 +319,8 @@ export default class {
             this.clicksConsumed = 0;
             this.state = STATE.SOLVING;
         }
+
+        return this.hints;
     }
 
     loadCreate(connMadeCallback) {
@@ -341,8 +343,8 @@ export default class {
         this.animatingShrink = false;
     }
 
-    reload() {
-        if (this.state == STATE.CREATING || !this.connectionsEndedSuccess) {
+    reload(forceReload=false) {
+        if (forceReload || this.state == STATE.CREATING || !this.connectionsEndedSuccess) {
             this.positionsHistory = [];
             this.allPlayerConnectionsAreExpectedConnections = true;
             this.numFulfilledConnections = 0;
@@ -492,7 +494,7 @@ export default class {
     /* transform code to the expected connections (used in case we are playing the level) */
     #decodeConnections(code) {
         let codeHints = [];
-        for (let i = 3; i < code.length; i += 2) {
+        for (let i = 3; i < code.length-2; i += 2) {
             let idxFrom = parseInt(code[i]) * this.cols + parseInt(code[i + 1]);
             let idxTo = parseInt(code[i + 2]) * this.cols + parseInt(code[i + 3]);
 
@@ -529,8 +531,14 @@ export default class {
                     if (!alreadyThere)
                         this.expectedConnections.push(connection);
                 }
+            } else {
+                return null;
             }
         }
+
+        if (!codeHints.length)
+            return null;
+
         return codeHints;
     }
 
