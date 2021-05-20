@@ -44,6 +44,7 @@ const enMessages = {
                 congratulations3: "Down here you can see the results of your game compared to others that are playing too. And some curiosities and stories about us and the creation of this game. Thank you again and have a great day!",
 
                 resultsText: "Results",
+                resultsErrorMessage: "Oops, sorry! Something went wrong with the server communication. Please try again later, by reloading this page!",
                 youOthersText: " (You / Others)",
                 betterThan: "You performed better than ",
                 ofPeople: " of people",
@@ -58,9 +59,9 @@ const enMessages = {
                 curiositiesText: "Curiosities",
                 curiositiesInfo: "Ok, for those who stuck around, here are some curiosities about this game: ",
                 curiosities1: "The name Joido actually come from cutting and concatenating the words 'Join' and 'Dots'. It just sounded cool!",
-                curiosities2: "This game was inspired by some of our friends who wanted to see what cool patterns he could draw on smartphones about 5 years ago; Well, he eventually started drawing some very challenging patterns and the idea started growing from there.",
-                curiosities3: "Initially, this game was to be released as a native Android app, but we didn't know how to do some crazy good animations back there. Then we learned some javascript over the years and the thing kinda grew!",
-                curiosities4: "There's no algorithm to check the minimum amount of clicks possible to perform a given pattern, we just had to brute force trial and error until we guessed what would be the optimal solution. (Wish you good luck if you are going to try to implement it :D)",
+                curiosities2: "No need to say, this game was inspired by password patterns on modern smartphones. Some of our friends wanted to see what cool patterns he could draw and eventually started drawing some very challenging ones. The idea started growing from there.",
+                curiosities3: "Initially, this game was to be released as a native Android app, but we wanted to see as many people as possible playing the game, so we decided to launch it as a website",
+                curiosities4: "There's no algorithm to check the minimum amount of clicks possible to perform a given pattern, we just had to brute force trial and error until we guessed what would be the optimal solution.",
             }
         }
     }

@@ -49,6 +49,6 @@ export default class {
     }
 
     progressEnded() {
-        return this.storageLevelIndex == levels.length;
+        return this.storageLevelIndex >= levels.length;
     }
 }

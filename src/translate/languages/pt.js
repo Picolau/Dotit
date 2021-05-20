@@ -39,11 +39,12 @@ const ptMessages = {
             },
             endScreen: {
                 congratulationsText: "Parabéns!",
-                congratulations1: "Você conseguiu! Muito obrigado por jogar Joidô! Felizmente, as coisas não param por aqui... Você mesmo pode criar padrões e compartilhá-los com seus amigos, ou pode também carregar um padrão feito por eles! Aah e desafios diários estarão disponíveis para você, e se quiser pode jogar o jogo inteiro novamente, acessando 'Começar novo jogo' no menu.",
+                congratulations1: "Você conseguiu! Muito obrigado por jogar Joidô! Felizmente, as coisas não param por aqui... Você mesmo pode criar padrões e compartilhá-los com seus amigos, ou carregar alguns dos padrões feito por eles! Aah... Além disso, desafios diários estarão disponíveis para você! Se quiser, pode jogar o jogo inteiro novamente, acessando 'Começar novo jogo' no menu.",
                 congratulations2: "Estamos abertos para receber feedbacks ou sugestões para melhorar o jogo, então nos envie uma mensagem no instagram caso queira, ficaremos muito feliz em saber de você! Aproveite e nos envie alguns de seus padrões criados, se forem legais e desafiadores, podemos colocá-los nos desafios diários e te marcar como o idealizador :D",
                 congratulations3: "Aqui embaixo você pode ver os resultados da sua performance comparados com os outros que também zeraram o jogo. Também temos algumas curiosidades e histórias sobre nós e a criação desse jogo. Muito obrigado novamente e tenha um ótimo dia!",
 
                 resultsText: "Resultados",
+                resultsErrorMessage: "Ops! Algo deu errado com minha comunicação com o servidor. Tente novamente mais tarde, basta recarregar essa página!",
                 youOthersText: " (Você / Outros)",
                 betterThan: "Você foi melhor que ",
                 ofPeople: " das pessoas",
@@ -58,9 +59,9 @@ const ptMessages = {
                 curiositiesText: "Curiosidades",
                 curiositiesInfo: "Ok, para aqueles que estão aqui, temos algumas curiosidades : ",
                 curiosities1: "O nome Joidô vem de cortar e concatenar as palavras 'Join' e 'Dots' (do inglês, 'juntar' e 'pontos', respectivamente). Soou legal e ficou!",
-                curiosities2: "Não precisa nem dizer que esse jogo foi inspirado pelos padrões de senha dos celulares modernos. Um de nossos amigos estava vendo quais tipos de padrões ele conseguia desenhar em seu celular; Bom, ele eventualmente começou a desenhar alguns padrões muito desafiadores e a ideia foi crescendo a partir daí.",
-                curiosities3: "Initially, this game was to be released as a native Android app, but we didn't know how to do some crazy good animations back there. Then we learned some javascript over the years and the thing kinda grew!",
-                curiosities4: "There's no algorithm to check the minimum amount of clicks possible to perform a given pattern, we just had to brute force trial and error until we guessed what would be the optimal solution. (Wish you good luck if you are going to try to implement it :D)",
+                curiosities2: "Nem precisa dizer que esse jogo foi inspirado pelos padrões de senha dos celulares modernos. Um de nossos amigos estava vendo quais tipos de padrões ele conseguia desenhar em seu celular; Bom, ele eventualmente começou a desenhar alguns padrões muito desafiadores e a ideia foi crescendo a partir daí.",
+                curiosities3: "Inicialmente, esse jogo era para ser lançado como uma aplicativo Android nativo, porém queríamos que o máximo de pessoas possível pudessem ter a incrível experiência de jogar Joidô. No final, decidimos lançar como um website.",
+                curiosities4: "Não implementamos um algoritmo para checar o número mínimo de cliques extra dado um determinado padrão, então tínhamos que fazer força bruta de tentativa e erro até encontrarmos algo que achamos que poderia ser a solução ótima.",
             }
         }
     }

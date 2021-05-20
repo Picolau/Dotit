@@ -31,56 +31,59 @@ export default class {
 
     #handleGameEnded() {
         let finalResults = localStorage.getItem("final-results");
+
         if (finalResults) {
             finalResults = JSON.parse(finalResults);
             this.#showEndScreen(finalResults);
-        } else {
-            const levelsPerformance = this.performanceController.results();
-
-            fetch('http://localhost:4100/results', {
-                method: 'POST',
-                body: levelsPerformance,
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }).then((response) => {
-                response.json().then((resultsApi) => {
-                    const resultsMax = this.performanceController.resultsMax();
-                    const finalResults = {
-                        time: {
-                            score: resultsApi.time.myScore,
-                            scoreOthers: resultsApi.time.meanScore,
-                            betterThan: resultsApi.time.percent,
-                            max: {
-                                score: resultsMax.time.value,
-                                level: resultsMax.time.level,
-                            }
-                        },
-                        hints: {
-                            score: resultsApi.hints.myScore,
-                            scoreOthers: resultsApi.hints.meanScore,
-                            betterThan: resultsApi.hints.percent,
-                            max: {
-                                score: resultsMax.hints.value,
-                                level: resultsMax.hints.level,
-                            }
-                        },
-                        retries: {
-                            score: resultsApi.retries.myScore,
-                            scoreOthers: resultsApi.retries.meanScore,
-                            betterThan: resultsApi.time.percent,
-                            max: {
-                                score: resultsMax.retries.value,
-                                level: resultsMax.retries.level,
-                            }
-                        },
-                    }
-
-                    localStorage.setItem("final-results", JSON.stringify(finalResults));
-                    this.#showEndScreen(finalResults);
-                })
-            });
+            return
         }
+        const levelsPerformance = this.performanceController.results();
+
+        fetch('http://localhost:4100/results', {
+            method: 'POST',
+            body: levelsPerformance,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then((response) => {
+            response.json().then((resultsApi) => {
+                const resultsMax = this.performanceController.resultsMax();
+                const finalResults = {
+                    time: {
+                        score: resultsApi.time.myScore,
+                        scoreOthers: resultsApi.time.meanScore,
+                        betterThan: resultsApi.time.percent,
+                        max: {
+                            score: resultsMax.time.value,
+                            level: resultsMax.time.level,
+                        }
+                    },
+                    hints: {
+                        score: resultsApi.hints.myScore,
+                        scoreOthers: resultsApi.hints.meanScore,
+                        betterThan: resultsApi.hints.percent,
+                        max: {
+                            score: resultsMax.hints.value,
+                            level: resultsMax.hints.level,
+                        }
+                    },
+                    retries: {
+                        score: resultsApi.retries.myScore,
+                        scoreOthers: resultsApi.retries.meanScore,
+                        betterThan: resultsApi.time.percent,
+                        max: {
+                            score: resultsMax.retries.value,
+                            level: resultsMax.retries.level,
+                        }
+                    },
+                }
+
+                localStorage.setItem("final-results", JSON.stringify(finalResults));
+                this.#showEndScreen(finalResults);
+            })
+        }).catch((error) => {
+            this.#showEndScreen(null);
+        });
     }
 
     #hideEndScreen() {
@@ -88,8 +91,6 @@ export default class {
     }
 
     #showEndScreen(results) {
-        this.clearScreen();
-
         function msToClock(timems) {
             let time = Math.round(timems / 1000);
             let hours = Math.floor(time / 3600);
@@ -115,7 +116,18 @@ export default class {
             return (Math.round(perc*1000)/10)+"%";
         }
 
+        this.clearScreen();
+
+        document.getElementById("results-container-error").style.display = "block";
+        document.getElementById("results-container-success").style.display = "block";
         document.getElementById("end-screen-container").style.display = "block";
+        
+        if (!results) {
+            document.getElementById("results-container-success").style.display = "none";
+            return;
+        }
+        
+        document.getElementById("results-container-error").style.display = "none";
 
         /** Primeiro card */
         document.getElementById("total-time").innerText = msToClock(results.time.score);

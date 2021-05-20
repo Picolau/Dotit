@@ -49,10 +49,8 @@ let p5Sketch = (sk) => {
 const P5 = new p5(p5Sketch);
 
 window.onload = () => {
-  let colorPicker = document.getElementById('color-picker');
-  
   initMenu();
-  translate();
+  translateDocument();
 
   // close menu when click outside menu
   document.addEventListener("click", (event) => {
@@ -131,10 +129,10 @@ window.onload = () => {
     hideMenu();
   };
   document.getElementById('menu-item-color').onclick = () => {
-    colorPicker.click();
+    document.getElementById('color-picker').click();
   };
-  colorPicker.addEventListener('input', () => {
-    backgroundController.changeBackgroundColor(colorPicker.value);
+  document.getElementById('color-picker').addEventListener('input', () => {
+    backgroundController.changeBackgroundColor(document.getElementById('color-picker').value);
     initMenu();
   });
 }
@@ -147,7 +145,7 @@ function updateFullscreenIcon() {
   }
 }
 
-function translate() {
+function translateDocument() {
   /** Translate menu */
   document.getElementById("menu-item-continue")
   .getElementsByClassName("menu-item-desc")[0].innerText = i18n.t('menu.continue')
@@ -174,6 +172,7 @@ function translate() {
   document.getElementById("congratulations-3").innerText = i18n.t('endScreen.congratulations3')
 
   document.getElementById("results-text").innerText = i18n.t('endScreen.resultsText')
+  document.getElementById("results-error-message").innerText = i18n.t('endScreen.resultsErrorMessage')
   document.getElementById("you-others-text").innerText = i18n.t('endScreen.youOthersText')
   document.getElementById("total-time-text").innerText = i18n.t('endScreen.totalTimeText')
   document.getElementById("total-retries-text").innerText = i18n.t('endScreen.totalRetriesText')
