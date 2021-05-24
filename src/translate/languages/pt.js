@@ -3,7 +3,7 @@ const ptMessages = {
         translations: {
             menu: {
                 continue: "Continuar Jogo",
-                new: "Começar Novo Jogo",
+                tutorial: "Refazer Tutorial",
                 challenge: "Desafio de Hoje",
                 load: "Carregar um Padrão",
                 create: "Criar um Padrão",
@@ -37,12 +37,14 @@ const ptMessages = {
                 tips: "Dicas",
                 free: "Livre",
             },
-            endScreen: {
+            infoScreen: {
                 congratulationsText: "Parabéns!",
-                congratulations1: "Você conseguiu! Muito obrigado por jogar Joidô! Felizmente, as coisas não param por aqui... Você mesmo pode criar padrões e compartilhá-los com seus amigos, ou carregar alguns dos padrões feito por eles! Aah... Além disso, desafios diários estarão disponíveis para você! Se quiser, pode jogar o jogo inteiro novamente, acessando 'Começar novo jogo' no menu.",
+                congratulations1: "Você conseguiu! Muito obrigado por jogar Joidô! Felizmente, as coisas não param por aqui... Você mesmo pode criar padrões e compartilhá-los com seus amigos, ou carregar alguns dos padrões feito por eles! Aah... Além disso, desafios diários estarão disponíveis para você! Os resultados de sua performance sempre são atualizados conforme novos jogadores vão zerando o jogo, basta recarregar a tela de resultados ;)",
                 congratulations2: "Estamos abertos para receber feedbacks ou sugestões para melhorar o jogo, então nos envie uma mensagem no instagram caso queira, ficaremos muito feliz em saber de você! Aproveite e nos envie alguns de seus padrões criados, se forem legais e desafiadores, podemos colocá-los nos desafios diários e te marcar como o idealizador :D",
                 congratulations3: "Aqui embaixo você pode ver os resultados da sua performance comparados com os outros que também zeraram o jogo. Também temos algumas curiosidades e histórias sobre nós e a criação desse jogo. Muito obrigado novamente e tenha um ótimo dia!",
 
+                backText: "Ir para fases",
+                refreshText: "Atualizar resultados",
                 resultsText: "Resultados",
                 resultsErrorMessage: "Ops! Algo deu errado com minha comunicação com o servidor. Tente novamente mais tarde, basta recarregar essa página!",
                 youOthersText: " (Você / Outros)",

@@ -1,53 +1,48 @@
 <html>
-  <head>
-    <title>Joidô</title>
-    <script src="./bundle.js"></script>
-    <style>
-      @font-face {
+
+<head>
+  <title>Joidô</title>
+  <script src="./bundle.js"></script>
+  <style>
+    @font-face {
       font-family: HelloDotStick;
       src: url(./fonts/HelloDotStick.ttf);
     }
-    </style>
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <meta charset="UTF-8" />
-  </head>
-  <body>
-    <div class="header">
-      <img src="./images/menu.svg" id="menu-icon" alt="" class="menu-icon">
-      <div id="header-info" class="header-info">
-      </div>
-      <img src="./images/fullscreen.svg" id="fullscreen-icon" alt="">
+  </style>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta charset="UTF-8" />
+</head>
+
+<body>
+  <div class="header">
+    <img src="./images/menu.svg" id="menu-icon" alt="" class="menu-icon">
+    <div id="header-info" class="header-info">
     </div>
-    <div class="footer" id="footer">
-      <img src="./images/idea.svg" id="hint-icon" alt="">
-      <img src="./images/arrow-left.svg" id="arrow-left-icon" alt="">
-      <span class="level-number" id="level-number">78</span>
-      <img src="./images/arrow-right.svg" id="arrow-right-icon" alt="">
-      <div class="copy-level-code-container" id="copy-level-code-container">
-        <img src="./images/copy.svg" id="copy-icon" alt="">
-        <span class="level-code" id="level-code"></span>
-      </div>
-      <img src="./images/retry.svg" id="retry-icon" alt="" class="retry-icon">
+    <img src="./images/fullscreen.svg" id="fullscreen-icon" alt="">
+  </div>
+  <div class="footer" id="footer">
+    <img src="./images/idea.svg" id="hint-icon" alt="">
+    <img src="./images/arrow-left.svg" id="arrow-left-icon" alt="">
+    <span class="level-number" id="level-number">78</span>
+    <img src="./images/arrow-right.svg" id="arrow-right-icon" alt="">
+    <div class="copy-level-code-container" id="copy-level-code-container">
+      <img src="./images/copy.svg" id="copy-icon" alt="">
+      <span class="level-code" id="level-code"></span>
     </div>
-    <div id="end-screen-container" class="end-screen-container">
-      <span id="congratulations-text">Congratulations!</span>
-      <div class="congratulation-messages">
-        <p id="congratulations-1">
-          You've made it! Thanks a lot for playing the game! 
-          Fortunately, things don't end just here... You can create levels and share it with your friends,
-          or load some of their created levels! Also, there are daily challenges available for you, and you can replay the entire game if you wish too, by accessing 'Start New Game' on menu. 
-        </p>
-        <p id="congratulations-2">
-          We are open to receive feedback or suggestions to improve the game, so send us an e-mail if you want to, we will be happy to hear from you!
-          Also, you can create levels and share it with us to so we can put it on the daily challenges :D
-          <br/> E-mail: contact@joido.xyz
-        </p>
-        <p id="congratulations-3">
-          Down here you can see the results of your game compared to others that are playing too.
-          And some curiosities and stories about us and the creation of this game.
-          Thank you again and have a great day!
-        </p>
+    <img src="./images/retry.svg" id="retry-icon" alt="" class="retry-icon">
+  </div>
+  <div id="info-screen" class="info-screen">
+    <div class="buttons-wrapper">
+      <div class="results-card button-card">
+        <img class="icon" src="./images/arrow-left.svg">
+        <span id="back-text" class="button-span">Back to levels</span>
       </div>
+      <div class="results-card button-card">
+        <img class="icon" src="./images/retry.svg">
+        <span id="refresh-text" class="button-span">Refresh results</span>
+      </div>
+    </div>
+    <div id="results-wrapper" class="results-wrapper">
       <span id="results-text">Results</span><span id="you-others-text" class="other-span"> (You / Others)</span>
       <div id="results-container-error" class="results-container">
         <div class="results-card">
@@ -55,74 +50,109 @@
         </div>
       </div>
       <div id="results-container-success" class="results-container">
-        <div class="results-card">
+        <div id="total-time-card" class="results-card">
           <p id="total-time-text">Total time taken: </p>
           <span id="total-time">1h:30m:54s</span><span id="total-time-others" class="other-span"> / 45m:13s</span>
           <p id="time-better-than">You performed better than <span id="time-percentage">84%</span> of people</p>
         </div>
-        <div class="results-card">
+        <div id="total-retries-card" class="results-card">
           <p id="total-retries-text">Total retries: </p>
           <span id="total-retries">876</span><span id="total-retries-others" class="other-span"> / 1013</span>
           <p id="retries-better-than">You performed better than <span id="retries-percentage">53%</span> of people</p>
         </div>
-        <div class="results-card">
+        <div id="total-hints-card" class="results-card">
           <p id="total-hints-text">Total hints used: </p>
           <span id="total-hints">15</span><span id="total-hints-others" class="other-span"> / 12</span>
           <p id="hints-better-than">You performed better than <span id="hints-percentage">12%</span> of people</p>
         </div>
-        <div class="results-card">
-          <p id="max-time-text">The level <span id="max-time-level">70</span> was the one that took you the longest: </p>
+        <div id="max-time-card" class="results-card">
+          <p id="max-time-text">The level <span id="max-time-level">70</span> was the one that took you the longest:
+          </p>
           <span id="max-time">5m:54s</span>
         </div>
-        <div class="results-card">
-          <p id="max-retries-text">The level <span id="max-retries-level">50</span> was the one you retried the most: </p>
+        <div id="max-retries-card" class="results-card">
+          <p id="max-retries-text">The level <span id="max-retries-level">50</span> was the one you retried the most:
+          </p>
           <span id="max-retries">67</span>
         </div>
-        <div class="results-card">
-          <p id="max-hints-text">The level <span id="max-hints-level">89</span> was the one you used the most hints: </p>
+        <div id="max-hints-card" class="results-card">
+          <p id="max-hints-text">The level <span id="max-hints-level">89</span> was the one you used the most hints:
+          </p>
           <span id="max-hints">9</span>
         </div>
+      </div>
+    </div>
+    <div id="end-info-wrapper" class="end-info-wrapper">
+      <span id="congratulations-text">Congratulations!</span>
+      <div class="congratulation-messages">
+        <p id="congratulations-1">
+          You've made it! Thanks a lot for playing the game!
+          Fortunately, things don't end just here... You can create levels and share it with your friends,
+          or load some of their created levels! Also, there are daily challenges available for you, and you can replay
+          the entire game if you wish too, by accessing 'Start New Game' on menu.
+        </p>
+        <p id="congratulations-2">
+          We are open to receive feedback or suggestions to improve the game, so send us an e-mail if you want to, we
+          will be happy to hear from you!
+          Also, you can create levels and share it with us to so we can put it on the daily challenges :D
+          <br /> E-mail: contact@joido.xyz
+        </p>
+        <p id="congratulations-3">
+          Down here you can see the results of your game compared to others that are playing too.
+          And some curiosities and stories about us and the creation of this game.
+          Thank you again and have a great day!
+        </p>
       </div>
       <span id="curiosities-text">Curiosities</span>
       <div class="curiosities-messages">
         <p id="curiosities-info">Ok, for those who stuck around, here are some curiosities about this game: </p>
-        <p id="curiosities-1"><span>1. </span>The name Joido actually come from cutting and concatenating the words "Join" and "Dots". It just sounded cool! </p>
-        <p id="curiosities-2"><span>2. </span>This game was inspired by some of our friends who wanted to see what cool patterns he could draw on smartphones about 5 years ago; Well, he eventually started drawing some very challenging patterns and the idea started growing from there.</p>
-        <p id="curiosities-3"><span>3. </span>Initially, this game was to be released as a native Android app, but we didn't know how to do some crazy good animations back there. Then we learned some javascript over the years and the thing kinda grew!</p>
-        <p id="curiosities-4"><span>4. </span>There's no algorithm to check the minimum amount of clicks possible to perform a given pattern, we just had to brute force trial and error until we guessed what would be the optimal solution. (Wish you good luck if you are going to try to implement it :D) </p>
+        <p id="curiosities-1"><span>1. </span>The name Joido actually come from cutting and concatenating the words
+          "Join" and "Dots". It just sounded cool! </p>
+        <p id="curiosities-2"><span>2. </span>This game was inspired by some of our friends who wanted to see what cool
+          patterns he could draw on smartphones about 5 years ago; Well, he eventually started drawing some very
+          challenging patterns and the idea started growing from there.</p>
+        <p id="curiosities-3"><span>3. </span>Initially, this game was to be released as a native Android app, but we
+          didn't know how to do some crazy good animations back there. Then we learned some javascript over the years
+          and the thing kinda grew!</p>
+        <p id="curiosities-4"><span>4. </span>There's no algorithm to check the minimum amount of clicks possible to
+          perform a given pattern, we just had to brute force trial and error until we guessed what would be the optimal
+          solution. (Wish you good luck if you are going to try to implement it :D) </p>
       </div>
     </div>
-    <div id="messages-container" class="messages-container">
+  </div>
+  <div id="messages-container" class="messages-container">
+  </div>
+  <div class="load-level-code-container" id="load-level-code-container">
+    <input type="text" id="code-input" />
+    <span id="load-level-message" class='load-level-instruction-message'>Paste the pattern code here and press
+      Enter!</span>
+  </div>
+  <div id="menu-container" class="menu-container">
+    <div class="menu-item" id='menu-item-continue'>
+      <img class="menu-item-icon" src="./images/play.svg">
+      <div class="menu-item-desc">Continue game</div>
     </div>
-    <div class="load-level-code-container" id="load-level-code-container">
-      <input type="text" id="code-input"/>
-      <span id="load-level-message" class='load-level-instruction-message'>Paste the pattern code here and press Enter!</span>
+    <div class="menu-item" id='menu-item-tutorial'>
+      <img class="menu-item-icon" src="./images/thunderbolt.svg">
+      <div class="menu-item-desc">Replay Tutorial</div>
     </div>
-    <div id="menu-container" class="menu-container">
-      <div class="menu-item" id='menu-item-continue'>
-        <img class="menu-item-icon" src="./images/play.svg">
-        <div class="menu-item-desc">Continue game</div>
-      </div>
-      <div class="menu-item" id='menu-item-new'>
-        <img class="menu-item-icon" src="./images/plus.svg">
-        <div class="menu-item-desc">Start New Game</div>
-      </div>
-      <div class="menu-item" id='menu-item-challenge'>
-        <img class="menu-item-icon" src="./images/thunderbolt.svg">
-        <div class="menu-item-desc">Daily Challenge</div>
-      </div>
-      <div class="menu-item" id='menu-item-create'>
-        <img class="menu-item-icon" src="./images/edit.svg">
-        <div class="menu-item-desc">Create a Level</div>
-      </div>
-      <div class="menu-item" id='menu-item-load'>
-        <img class="menu-item-icon" src="./images/download.svg">
-        <div class="menu-item-desc">Load a Level</div>
-      </div>
-      <div class="menu-item" id='menu-item-color'>
-        <input class="menu-item-icon" type='color' id='color-picker'/>
-        <div class="menu-item-desc">Background Color</div>
-      </div>
+    <div class="menu-item" id='menu-item-challenge'>
+      <img class="menu-item-icon" src="./images/star.svg">
+      <div class="menu-item-desc">Daily Challenge</div>
     </div>
-  </body>
+    <div class="menu-item" id='menu-item-create'>
+      <img class="menu-item-icon" src="./images/edit.svg">
+      <div class="menu-item-desc">Create a Level</div>
+    </div>
+    <div class="menu-item" id='menu-item-load'>
+      <img class="menu-item-icon" src="./images/download.svg">
+      <div class="menu-item-desc">Load a Level</div>
+    </div>
+    <div class="menu-item" id='menu-item-color'>
+      <input class="menu-item-icon" type='color' id='color-picker' />
+      <div class="menu-item-desc">Background Color</div>
+    </div>
+  </div>
+</body>
+
 </html>

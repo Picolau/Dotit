@@ -24,9 +24,7 @@ export default class {
         this.dotsController        = new DotsController();
         this.performanceController = new PerformanceController();
 
-        this.state = GAME_STATE.PLAYING_GAME;
         this.#clearHeaderText();
-        this.continueGame();
     }
 
     #handleGameEnded() {
@@ -34,9 +32,10 @@ export default class {
 
         if (finalResults) {
             finalResults = JSON.parse(finalResults);
-            this.#showEndScreen(finalResults);
-            return
+            this.#showInfoScreen(finalResults);
+            return;
         }
+
         const levelsPerformance = this.performanceController.results();
 
         fetch('http://localhost:4100/results', {
@@ -79,18 +78,18 @@ export default class {
                 }
 
                 localStorage.setItem("final-results", JSON.stringify(finalResults));
-                this.#showEndScreen(finalResults);
+                this.#showInfoScreen(finalResults);
             })
         }).catch((error) => {
-            this.#showEndScreen(null);
+            this.#showInfoScreen(null);
         });
     }
 
-    #hideEndScreen() {
-        document.getElementById("end-screen-container").style.display = "none";
+    #hideInfoScreen() {
+        document.getElementById("info-screen").style.display = "none";
     }
 
-    #showEndScreen(results) {
+    #showInfoScreen(results) {
         function msToClock(timems) {
             let time = Math.round(timems / 1000);
             let hours = Math.floor(time / 3600);
@@ -118,43 +117,50 @@ export default class {
 
         this.clearScreen();
 
-        document.getElementById("results-container-error").style.display = "block";
+        document.getElementById("info-screen").style.display = "block";
+        document.getElementById("end-info-wrapper").style.display = "block";
         document.getElementById("results-container-success").style.display = "block";
-        document.getElementById("end-screen-container").style.display = "block";
+        // document.getElementById("results-container-error").style.display = "block";
         
-        if (!results) {
-            document.getElementById("results-container-success").style.display = "none";
-            return;
-        }
+        // if (!results) {
+        //     document.getElementById("results-container-success").style.display = "none";
+        //     return;
+        // }
         
         document.getElementById("results-container-error").style.display = "none";
 
-        /** Primeiro card */
-        document.getElementById("total-time").innerText = msToClock(results.time.score);
-        document.getElementById("total-time-others").innerText = ' / ' + msToClock(results.time.scoreOthers);
-        document.getElementById("time-percentage").innerText = percToStr(results.time.betterThan);
+        // /** Primeiro card */
+        // document.getElementById("total-time-card").style.display = "block";
+        // document.getElementById("total-time").innerText = msToClock(results.time.score);
+        // document.getElementById("total-time-others").innerText = ' / ' + msToClock(results.time.scoreOthers);
+        // document.getElementById("time-percentage").innerText = percToStr(results.time.betterThan);
 
-        /** Segundo card */
-        document.getElementById("total-retries").innerText = results.retries.score;
-        document.getElementById("total-retries-others").innerText = ' / ' + Math.round(results.retries.scoreOthers);
-        document.getElementById("retries-percentage").innerText = percToStr(results.retries.betterThan);
+        // /** Segundo card */
+        // document.getElementById("total-retries-card").style.display = "block";
+        // document.getElementById("total-retries").innerText = results.retries.score;
+        // document.getElementById("total-retries-others").innerText = ' / ' + Math.round(results.retries.scoreOthers);
+        // document.getElementById("retries-percentage").innerText = percToStr(results.retries.betterThan);
         
-        /** Terceiro card */
-        document.getElementById("total-hints").innerText = results.hints.score;
-        document.getElementById("total-hints-others").innerText = ' / ' + Math.round(results.hints.scoreOthers);
-        document.getElementById("hints-percentage").innerText = percToStr(results.hints.betterThan);
+        // /** Terceiro card */
+        // document.getElementById("total-hints-card").style.display = "block";
+        // document.getElementById("total-hints").innerText = results.hints.score;
+        // document.getElementById("total-hints-others").innerText = ' / ' + Math.round(results.hints.scoreOthers);
+        // document.getElementById("hints-percentage").innerText = percToStr(results.hints.betterThan);
         
-        /** Quarto card */
-        document.getElementById("max-time-level").innerText = results.time.max.level;
-        document.getElementById("max-time").innerText = msToClock(results.time.max.score);
+        // /** Quarto card */
+        // document.getElementById("max-time-card").style.display = "block";
+        // document.getElementById("max-time-level").innerText = results.time.max.level;
+        // document.getElementById("max-time").innerText = msToClock(results.time.max.score);
 
-        /** Quinto card */
-        document.getElementById("max-retries-level").innerText = results.retries.max.level;
-        document.getElementById("max-retries").innerText = results.retries.max.score;
+        // /** Quinto card */
+        // document.getElementById("max-retries-card").style.display = "block";
+        // document.getElementById("max-retries-level").innerText = results.retries.max.level;
+        // document.getElementById("max-retries").innerText = results.retries.max.score;
 
-        /** Sexto card */
-        document.getElementById("max-hints-level").innerText = results.hints.max.level;
-        document.getElementById("max-hints").innerText = results.hints.max.score;
+        // /** Sexto card */
+        // document.getElementById("max-hints-card").style.display = "block";
+        // document.getElementById("max-hints-level").innerText = results.hints.max.level;
+        // document.getElementById("max-hints").innerText = results.hints.max.score;
         
     }
 
@@ -243,12 +249,16 @@ export default class {
     }
 
     reloadLevel() {
-        let forceReload = this.state != GAME_STATE.PLAYING_GAME ? true : false;
-        this.dotsController.reload(forceReload);
-        this.#updateLevelInfo();
+        if (this.state === GAME_STATE.PLAYING_GAME) {
+            this.dotsController.reload();
+            if (this.currentLevel.isMax)
+                this.performanceController.incRetries(this.currentLevel.code);
+        } else {
+            let forceReload = true;
+            this.dotsController.reload(forceReload);
+        }
 
-        if (this.currentLevel.isMax)
-            this.performanceController.incRetries(this.currentLevel.code);
+        this.#updateLevelInfo();
     }
 
     continueGame() {
@@ -300,7 +310,7 @@ export default class {
         }
     }
 
-    startNewGame() {
+    replayTutorial() {
         this.performanceController.reset();
         this.levelController.resetProgress();
         this.continueGame();
@@ -321,34 +331,24 @@ export default class {
         this.#showFooter();
     }
 
-    loadLevel() {
+    loadLevel(levelCode) {
         this.state = GAME_STATE.PLAYING_LOAD;
-        let levelCodeContainerElement = document.getElementById("load-level-code-container");
-        let levelCodeInput = document.getElementById('code-input');
-            levelCodeInput.value = "";
-        document.getElementById("load-level-message").innerHTML = i18n.t('messages.loadLevel.info');
 
         let onConnectionMade = () => {
             this.#updateLevelInfo();
         };
 
-        let loadDotsFromInput = () => {
-            let code = levelCodeInput.value;
-            if (this.dotsController.loadSolve(code, null, onConnectionMade)) {
-                this.dotsController.waitingLoad = false;
-                levelCodeContainerElement.style.display = "none";
-                this.dotsController.animateExpand();
-                this.#changeFooterElementsShowing(false, false);
-                this.#showFooter();
-                this.#updateLevelInfo();
-            } else {
-                this.dotsController.waitingLoad = true;
-                document.getElementById("load-level-message").innerHTML = i18n.t('messages.loadLevel.error');
-            }
+        if (this.dotsController.loadSolve(levelCode, null, onConnectionMade)) {
+            this.dotsController.waitingLoad = false;
+            this.dotsController.animateExpand();
+            this.#changeFooterElementsShowing(false, false);
+            this.#showFooter();
+            this.#updateLevelInfo();
+            return true;
         }
-
-        levelCodeContainerElement.style.display = "flex";
-        levelCodeInput.onchange = loadDotsFromInput;
+        
+        this.dotsController.waitingLoad = true;
+        return false;
     }
 
     loadDailyChallenges() {
@@ -389,7 +389,7 @@ export default class {
         this.messagesController.unloadMessages();
         this.#changeFooterElementsShowing(false, false);
         this.#hideFooter();
-        this.#hideEndScreen();
+        this.#hideInfoScreen();
         this.#clearHeaderText();
         document.getElementById("load-level-code-container").style.display = "none";
     }

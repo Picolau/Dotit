@@ -3,7 +3,7 @@ const enMessages = {
         translations: {
             menu: {
                 continue: "Continue Game",
-                new: "Start New Game",
+                tutorial: "Replay Tutorial",
                 challenge: "Daily Challenge",
                 create: "Create a Level",
                 load: "Load a Level",
@@ -37,12 +37,14 @@ const enMessages = {
                 tips: "Hints",
                 free: "Free",
             },
-            endScreen: {
+            infoScreen: {
                 congratulationsText: "Congratulations!",
                 congratulations1: "You've made it! Thanks a lot for playing the game! Fortunately, things don't end just here... You can create levels and share it with your friends, or load some of their created levels! Also, there are daily challenges available for you, and you can replay the entire game if you wish too, by accessing 'Start New Game' on menu.",
                 congratulations2: "We are open to receive feedback or suggestions to improve the game, so send us an e-mail if you want to, we will be happy to hear from you! Also, you can create levels and share it with us to so we can put it on the daily challenges :D",
                 congratulations3: "Down here you can see the results of your game compared to others that are playing too. And some curiosities and stories about us and the creation of this game. Thank you again and have a great day!",
 
+                backText: "Back to levels",
+                refreshText: "Refresh results",
                 resultsText: "Results",
                 resultsErrorMessage: "Oops, sorry! Something went wrong with the server communication. Please try again later, by reloading this page!",
                 youOthersText: " (You / Others)",

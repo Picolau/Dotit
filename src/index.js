@@ -26,6 +26,7 @@ let p5Sketch = (sk) => {
     animationsController = new AnimationsController();
     backgroundController = new BackgroundController();
     gameController = new GameController();
+    decideGameStateAndStart();
     sk.frameRate(61);
   }
 
@@ -108,9 +109,9 @@ window.onload = () => {
     gameController.continueGame();
     hideMenu();
   };
-  document.getElementById('menu-item-new').onclick = () => {
+  document.getElementById('menu-item-tutorial').onclick = () => {
     gameController.clearScreen();
-    gameController.startNewGame();
+    gameController.replayTutorial();
     hideMenu();
   };
   document.getElementById('menu-item-challenge').onclick = () => {
@@ -125,7 +126,17 @@ window.onload = () => {
   };
   document.getElementById('menu-item-load').onclick = () => {
     gameController.clearScreen();
-    gameController.loadLevel();
+    document.getElementById("load-level-code-container").style.display = "flex";
+    document.getElementById('code-input').value = "";
+    document.getElementById('code-input').onchange = () => {
+      let codeFromInput = document.getElementById('code-input').value
+      if (gameController.loadLevel(codeFromInput))
+        document.getElementById("load-level-code-container").style.display = "none";
+      else
+        document.getElementById("load-level-message").innerHTML = i18n.t('messages.loadLevel.error');
+    };
+    document.getElementById("load-level-message").innerHTML = i18n.t('messages.loadLevel.info');
+
     hideMenu();
   };
   document.getElementById('menu-item-color').onclick = () => {
@@ -135,6 +146,26 @@ window.onload = () => {
     backgroundController.changeBackgroundColor(document.getElementById('color-picker').value);
     initMenu();
   });
+}
+
+function decideGameStateAndStart() {
+  let levelCodeURL = window.location.pathname.substring(1)
+  if (levelCodeURL) {
+    if (!gameController.loadLevel(levelCodeURL)) {
+      gameController.clearScreen();
+      document.getElementById("load-level-code-container").style.display = "flex";
+      document.getElementById('code-input').value = levelCodeURL;
+      document.getElementById("load-level-message").innerHTML = i18n.t('messages.loadLevel.error');
+      document.getElementById('code-input').onchange = () => {
+        let codeFromInput = document.getElementById('code-input').value
+        if (gameController.loadLevel(codeFromInput))
+          document.getElementById("load-level-code-container").style.display = "none";
+      };
+    }
+    return;
+  }
+
+  gameController.continueGame();
 }
 
 function updateFullscreenIcon() {
@@ -150,8 +181,8 @@ function translateDocument() {
   document.getElementById("menu-item-continue")
   .getElementsByClassName("menu-item-desc")[0].innerText = i18n.t('menu.continue')
 
-  document.getElementById("menu-item-new")
-  .getElementsByClassName("menu-item-desc")[0].innerText = i18n.t('menu.new')
+  document.getElementById("menu-item-tutorial")
+  .getElementsByClassName("menu-item-desc")[0].innerText = i18n.t('menu.tutorial')
 
   document.getElementById("menu-item-challenge")
   .getElementsByClassName("menu-item-desc")[0].innerText = i18n.t('menu.challenge')
@@ -166,32 +197,34 @@ function translateDocument() {
   .getElementsByClassName("menu-item-desc")[0].innerText = i18n.t('menu.color')
 
   /* Translate end screen */
-  document.getElementById("congratulations-text").innerText = i18n.t('endScreen.congratulationsText');
-  document.getElementById("congratulations-1").innerText = i18n.t('endScreen.congratulations1')
-  document.getElementById("congratulations-2").innerText = i18n.t('endScreen.congratulations2')
-  document.getElementById("congratulations-3").innerText = i18n.t('endScreen.congratulations3')
+  document.getElementById("congratulations-text").innerText = i18n.t('infoScreen.congratulationsText');
+  document.getElementById("congratulations-1").innerText = i18n.t('infoScreen.congratulations1')
+  document.getElementById("congratulations-2").innerText = i18n.t('infoScreen.congratulations2')
+  document.getElementById("congratulations-3").innerText = i18n.t('infoScreen.congratulations3')
 
-  document.getElementById("results-text").innerText = i18n.t('endScreen.resultsText')
-  document.getElementById("results-error-message").innerText = i18n.t('endScreen.resultsErrorMessage')
-  document.getElementById("you-others-text").innerText = i18n.t('endScreen.youOthersText')
-  document.getElementById("total-time-text").innerText = i18n.t('endScreen.totalTimeText')
-  document.getElementById("total-retries-text").innerText = i18n.t('endScreen.totalRetriesText')
-  document.getElementById("total-hints-text").innerText = i18n.t('endScreen.totalHintsText')
+  document.getElementById("back-text").innerText = i18n.t('infoScreen.backText')
+  document.getElementById("refresh-text").innerText = i18n.t('infoScreen.refreshText')
+  document.getElementById("results-text").innerText = i18n.t('infoScreen.resultsText')
+  document.getElementById("results-error-message").innerText = i18n.t('infoScreen.resultsErrorMessage')
+  document.getElementById("you-others-text").innerText = i18n.t('infoScreen.youOthersText')
+  document.getElementById("total-time-text").innerText = i18n.t('infoScreen.totalTimeText')
+  document.getElementById("total-retries-text").innerText = i18n.t('infoScreen.totalRetriesText')
+  document.getElementById("total-hints-text").innerText = i18n.t('infoScreen.totalHintsText')
 
-  document.getElementById("time-better-than").innerHTML = i18n.t('endScreen.betterThan') + " <span id='time-percentage'></span> " + i18n.t('endScreen.ofPeople')
-  document.getElementById("retries-better-than").innerHTML = i18n.t('endScreen.betterThan') + " <span id='retries-percentage'></span> " + i18n.t('endScreen.ofPeople')
-  document.getElementById("hints-better-than").innerHTML = i18n.t('endScreen.betterThan') + " <span id='hints-percentage'></span> " + i18n.t('endScreen.ofPeople')
+  document.getElementById("time-better-than").innerHTML = i18n.t('infoScreen.betterThan') + " <span id='time-percentage'></span> " + i18n.t('infoScreen.ofPeople')
+  document.getElementById("retries-better-than").innerHTML = i18n.t('infoScreen.betterThan') + " <span id='retries-percentage'></span> " + i18n.t('infoScreen.ofPeople')
+  document.getElementById("hints-better-than").innerHTML = i18n.t('infoScreen.betterThan') + " <span id='hints-percentage'></span> " + i18n.t('infoScreen.ofPeople')
 
-  document.getElementById("max-time-text").innerHTML = i18n.t('endScreen.theLevel') + " <span id='max-time-level'></span> " + i18n.t('endScreen.maxTimeText') 
-  document.getElementById("max-retries-text").innerHTML = i18n.t('endScreen.theLevel') + " <span id='max-retries-level'></span> " + i18n.t('endScreen.maxRetriesText') 
-  document.getElementById("max-hints-text").innerHTML = i18n.t('endScreen.theLevel') + " <span id='max-hints-level'></span> " + i18n.t('endScreen.maxHintsText') 
+  document.getElementById("max-time-text").innerHTML = i18n.t('infoScreen.theLevel') + " <span id='max-time-level'></span> " + i18n.t('infoScreen.maxTimeText') 
+  document.getElementById("max-retries-text").innerHTML = i18n.t('infoScreen.theLevel') + " <span id='max-retries-level'></span> " + i18n.t('infoScreen.maxRetriesText') 
+  document.getElementById("max-hints-text").innerHTML = i18n.t('infoScreen.theLevel') + " <span id='max-hints-level'></span> " + i18n.t('infoScreen.maxHintsText') 
   
-  document.getElementById("curiosities-text").innerText = i18n.t('endScreen.curiositiesText');
-  document.getElementById("curiosities-info").innerText = i18n.t('endScreen.curiositiesInfo')
-  document.getElementById("curiosities-1").innerHTML = "<span>1. </span>" + i18n.t('endScreen.curiosities1')
-  document.getElementById("curiosities-2").innerHTML = "<span>2. </span>" + i18n.t('endScreen.curiosities2')
-  document.getElementById("curiosities-3").innerHTML = "<span>3. </span>" + i18n.t('endScreen.curiosities3')
-  document.getElementById("curiosities-4").innerHTML = "<span>4. </span>" + i18n.t('endScreen.curiosities4')
+  document.getElementById("curiosities-text").innerText = i18n.t('infoScreen.curiositiesText');
+  document.getElementById("curiosities-info").innerText = i18n.t('infoScreen.curiositiesInfo')
+  document.getElementById("curiosities-1").innerHTML = "<span>1. </span>" + i18n.t('infoScreen.curiosities1')
+  document.getElementById("curiosities-2").innerHTML = "<span>2. </span>" + i18n.t('infoScreen.curiosities2')
+  document.getElementById("curiosities-3").innerHTML = "<span>3. </span>" + i18n.t('infoScreen.curiosities3')
+  document.getElementById("curiosities-4").innerHTML = "<span>4. </span>" + i18n.t('infoScreen.curiosities4')
 }
 
 function initMenu() {
@@ -205,6 +238,11 @@ function hideMenu() {
   setTimeout(function () {
     menuContainerDiv.style.display = "none";
   }, 500)
+
+  if (window.location.pathname.substring(1) != "")
+    window.history.pushState({}, document.title, "/");
+  else
+    window.history.replaceState({}, document.title, "/");
 }
 
 function showMenu() {

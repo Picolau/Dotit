@@ -248,7 +248,7 @@ input::-webkit-input-placeholder {
   padding: 0px 5px;
 }
 
-.end-screen-container {
+.info-screen {
   position: fixed;
   max-height: 80%;
   max-width: 90%;
@@ -263,7 +263,7 @@ input::-webkit-input-placeholder {
   display: none;
 }
 
-.end-screen-container p{
+.info-screen p {
   font-family: HelloDotStick;
   font-weight: bold;
   color: white;
@@ -271,7 +271,7 @@ input::-webkit-input-placeholder {
   text-shadow: 0.5px 0.5px 3px rgb(0, 0, 0, 0.5);
 }
 
-.end-screen-container span {
+.info-screen span {
   font-family: HelloDotStick;
   font-weight: bold;
   color: white;
@@ -279,9 +279,26 @@ input::-webkit-input-placeholder {
   text-shadow: 1px 1px 5px rgb(0, 0, 0, 0.5);
 }
 
+.info-screen .icon {
+  height: 25px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.info-screen .button-span {
+  color: rgba(255,255,255,0.9) !important;
+  font-size: 20px !important;
+  vertical-align: middle;
+}
+
 .other-span {
   color: rgba(255,255,255,0.9) !important;
   font-size: 20px !important;
+}
+
+.button-card:hover {
+  cursor: pointer;
+  box-shadow: 0 0 4px 2px rgb(255 255 255 / 80%);
 }
 
 .results-card p {
@@ -292,21 +309,22 @@ input::-webkit-input-placeholder {
   box-shadow: 0 0 4px 1px rgb(255 255 255 / 80%);
   padding: 10px;
   margin: 15px auto;
+  border-radius: 5px;
 }
 
-.end-screen-container::-webkit-scrollbar-track
+.info-screen::-webkit-scrollbar-track
 {
   border-radius: 4px;
   background-color: transparent;
 }
 
-.end-screen-container::-webkit-scrollbar
+.info-screen::-webkit-scrollbar
 {
   width: 4px;
   background-color: transparent;
 }
 
-.end-screen-container::-webkit-scrollbar-thumb
+.info-screen::-webkit-scrollbar-thumb
 {
   border-radius: 4px;
   background-color: #FFF;

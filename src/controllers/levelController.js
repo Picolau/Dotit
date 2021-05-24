@@ -41,10 +41,8 @@ export default class {
         }
     }
 
-    resetProgress() {
-        this.storageLevelIndex = 0;
-        this.currentLevelIndex = 0;
-        localStorage.setItem("level", 0);
+    goTo(level) {
+        this.currentLevelIndex = level;
         return this.getCurrent();
     }
 
