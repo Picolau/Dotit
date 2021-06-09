@@ -19,8 +19,9 @@ export default class {
             this.particles.push(new Particle());
         }
 
-        let storageColor = localStorage.getItem('bgColor');
+        let storageColor = localStorage.getItem('bg-color');
         this.bgColor = storageColor ? storageColor : DEFAULT_BACKGROUND_COLOR;
+        document.getElementById("menu-container").style.backgroundColor = this.bgColor;
         
         this.timeElapsed = 0;
         this.framesCounter = 0;
@@ -65,7 +66,8 @@ export default class {
 
     changeBackgroundColor(colorValue) {
         this.bgColor = P5.color(colorValue);
-        localStorage.setItem('bgColor', colorValue);
+        localStorage.setItem('bg-color', colorValue);
+        document.getElementById("menu-container").style.backgroundColor = this.bgColor;
     }
 
     handleResize() {

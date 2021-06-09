@@ -13,13 +13,18 @@ export default class {
 
     getCurrent() {
         let level = levels[this.currentLevelIndex]
+        if (!level)
+            return undefined;
+
         let levelObj = {
             hasMessage: level.length == 2,
             code: level[0],
             message: i18n.t(level[1]),
-            levelNumber: this.currentLevelIndex+1,
+            id: this.currentLevelIndex,
+            number: this.currentLevelIndex+1,
             isMax: this.currentLevelIndex == this.storageLevelIndex
         }
+
         return levelObj;
     }
 
@@ -27,6 +32,7 @@ export default class {
         this.storageLevelIndex++;
         this.currentLevelIndex++;
         localStorage.setItem("level", this.storageLevelIndex);
+        return this.currentLevelIndex < levels.length;
     }
 
     goBackward() {
@@ -43,10 +49,13 @@ export default class {
 
     goTo(level) {
         this.currentLevelIndex = level;
-        return this.getCurrent();
+    }
+
+    goToMax() {
+        this.currentLevelIndex = this.storageLevelIndex;
     }
 
     progressEnded() {
-        return this.storageLevelIndex >= levels.length;
+        return this.currentLevelIndex >= levels.length;
     }
 }

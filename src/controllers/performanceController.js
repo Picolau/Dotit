@@ -2,119 +2,96 @@ import levels from '../levels';
 
 export default class {
     constructor() {
-        this.levelsPerformance = localStorage.getItem("levels-performance");
-        
-        if (!this.levelsPerformance)
-            localStorage.setItem("levels-performance", JSON.stringify({}));       
+        if (!localStorage.getItem('game'))
+            this.#init('game');
+        if (!localStorage.getItem('challenge'))
+            this.#init('challenge');
+        if (!localStorage.getItem('stored-performances'))
+            this.#initStored();
     }
 
-    #init(level) {
-        let levelPerfObj = {
+    #init(type) {
+        let performance = {
+            level: {
+                id: undefined,
+                code: undefined
+            },
+            start: undefined,
+            end: undefined,
             retries: 0,
             hints: 0,
-            start: Date.now(),
-            end: 0
         };
 
-        this.levelsPerformance[level] = levelPerfObj;
+        localStorage.setItem(type, JSON.stringify(performance));
     }
 
-    #get(level) {
-        this.levelsPerformance = localStorage.getItem("levels-performance");
-        this.levelsPerformance = JSON.parse(this.levelsPerformance);
-
-        if (!(level in this.levelsPerformance))
-            this.#init(level)
-
-        return this.levelsPerformance[level];
+    #initStored() {
+        localStorage.setItem('stored-performances', JSON.stringify({
+            'game': [], 
+            'challenge': []
+        }));
     }
 
-    #set() {
-        localStorage.setItem("levels-performance", JSON.stringify(this.levelsPerformance))
+    store(type) {
+        let storedPerformances = this.get('stored-performances');
+        let performance = this.get(type);
+        storedPerformances[type].push(performance);
+        localStorage.setItem('stored-performances', JSON.stringify(storedPerformances));
     }
 
-    reset() {
-        localStorage.setItem("levels-performance", JSON.stringify({}))
+    resetStored(type) {
+        let storedPerformances = this.get('stored-performances');
+        storedPerformances[type] = [];
+        localStorage.setItem('stored-performances', JSON.stringify(storedPerformances));
     }
 
-    incRetries(level) {
-        let levelPerf = this.#get(level);
-        levelPerf.retries += 1;
-        this.#set();
+    getStored(type) {
+        let storedPerformances = JSON.parse(localStorage.getItem('stored-performances'));
+        return storedPerformances[type];
     }
 
-    incHints(level) {
-        let levelPerf = this.#get(level);
-        levelPerf.hints += 1;
-        this.#set();
+    get(type) {
+        return JSON.parse(localStorage.getItem(type))
     }
 
-    setClockStart(level) {
-        let levelPerf = this.#get(level);
-        levelPerf.start = Date.now();
-        this.#set();
-    }
-
-    setClockEnd(level) {
-        let levelPerf = this.#get(level);
-        levelPerf.end = Date.now();
-        this.#set();
-    }
-
-    results() {
-        this.levelsPerformance = localStorage.getItem("levels-performance");
-        return this.levelsPerformance;
-    }
-
-    resultsMax() {
-        function idxLevel(lvlCode) {
-            for (let i = 0;i < levels.length;i++) {
-                if (levels[i][0] == lvlCode)
-                    return i;
-            }
-
-            return -1;
-        }
-
-        let resultsMax = {
-            time: {
-                value: 0,
-                level: 0
-            },
-            hints: {
-                value: 0,
-                level: 0
-            },
-            retries: {
-                value: 0,
-                level: 0
-            }
-        }
-
-        this.levelsPerformance = localStorage.getItem("levels-performance");
-        this.levelsPerformance = JSON.parse(this.levelsPerformance);
+    set(type, level) {
+        let performance = this.get(type);
+        let reset = level.id != performance.level.id;
         
-        for (let levelCode in this.levelsPerformance) {
-            let level = idxLevel(levelCode);
-            let perf = this.levelsPerformance[levelCode];
-            perf.time = perf.end - perf.start;
-
-            if (perf.retries > resultsMax.retries.value) {
-                resultsMax.retries.value = perf.retries;
-                resultsMax.retries.level = level;
-            }
-
-            if (perf.hints > resultsMax.hints.value) {
-                resultsMax.hints.value = perf.hints;
-                resultsMax.hints.level = level;
-            }
-
-            if (perf.time > resultsMax.time.value) {
-                resultsMax.time.value = perf.time;
-                resultsMax.time.level = level;
-            }
+        if (reset) {
+            performance.level = {
+                id: level.id,
+                code: level.code,
+            };
+            performance.retries = 0;
+            performance.hints = 0;
+            performance.start = undefined;
+            performance.end = undefined;
+            localStorage.setItem(type, JSON.stringify(performance));
         }
+    }
 
-        return resultsMax;
+    incRetries(type) {
+        let performance = this.get(type);
+        performance.retries += 1;
+        localStorage.setItem(type, JSON.stringify(performance));
+    }
+
+    incHints(type) {
+        let performance = this.get(type);
+        performance.hints += 1;
+        localStorage.setItem(type, JSON.stringify(performance));
+    }
+
+    startClock(type) {
+        let performance = this.get(type);
+        performance.start = Date.now();
+        localStorage.setItem(type, JSON.stringify(performance));
+    }
+
+    endClock(type) {
+        let performance = this.get(type);
+        performance.end = Date.now();
+        localStorage.setItem(type, JSON.stringify(performance));
     }
 }

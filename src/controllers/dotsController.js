@@ -9,7 +9,6 @@ const STATE = {
 }
 
 import { P5, animationsController, globalEnv } from '../index';
-import p5 from '../lib/p5';
 
 const Dot = require('../classes/dot').default;
 const Connection = require('../classes/connection').default;

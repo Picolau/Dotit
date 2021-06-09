@@ -30,6 +30,12 @@ const enMessages = {
                 loadLevel: {
                     info: "Paste the pattern code here and hit Enter!",
                     error: "This code is incorrect. Check it's correctness and try again.",
+                },
+                api: {
+                    syncingPerformances: "Trying to communicate with my master... Just a sec!",
+                    fetchingResults: "Ok, i was told he's preparing your results, let's see...",
+                    resultsSuccess: "Finally!! Enjoy your results...",
+                    resultsError: "Oh no! It seems master is off right now... Please, consider trying again later.",
                 }
             },
             info: {

@@ -11,7 +11,6 @@ window.mobileCheck = function () {
 let backgroundController;
 let gameController;
 let animationsController;
-
 let globalEnv = {
   isDevice: window.mobileCheck(),
 };
@@ -22,6 +21,7 @@ const AnimationsController = require('./controllers/animationsController').defau
 
 let p5Sketch = (sk) => {
   sk.setup = () => {
+    translateDocument();
     globalEnv.screenSizeFactor = Math.sqrt(Math.pow(sk.windowWidth, 2) + Math.pow(sk.windowWidth, 2)) / Math.sqrt(1600 * 1600 + 900 * 900)
     animationsController = new AnimationsController();
     backgroundController = new BackgroundController();
@@ -50,9 +50,6 @@ let p5Sketch = (sk) => {
 const P5 = new p5(p5Sketch);
 
 window.onload = () => {
-  initMenu();
-  translateDocument();
-
   // close menu when click outside menu
   document.addEventListener("click", (event) => {
     let menuContainerDiv = document.getElementById("menu-container");
@@ -74,7 +71,7 @@ window.onload = () => {
     showMenu();
     event.stopPropagation();
   };
-  
+
   document.getElementById("fullscreen-icon").onclick = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen({ navigationUI: 'hide' }).then(() => {
@@ -88,7 +85,7 @@ window.onload = () => {
   }
 
   document.getElementById("hint-icon").onclick = (event) => {
-    gameController.showHint();
+    gameController.useHint();
   };
   document.getElementById("arrow-left-icon").onclick = (event) => {
     gameController.goToPrevLevel();
@@ -106,6 +103,7 @@ window.onload = () => {
   document.addEventListener('contextmenu', event => event.preventDefault());
   document.getElementById('menu-item-continue').onclick = () => {
     gameController.clearScreen();
+    gameController.levelController.goToMax();
     gameController.continueGame();
     hideMenu();
   };
@@ -116,7 +114,7 @@ window.onload = () => {
   };
   document.getElementById('menu-item-challenge').onclick = () => {
     gameController.clearScreen();
-    gameController.loadDailyChallenges();
+    gameController.loadDailyChallenge();
     hideMenu();
   };
   document.getElementById('menu-item-create').onclick = () => {
@@ -144,8 +142,14 @@ window.onload = () => {
   };
   document.getElementById('color-picker').addEventListener('input', () => {
     backgroundController.changeBackgroundColor(document.getElementById('color-picker').value);
-    initMenu();
   });
+  document.getElementById("back-to-levels-button").onclick = () => {
+    gameController.clearScreen();
+    gameController.backToLevels();
+  }
+  document.getElementById("refresh-results-button").onclick = () => {
+    gameController.refreshResults();
+  }
 }
 
 function decideGameStateAndStart() {
@@ -205,7 +209,7 @@ function translateDocument() {
   document.getElementById("back-text").innerText = i18n.t('infoScreen.backText')
   document.getElementById("refresh-text").innerText = i18n.t('infoScreen.refreshText')
   document.getElementById("results-text").innerText = i18n.t('infoScreen.resultsText')
-  document.getElementById("results-error-message").innerText = i18n.t('infoScreen.resultsErrorMessage')
+  document.getElementById("results-message").innerText = i18n.t('infoScreen.resultsErrorMessage')
   document.getElementById("you-others-text").innerText = i18n.t('infoScreen.youOthersText')
   document.getElementById("total-time-text").innerText = i18n.t('infoScreen.totalTimeText')
   document.getElementById("total-retries-text").innerText = i18n.t('infoScreen.totalRetriesText')
@@ -225,11 +229,6 @@ function translateDocument() {
   document.getElementById("curiosities-2").innerHTML = "<span>2. </span>" + i18n.t('infoScreen.curiosities2')
   document.getElementById("curiosities-3").innerHTML = "<span>3. </span>" + i18n.t('infoScreen.curiosities3')
   document.getElementById("curiosities-4").innerHTML = "<span>4. </span>" + i18n.t('infoScreen.curiosities4')
-}
-
-function initMenu() {
-  let menuContainerDiv = document.getElementById("menu-container");
-  menuContainerDiv.style.backgroundColor = backgroundController.bgColor;
 }
 
 function hideMenu() {

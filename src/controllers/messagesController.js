@@ -7,64 +7,59 @@ export default class {
         this.messagesContainerElement = document.getElementById("messages-container");
     }
 
-    #clear() {
+    clear() {
         this.messagesContainerElement.innerHTML = "";
+        this.messagesContainerElement.style.display = "none";
+        this.onRead(null);
     }
 
-    #display(display) {
-        if (display)
-            this.messagesContainerElement.style.display = "flex";
-        else
-            this.messagesContainerElement.style.display = "none";
+    set(idx, message, final) {
+        let messageElement = !final ? 
+            document.getElementsByClassName('message-item')[idx]
+        :
+            document.getElementsByClassName('continue-item')[0];
+        messageElement.innerText = message;
     }
 
-    #populate(messages) {
-        for (let idx = 0;idx < messages.length;idx++) {
-            let message = messages[idx];
-            this.#addMessageElement(message);
+    prepare(messages, finalMessage) {
+        this.count = 0;
+        this.max = messages.length;
+        this.messagesContainerElement.style.display = "flex";
+        this.messagesContainerElement.innerHTML = "";
+        for (let i = 0; i < messages.length; i++) {
+            let messageElement = document.createElement('span');
+            messageElement.className = 'message-item';
+            messageElement.innerText = messages[i];
+            this.messagesContainerElement.appendChild(messageElement);
         }
-        this.#addMessageElement(i18n.t('messages.continue'), true);
+
+        let messageElement = document.createElement('span');
+        messageElement.className = 'continue-item';
+        messageElement.innerText = finalMessage;
+        this.messagesContainerElement.appendChild(messageElement);
     }
 
-    #addMessageElement(message, isContinue=false) {
-        if (!isContinue)
-            this.messagesContainerElement.innerHTML += "<span class='message-item'>" + message + "</span>";
-        else
-            this.messagesContainerElement.innerHTML += "<span class='continue-item'>" + message + "</span>";
+    showNext() {
+        return new Promise((resolve, reject) => {
+            let messageElement = this.count < this.max ? 
+                document.getElementsByClassName('message-item')[this.count]
+            :
+                document.getElementsByClassName('continue-item')[0];
+            setTimeout(() => {
+                messageElement.style.opacity = 1;
+                messageElement.style.transform = 'translate(0%, 0%)';
+            }, 50)
+            this.count += 1;
+            setTimeout(resolve, TIME_BETWEEN_MESSAGES_ANIMATION);
+        })
     }
 
-    #animateAppear() {
-        let messageElements = document.getElementsByClassName("message-item");
-        let continueElement = document.getElementsByClassName("continue-item")[0];
-
-        for (let idx = 0;idx < messageElements.length;idx++) {
-            let messageElem = messageElements[idx];
-            setTimeout(function() {
-                messageElem.style.opacity = 1;
-            }, idx*TIME_BETWEEN_MESSAGES_ANIMATION);
-        }
-        
-        setTimeout(function () {
-            continueElement.style.opacity = 1;
-        }, (messageElements.length-1)*TIME_BETWEEN_MESSAGES_ANIMATION)
-    }
-
-    loadMessages(messagesCode, continueCallback) {
-        let messages = messagesCode.split(';');
-
-        this.#clear();
-        this.#display(true);
-        this.#populate(messages);
-        this.#animateAppear();
-
+    onRead(callback) {
         this.messagesContainerElement.onclick = () => {
-            this.unloadMessages();
-            continueCallback();
+            if (callback) {
+                this.clear();
+                callback();
+            }
         };
-    }
-
-    unloadMessages() {
-        this.#clear();
-        this.#display(false);
     }
 }
