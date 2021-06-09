@@ -22,7 +22,13 @@ const ptMessages = {
                     "E agora, Espero que isso pareça uma pipa!; Consegue fazer usando os 3 cliques extra?",
                     "Muito bom, o tutorial acaba por aqui!;São 90 níveis no total, que tendem a crescer em dificuldade conforme você avança.;Espero que aproveite o resto do jogo, boa sorte!",
                 ],
-                continue: "Clique/Toque por perto para prosseguir",
+                tapContinue: "Clique/Toque por perto para prosseguir",
+                tapTryAgain: "Clique/Toque para tentar novamente.",
+                dailyChallenge: {
+                    fetching: "Sincronizando...",
+                    successFetching: "Novo desafio foi lançado! Aproveite!",
+                    errorFetching: "Ops! Algo deu errado na sincronização."
+                },
                 clipboard: {
                     success: "!Copiado com sucesso",
                     error: ".Erro ao copiar",
@@ -30,7 +36,13 @@ const ptMessages = {
                 loadLevel: {
                     info: "Cole o código da figura aqui e pressione Enter!",
                     error: "Esse código está incorreto. Por favor, verifique-o e tente novamente.",
-                } 
+                },
+                api: {
+                    syncingPerformances: "Estou tentando me comunicar com meu mestre... Um segundo!",
+                    fetchingResults: "Ok, enviando e preparando os resultados, vejamos...",
+                    resultsSuccess: "Finalmente... Aproveite seus resultados!!",
+                    resultsError: "Essa não! Parece que mestre recusou essa chamada... Por favor, tente novamente mais tarde.",
+                }
             },
             info: {
                 extra: "Extra",

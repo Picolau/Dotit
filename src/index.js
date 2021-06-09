@@ -153,8 +153,13 @@ window.onload = () => {
 }
 
 function decideGameStateAndStart() {
-  let levelCodeURL = window.location.pathname.substring(1)
-  if (levelCodeURL) {
+  let url = window.location.pathname.substring(1)
+  if (url) {
+    if (url == 'challenge') {
+      gameController.loadDailyChallenge();
+      return;
+    }
+    let levelCodeURL = url;
     if (!gameController.loadLevel(levelCodeURL)) {
       gameController.clearScreen();
       document.getElementById("load-level-code-container").style.display = "flex";

@@ -22,7 +22,13 @@ const enMessages = {
                     "And now, i hope that this looks like a kite!; Can you do it with the 3 extra clicks?",
                     "Really great, you've completed the tutorial!;There are 90 levels at total, that tends to increase in difficulty as you move on.;I hope you enjoy the rest of the game and good luck!",
                 ],
-                continue: "Click/Tap anywhere near to continue",
+                tapContinue: "Click/Tap anywhere near to continue",
+                tapTryAgain: "Click/Tap anywhere near to try again.",
+                dailyChallenge: {
+                    fetching: "Syncing...",
+                    successFetching: "New challenge available! Enjoy!",
+                    errorFetching: "Oops! Something went wrong."
+                },
                 clipboard: {
                     success: "!Copied to clipboard",
                     error: ".Error copying to clip",

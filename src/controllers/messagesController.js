@@ -45,12 +45,14 @@ export default class {
                 document.getElementsByClassName('message-item')[this.count]
             :
                 document.getElementsByClassName('continue-item')[0];
-            setTimeout(() => {
-                messageElement.style.opacity = 1;
-                messageElement.style.transform = 'translate(0%, 0%)';
-            }, 50)
-            this.count += 1;
-            setTimeout(resolve, TIME_BETWEEN_MESSAGES_ANIMATION);
+            if (messageElement) {
+                setTimeout(() => {
+                    messageElement.style.opacity = 1;
+                    messageElement.style.transform = 'translate(0%, 0%)';
+                }, 50)
+                this.count += 1;
+                setTimeout(resolve, TIME_BETWEEN_MESSAGES_ANIMATION);
+            }
         })
     }
 

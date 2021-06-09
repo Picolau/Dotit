@@ -30,7 +30,6 @@ export default class {
 
     #syncApi(type) {
         let stored = this.performanceController.getStored(type);
-        console.log(stored);
         let alreadySynced = stored.length == 0;
 
         let promise = alreadySynced ? Promise.resolve() : new Promise((resolve, reject) => {
@@ -56,9 +55,11 @@ export default class {
     }
 
     loadResults(type) {
+        if (this.loadingResults) return;
+
+        this.loadingResults = true;
         const MIN_TIME = 2500;
         const wait = ms => new Promise(resolve => setTimeout(resolve, ms));    
-
         let start = Date.now();
         this.domController.showResultsMessage(i18n.t('messages.api.syncingPerformances'));
         this.#syncApi(type).then(() => {
@@ -75,8 +76,10 @@ export default class {
             wait(ms).then(() => {
                 this.domController.showResultsMessage(i18n.t('messages.api.resultsSuccess'));
                 this.domController.showResults(results);
+                this.loadingResults = false;
             });
         }).catch((errMessage) => {
+            this.loadingResults = false;
             this.domController.showResultsMessage(i18n.t('messages.api.resultsError'));
         });
     }
@@ -98,11 +101,17 @@ export default class {
         } else if (this.state === GAME_STATE.PLAYING_CREATE) {
             headerText = i18n.t('info.free');  
             levelText = "";
-        } else if (this.state === GAME_STATE.PLAYING_LOAD || this.state === GAME_STATE.PLAYING_CHALLENGE) {
+        } else if (this.state === GAME_STATE.PLAYING_LOAD) {
             let extraClicksText = '' + (this.dotsController.maxClicks - this.dotsController.clicksConsumed);
             headerText  = "<span>Extra: </span>";
             headerText += extraClicksText;
             levelText = "";
+        } else if (this.state === GAME_STATE.PLAYING_CHALLENGE) {
+            let extraClicksText = (this.dotsController.maxClicks - this.dotsController.clicksConsumed) + ' ';
+            headerText += "<span>" + i18n.t('info.extra') + ": </span>";
+            headerText += extraClicksText;
+            headerText += "<span>" + i18n.t('info.tips') + ": </span>";
+            headerText += '99';
         }
 
         this.domController.setHeaderText(headerText);
@@ -110,15 +119,15 @@ export default class {
     }
 
     useHint() {
-        if (this.hintsController.hasAny()) {
+        if (this.state === GAME_STATE.PLAYING_CHALLENGE) {
+            this.performanceController.incHints('challenge');
+            this.dotsController.showNextHint();
+        } else if (this.state === GAME_STATE.PLAYING_GAME && this.hintsController.hasAny()) {
             this.hintsController.useOne();
             this.dotsController.showNextHint();
             this.#updateLevelInfo();
-
-            if (this.state === GAME_STATE.PLAYING_GAME && this.currentLevel.isMax)
+            if (this.currentLevel.isMax)
                 this.performanceController.incHints('game');
-            if (this.state === GAME_STATE.PLAYING_CHALLENGE)
-                this.performanceController.incHints('challenge');
         }
     }
 
@@ -133,7 +142,6 @@ export default class {
     }
 
     refreshResults() {
-        console.log(this.state);
         if (this.state === GAME_STATE.PLAYING_GAME) {
             this.loadResults('game');
         } else if (this.state === GAME_STATE.PLAYING_CHALLENGE) { 
@@ -142,8 +150,9 @@ export default class {
     }
 
     backToLevels() {
-        if (state === GAME_STATE.PLAYING_CHALLENGE) {
-            this.loadDailyChallenge()
+        if (this.state === GAME_STATE.PLAYING_CHALLENGE) {
+            let loadLocal = true;
+            this.loadDailyChallenge(loadLocal);
         } else {
             this.goToPrevLevel();
         }
@@ -184,7 +193,7 @@ export default class {
                 if (this.currentLevel.number % 3 == 0)
                     this.hintsController.addOne();
                 if (this.levelController.progressNext())
-                    this.#syncApi('game').catch((err) => {console.log(err)});
+                    this.#syncApi('game').catch((err) => {});
             } else {
                 this.levelController.goForward();
             }
@@ -263,7 +272,7 @@ export default class {
         return false;
     }
 
-    loadDailyChallenge() {
+    loadDailyChallenge(loadLocal) {
         this.state = GAME_STATE.PLAYING_CHALLENGE;
 
         let onConnectionMade = () => {
@@ -271,31 +280,32 @@ export default class {
         };
 
         let onFinishSolvingDots = () => {
-            this.performanceController.endClock('challenge');
-            this.performanceController.store('challenge');
+            if (!loadLocal) {
+                this.performanceController.endClock('challenge');
+                this.performanceController.store('challenge');
+            }
             this.clearScreen();
             this.domController.showInfoScreen(false);
             this.loadResults('challenge');
         };
-        
+
+        if (loadLocal) {
+            let local = this.performanceController.get('challenge');
+            this.dotsController.loadSolve(local.level.code, onFinishSolvingDots, onConnectionMade)
+            this.dotsController.waitingLoad = false;
+            this.dotsController.animateExpand();
+            this.domController.showFooter(true, false, false);
+            this.#updateLevelInfo();
+            return;
+        }
+
         this.messagesController.prepare([
-            i18n.t('messages.fetchingDailyChallenge'),
-            i18n.t('messages.successFetchingDailyChallenge')
+            i18n.t('messages.dailyChallenge.fetching'),
+            i18n.t('messages.dailyChallenge.successFetching')
         ], i18n.t('messages.tapContinue'))
         let messagePromise = this.messagesController.showNext();
 
         this.apiController.requestDailyChallenge().then((level) => {
-            console.log(level);
-            let localLevel = this.performanceController.get('challenge');
-            let levelIsLocal = localLevel.level.id == level._id;
-            let solvedLocal = !!localLevel.end;
-            if (levelIsLocal && solvedLocal) {
-                this.clearScreen();
-                this.domController.showInfoScreen(false);
-                this.loadResults('challenge');
-                return;
-            }
-
             const playChallenge = () => {
                 level.id = level._id;
                 this.performanceController.set('challenge', level);
@@ -306,14 +316,25 @@ export default class {
                 this.domController.showFooter(true, false, false);
                 this.#updateLevelInfo();
             }
-            messagePromise
-            .then(_ => this.messagesController.showNext()) // show success
-            .then(_ => {
-                this.messagesController.showNext();  // show tapContinue
-                this.messagesController.onRead(playChallenge);
-            });
+
+            let localLevel = this.performanceController.get('challenge');
+            let levelIsLocal = localLevel.level.id == level._id;
+            let solvedLocal = !!localLevel.end;
+
+            if (levelIsLocal && solvedLocal) {
+                this.clearScreen();
+                this.domController.showInfoScreen(false);
+                this.loadResults('challenge');
+            } else {
+                messagePromise
+                .then(_ => this.messagesController.showNext()) // show success
+                .then(_ => {
+                    this.messagesController.showNext();  // show tapContinue
+                    this.messagesController.onRead(playChallenge);
+                });
+            }
         }).catch(() => {
-            this.messagesController.set(1, i18n.t('messages.errorFetchingDailyChallenge'), false);
+            this.messagesController.set(1, i18n.t('messages.dailyChallenge.errorFetching'), false);
             this.messagesController.set(0, i18n.t('messages.tapTryAgain'), true);
             messagePromise
             .then(_ => this.messagesController.showNext()) // show error
