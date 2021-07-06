@@ -3,10 +3,11 @@ const NUM_LEVELS_TUTORIAL = 15;
 
 import levels from '../levels';
 import { i18n } from '../translate/i18n'
+import { secureStorage } from '../index'
 
 export default class {
     constructor() {
-        let levelIndex = localStorage.getItem("level");
+        let levelIndex = secureStorage.getItem("level");
         this.storageLevelIndex = levelIndex ? parseInt(levelIndex) : 0;
         this.currentLevelIndex = this.storageLevelIndex;
     }
@@ -31,7 +32,7 @@ export default class {
     progressNext() {
         this.storageLevelIndex++;
         this.currentLevelIndex++;
-        localStorage.setItem("level", this.storageLevelIndex);
+        secureStorage.setItem("level", this.storageLevelIndex);
         return this.currentLevelIndex < levels.length;
     }
 

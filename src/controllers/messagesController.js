@@ -1,5 +1,3 @@
-import { i18n } from '../translate/i18n'
-
 const TIME_BETWEEN_MESSAGES_ANIMATION = 1500;
 
 export default class {

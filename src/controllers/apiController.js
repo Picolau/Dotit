@@ -1,6 +1,8 @@
+import { secureStorage } from '../index'
+
 export default class {
     constructor() {
-        this.playerId = localStorage.getItem('player-id');
+        this.playerId = secureStorage.getItem('player-id');
         
         if (!this.playerId)
             this.requestId()
@@ -50,7 +52,7 @@ export default class {
             this.playerId ? resolve(this.playerId) :
             this.#post('/players', {}).then((player) => {
                 this.playerId = player._id;
-                localStorage.setItem('player-id', player._id);
+                secureStorage.setItem('player-id', player._id);
                 resolve(player._id);
             }).catch((error) => {
                 reject(error)

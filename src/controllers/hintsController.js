@@ -1,28 +1,30 @@
+import { secureStorage } from '../index'
+
 export default class {
     constructor() {
-        let hints = localStorage.getItem("hints");
+        let hints = secureStorage.getItem("hints");
         if (!hints)
-            localStorage.setItem("hints", 0);
+            secureStorage.setItem("hints", 0);
     }
 
     hasAny() {
-        let hints = parseInt(localStorage.getItem("hints"));
+        let hints = parseInt(secureStorage.getItem("hints"));
         return hints > 0;
     }
 
     addOne() {
-        let hints = parseInt(localStorage.getItem("hints"));
+        let hints = parseInt(secureStorage.getItem("hints"));
         hints++;
-        localStorage.setItem("hints", hints)
+        secureStorage.setItem("hints", hints)
     }
 
     useOne() {
-        let hints = parseInt(localStorage.getItem("hints"));
+        let hints = parseInt(secureStorage.getItem("hints"));
         hints--;
-        localStorage.setItem("hints", hints)
+        secureStorage.setItem("hints", hints)
     }
 
     getTotal() {
-        return parseInt(localStorage.getItem("hints"));
+        return parseInt(secureStorage.getItem("hints"));
     }
 }

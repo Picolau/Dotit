@@ -1,12 +1,13 @@
 import levels from '../levels';
+import { secureStorage } from '../index'
 
 export default class {
     constructor() {
-        if (!localStorage.getItem('game'))
+        if (!secureStorage.getItem('game'))
             this.#init('game');
-        if (!localStorage.getItem('challenge'))
+        if (!secureStorage.getItem('challenge'))
             this.#init('challenge');
-        if (!localStorage.getItem('stored-performances'))
+        if (!secureStorage.getItem('stored-performances'))
             this.#initStored();
     }
 
@@ -22,11 +23,11 @@ export default class {
             hints: 0,
         };
 
-        localStorage.setItem(type, JSON.stringify(performance));
+        secureStorage.setItem(type, JSON.stringify(performance));
     }
 
     #initStored() {
-        localStorage.setItem('stored-performances', JSON.stringify({
+        secureStorage.setItem('stored-performances', JSON.stringify({
             'game': [], 
             'challenge': []
         }));
@@ -36,22 +37,22 @@ export default class {
         let storedPerformances = this.get('stored-performances');
         let performance = this.get(type);
         storedPerformances[type].push(performance);
-        localStorage.setItem('stored-performances', JSON.stringify(storedPerformances));
+        secureStorage.setItem('stored-performances', JSON.stringify(storedPerformances));
     }
 
     resetStored(type) {
         let storedPerformances = this.get('stored-performances');
         storedPerformances[type] = [];
-        localStorage.setItem('stored-performances', JSON.stringify(storedPerformances));
+        secureStorage.setItem('stored-performances', JSON.stringify(storedPerformances));
     }
 
     getStored(type) {
-        let storedPerformances = JSON.parse(localStorage.getItem('stored-performances'));
+        let storedPerformances = JSON.parse(secureStorage.getItem('stored-performances'));
         return storedPerformances[type];
     }
 
     get(type) {
-        return JSON.parse(localStorage.getItem(type))
+        return JSON.parse(secureStorage.getItem(type))
     }
 
     set(type, level) {
@@ -67,31 +68,31 @@ export default class {
             performance.hints = 0;
             performance.start = undefined;
             performance.end = undefined;
-            localStorage.setItem(type, JSON.stringify(performance));
+            secureStorage.setItem(type, JSON.stringify(performance));
         }
     }
 
     incRetries(type) {
         let performance = this.get(type);
         performance.retries += 1;
-        localStorage.setItem(type, JSON.stringify(performance));
+        secureStorage.setItem(type, JSON.stringify(performance));
     }
 
     incHints(type) {
         let performance = this.get(type);
         performance.hints += 1;
-        localStorage.setItem(type, JSON.stringify(performance));
+        secureStorage.setItem(type, JSON.stringify(performance));
     }
 
     startClock(type) {
         let performance = this.get(type);
         performance.start = Date.now();
-        localStorage.setItem(type, JSON.stringify(performance));
+        secureStorage.setItem(type, JSON.stringify(performance));
     }
 
     endClock(type) {
         let performance = this.get(type);
         performance.end = Date.now();
-        localStorage.setItem(type, JSON.stringify(performance));
+        secureStorage.setItem(type, JSON.stringify(performance));
     }
 }
