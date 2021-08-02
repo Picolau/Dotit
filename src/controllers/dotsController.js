@@ -32,11 +32,11 @@ export default class {
 
     // gets the dots container measures and return left margin and top margin and paddings
     #getDotsContainerMeasures() {
-        let horizontalMargin = 30/*0.075 * P5.windowWidth*/;
+        let horizontalMargin = 30;
         let verticalMargin = 60;
 
-        let horizontalPadding = (P5.windowWidth - 2 * horizontalMargin) / (this.cols - 1);
-        let verticalPadding = (P5.windowHeight - 2 * verticalMargin) / (this.rows - 1);
+        let horizontalPadding = (window.innerWidth - 2 * horizontalMargin) / (this.cols - 1);
+        let verticalPadding = (window.innerHeight - 2 * verticalMargin) / (this.rows - 1);
         let dotsPadding = P5.min(MAX_PADDING, horizontalPadding, verticalPadding);
 
         let dotsContainerSize = {
@@ -44,23 +44,8 @@ export default class {
             height: (this.rows - 1) * (dotsPadding),
         };
 
-        verticalMargin = (P5.windowHeight - dotsContainerSize.height) / 2;
-        horizontalMargin = (P5.windowWidth - dotsContainerSize.width) / 2;
-        /*if (verticalMargin < 0.1*P5.windowHeight || horizontalMargin < 0.1*P5.windowWidth) {
-            if (verticalMargin / P5.windowHeight < horizontalMargin/P5.windowWidth) {
-                verticalMargin = 0.1*P5.windowHeight;
-                dotsContainerSize.height = P5.windowHeight - verticalMargin*2;
-                dotsPadding = dotsContainerSize.height / (this.rows - 1);
-                dotsContainerSize.width = (this.cols-1)*dotsPadding;
-                horizontalMargin = (P5.windowWidth - dotsContainerSize.width) / 2;
-            } else {
-                horizontalMargin = 0.1*P5.windowWidth;
-                dotsContainerSize.width = P5.windowWidth - horizontalMargin*2;
-                dotsPadding = dotsContainerSize.width / (this.cols - 1);
-                dotsContainerSize.height = (this.rows-1)*dotsPadding;
-                verticalMargin = (P5.windowHeight - dotsContainerSize.height) / 2;
-            }
-        }*/
+        verticalMargin = (window.innerHeight - dotsContainerSize.height) / 2;
+        horizontalMargin = (window.innerWidth - dotsContainerSize.width) / 2;
 
         let dotSize = dotsPadding / 8;
         if (dotsPadding > 100) {

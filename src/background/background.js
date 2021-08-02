@@ -6,8 +6,8 @@ const NUM_PARTICLES_PER_SCREEN_SIZE = 100;
 const DEFAULT_BACKGROUND_COLOR = '#2052c5';
 
 export default class {
-    constructor(){
-        const canvasElt = P5.createCanvas(P5.windowWidth, P5.windowHeight).elt;
+    constructor() {
+        const canvasElt = P5.createCanvas(window.innerWidth, window.innerHeight).elt;
         canvasElt.style.width = '100%', canvasElt.style.height = '100%';
 
         /* Control background particles */

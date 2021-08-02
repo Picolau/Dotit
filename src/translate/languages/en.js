@@ -42,6 +42,8 @@ const enMessages = {
                     fetchingResults: "Ok, i was told he's preparing your results, let's see...",
                     resultsSuccess: "Finally!! Enjoy your results...",
                     resultsError: "Oh no! It seems master is off right now... Please, consider trying again later.",
+                    performCaptcha: "I need you to perform this captcha. It won't take long, i promise.",
+                    errorCaptcha: "Ouch, it seems something went wrong with captcha, please try again."
                 }
             },
             info: {
@@ -55,12 +57,15 @@ const enMessages = {
                 congratulations2: "We are open to receive feedback or suggestions to improve the game, so send us an e-mail if you want to, we will be happy to hear from you! Also, you can create levels and share it with us to so we can put it on the daily challenges :D",
                 congratulations3: "Down here you can see the results of your game compared to others that are playing too. And some curiosities and stories about us and the creation of this game. Thank you again and have a great day!",
 
-                backText: "Back to levels",
+                backText: {
+                    game: "Back to levels",
+                    challenge: "Back to challenge"
+                },
                 refreshText: "Refresh results",
                 resultsText: "Results",
                 resultsErrorMessage: "Oops, sorry! Something went wrong with the server communication. Please try again later, by reloading this page!",
                 youOthersText: " (You / Others)",
-                betterThan: "You performed better than ",
+                betterThan: "You performed equal to or better than ",
                 ofPeople: " of people",
                 totalTimeText: "Total time taken: ",
                 totalRetriesText: "Total retries: ",

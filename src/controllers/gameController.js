@@ -14,7 +14,9 @@ const GAME_STATE = {
     PLAYING_CHALLENGE: 'playing-challenge',
 }
 
-import { } from '../index';
+const INACTIVITY_MAX_TIME = 1000 * 60 * 10
+
+import { secureStorage } from '../index';
 import { i18n } from '../translate/i18n';
 
 export default class {
@@ -28,60 +30,88 @@ export default class {
         this.domController         = new DomController();
     }
 
-    #syncApi(type) {
+    async #syncApi(type) {
         let stored = this.performanceController.getStored(type);
         let alreadySynced = stored.length == 0;
 
-        let promise = alreadySynced ? Promise.resolve() : new Promise((resolve, reject) => {
-            this.apiController.requestId().then((id) => {
+        if (!alreadySynced) {
+            try {
+                await this.apiController.requestId()
+
                 if (type === 'game') {
                     let performances = stored;
-                    return this.apiController.sendGamePerformances(performances);
-                } 
-                if (type === 'challenge') {
+                    await this.apiController.sendGamePerformances(performances);
+                } else if (type === 'challenge') {
                     let performance = stored[0];
-                    return this.apiController.sendChallengePerformance(performance);
+                    await this.apiController.sendChallengePerformance(performance);
                 }
-                return Promise.reject("Invalid type");
-            }).then(() => {
-                this.performanceController.resetStored(type);
-                resolve();
-            }).catch((err) => {
-                reject(err);
-            });
-        });
 
-        return promise;
+                this.performanceController.resetStored(type);
+            } catch (e) {
+                return;
+            }
+        }
     }
 
-    loadResults(type) {
+    async #authCaptcha() {
+        const getCaptcha = new Promise((resolve, reject) => {
+            document.getElementById("captcha-1").innerHTML = "";
+            setTimeout(() => {
+                hcaptcha.render("captcha-1", {
+                    "callback": (response) => {resolve(response)},
+                    "error-callback": () => {reject()},
+                    "close-callback": () => {reject()},
+                    "size": "normal",
+                    "sitekey": "cd5b4897-aa1f-432c-bdbd-6c2d7cb02f27"
+                });
+            }, 200);
+        });
+        
+        try {
+            let captchaResponse = await getCaptcha;
+            await this.apiController.requestId()
+            let success = await this.apiController.authPlayer(captchaResponse)
+            secureStorage.setItem('player-is-human', success)
+            return success;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    async loadResults(type) {
         if (this.loadingResults) return;
 
-        this.loadingResults = true;
-        const MIN_TIME = 2500;
-        const wait = ms => new Promise(resolve => setTimeout(resolve, ms));    
-        let start = Date.now();
-        this.domController.showResultsMessage(i18n.t('messages.api.syncingPerformances'));
-        this.#syncApi(type).then(() => {
-            let elapsed = Date.now() - start;
-            let ms = Math.max(0, MIN_TIME - elapsed);
-            return wait(ms);
-        }).then(() => {
+        try {
+            let playerIsHuman = secureStorage.getItem('player-is-human')
+            if (!playerIsHuman) {
+                this.domController.showResultsMessage(i18n.t('messages.api.performCaptcha'));
+                let success = await this.#authCaptcha() 
+                while (!success) {
+                    this.domController.showResultsMessage(i18n.t('messages.api.errorCaptcha'));
+                    success = await this.#authCaptcha() 
+                }
+            }
+
+            const sleep = start => new Promise(resolve => setTimeout(resolve, Math.max(0, 2500 - (Date.now() - start))));    
+            this.loadingResults = true;
+            let start = Date.now();
+            this.domController.showResultsMessage(i18n.t('messages.api.syncingPerformances'));
+            await this.#syncApi(type)
+            await sleep(start);
+
             start = Date.now();
             this.domController.showResultsMessage(i18n.t('messages.api.fetchingResults'));
-            return this.apiController.requestResults(type);
-        }).then(results => {
-            let elapsed = Date.now() - start;
-            let ms = Math.max(0, MIN_TIME - elapsed);
-            wait(ms).then(() => {
-                this.domController.showResultsMessage(i18n.t('messages.api.resultsSuccess'));
-                this.domController.showResults(results);
-                this.loadingResults = false;
-            });
-        }).catch((errMessage) => {
+            const results = await this.apiController.requestResults(type);
+            await sleep(start);
+            
+            this.domController.showResultsMessage(i18n.t('messages.api.resultsSuccess'));
+            this.domController.showResults(results);
+            this.loadingResults = false;
+            document.getElementById("captcha-1").innerHTML = "";
+        } catch (err) {
             this.loadingResults = false;
             this.domController.showResultsMessage(i18n.t('messages.api.resultsError'));
-        });
+        }
     }
 
     #updateLevelInfo() {
@@ -179,7 +209,7 @@ export default class {
         
         if (this.levelController.progressEnded()) {
             this.clearScreen();
-            this.domController.showInfoScreen(true);
+            this.domController.showInfoScreen('game');
             this.loadResults('game');
             return;
         }
@@ -192,8 +222,9 @@ export default class {
                 this.performanceController.store('game');
                 if (this.currentLevel.number % 3 == 0)
                     this.hintsController.addOne();
-                if (this.levelController.progressNext())
-                    this.#syncApi('game').catch((err) => {});
+                this.levelController.progressNext()
+                // if (this.levelController.progressNext())
+                //     this.#syncApi('game')
             } else {
                 this.levelController.goForward();
             }
@@ -201,7 +232,15 @@ export default class {
             this.continueGame();
         };
 
+        this.inactiveTimeout = setTimeout(() => {this.playerInactive = true}, INACTIVITY_MAX_TIME);
         let onConnectionMade = () => {
+            if (this.playerInactive)
+                this.performanceController.startClock('game', INACTIVITY_MAX_TIME);
+            
+            this.playerInactive = false;
+            clearTimeout(this.inactiveTimeout)
+            this.inactiveTimeout = setTimeout(() => {this.playerInactive = true}, INACTIVITY_MAX_TIME);
+            
             this.#updateLevelInfo();
         }
 
@@ -285,7 +324,7 @@ export default class {
                 this.performanceController.store('challenge');
             }
             this.clearScreen();
-            this.domController.showInfoScreen(false);
+            this.domController.showInfoScreen('challenge');
             this.loadResults('challenge');
         };
 
@@ -323,7 +362,7 @@ export default class {
 
             if (levelIsLocal && solvedLocal) {
                 this.clearScreen();
-                this.domController.showInfoScreen(false);
+                this.domController.showInfoScreen('challenge');
                 this.loadResults('challenge');
             } else {
                 messagePromise

@@ -23,9 +23,9 @@ export default class {
 
     // setting the particle in motion.
     moveParticle() {
-        if (this.x < 0 || this.x > P5.windowWidth)
+        if (this.x < 0 || this.x > window.innerWidth)
             this.xSpeed *= -1;
-        if (this.y < 0 || this.y > P5.windowHeight)
+        if (this.y < 0 || this.y > window.innerHeight)
             this.ySpeed *= -1;
         this.x += this.xSpeed;
         this.y += this.ySpeed;

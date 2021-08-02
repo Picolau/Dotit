@@ -1,5 +1,8 @@
 import { secureStorage } from '../index'
 
+const BASE_URL="https://joido.herokuapp.com"
+// const BASE_URL="http://localhost:3000"
+
 export default class {
     constructor() {
         this.playerId = secureStorage.getItem('player-id');
@@ -10,7 +13,7 @@ export default class {
 
     #get(slug) {
         return new Promise((resolve, reject) => {
-            fetch('http://localhost:4100'+slug, {
+            fetch(BASE_URL + slug, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -29,7 +32,7 @@ export default class {
 
     #post(slug, obj) {
         return new Promise((resolve, reject) => {
-            fetch('http://localhost:4100'+slug, {
+            fetch(BASE_URL + slug, {
                 method: 'POST',
                 body: JSON.stringify(obj),
                 headers: {
@@ -104,6 +107,20 @@ export default class {
             let url = '/performances/' + type + '-results/' + id;
             this.#get(url).then(results => {
                 resolve(results);
+            }).catch((err) => {
+                reject(err);
+            })
+        })
+    }
+
+    authPlayer(captchaResponse) {
+        let id = this.playerId; // always guaranteed
+        return new Promise((resolve, reject) => {
+            this.#post('/players/auth', {
+                playerId: id,
+                captchaResponse: captchaResponse,
+            }).then((success) => {
+                resolve(success);
             }).catch((err) => {
                 reject(err);
             })

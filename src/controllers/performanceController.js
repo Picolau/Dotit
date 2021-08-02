@@ -84,9 +84,9 @@ export default class {
         secureStorage.setItem(type, JSON.stringify(performance));
     }
 
-    startClock(type) {
+    startClock(type, add_time=0) {
         let performance = this.get(type);
-        performance.start = Date.now();
+        performance.start = Date.now() + add_time;
         secureStorage.setItem(type, JSON.stringify(performance));
     }
 

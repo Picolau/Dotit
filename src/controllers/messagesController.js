@@ -24,6 +24,8 @@ export default class {
         this.max = messages.length;
         this.messagesContainerElement.style.display = "flex";
         this.messagesContainerElement.innerHTML = "";
+        this.onRead(null);
+        
         for (let i = 0; i < messages.length; i++) {
             let messageElement = document.createElement('span');
             messageElement.className = 'message-item';

@@ -3,33 +3,51 @@
 <head>
   <title>Joidô</title>
   <script src="./bundle.js"></script>
+  <script src="https://hcaptcha.com/1/api.js" async defer></script>
   <style>
     @font-face {
       font-family: HelloDotStick;
       src: url(./fonts/HelloDotStick.ttf);
     }
   </style>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="icon" href="./images/dot.png">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1,maximum-scale=1,user-scalable=no">
   <meta charset="UTF-8" />
 </head>
 
 <body>
+  <div class="outside-menu" id="outside-menu"></div>
+  <div id="menu-container" class="menu-container">
+    <div class="menu-item" id='menu-item-continue'>
+      <img class="menu-item-icon" src="./images/play.svg">
+      <div class="menu-item-desc">Continue game</div>
+    </div>
+    <div class="menu-item" id='menu-item-tutorial'>
+      <img class="menu-item-icon" src="./images/thunderbolt.svg">
+      <div class="menu-item-desc">Replay Tutorial</div>
+    </div>
+    <div class="menu-item" id='menu-item-challenge'>
+      <img class="menu-item-icon" src="./images/star.svg">
+      <div class="menu-item-desc">Daily Challenge</div>
+    </div>
+    <div class="menu-item" id='menu-item-create'>
+      <img class="menu-item-icon" src="./images/edit.svg">
+      <div class="menu-item-desc">Create a Level</div>
+    </div>
+    <div class="menu-item" id='menu-item-load'>
+      <img class="menu-item-icon" src="./images/download.svg">
+      <div class="menu-item-desc">Load a Level</div>
+    </div>
+    <div class="menu-item" id='menu-item-color'>
+      <input class="menu-item-icon" type='color' id='color-picker' />
+      <div class="menu-item-desc">Background Color</div>
+    </div>
+  </div>
   <div class="header">
     <img src="./images/menu.svg" id="menu-icon" alt="" class="menu-icon">
     <div id="header-info" class="header-info">
     </div>
     <img src="./images/fullscreen.svg" id="fullscreen-icon" alt="">
-  </div>
-  <div class="footer" id="footer">
-    <img src="./images/idea.svg" id="hint-icon" alt="">
-    <img src="./images/arrow-left.svg" id="arrow-left-icon" alt="">
-    <span class="level-number" id="level-number">78</span>
-    <img src="./images/arrow-right.svg" id="arrow-right-icon" alt="">
-    <div class="copy-level-code-container" id="copy-level-code-container">
-      <img src="./images/copy.svg" id="copy-icon" alt="">
-      <span class="level-code" id="level-code"></span>
-    </div>
-    <img src="./images/retry.svg" id="retry-icon" alt="" class="retry-icon">
   </div>
   <div id="info-screen" class="info-screen">
     <div class="buttons-wrapper">
@@ -49,6 +67,7 @@
           <p id="results-message">An error ocurred when trying to connect with server, try again later</p>
         </div>
       </div>
+      <div id="captcha-1"></div>
       <div id="results-container-success" class="results-container">
         <div id="total-time-card" class="results-card">
           <p id="total-time-text">Total time taken: </p>
@@ -127,31 +146,16 @@
     <span id="load-level-message" class='load-level-instruction-message'>Paste the pattern code here and press
       Enter!</span>
   </div>
-  <div id="menu-container" class="menu-container">
-    <div class="menu-item" id='menu-item-continue'>
-      <img class="menu-item-icon" src="./images/play.svg">
-      <div class="menu-item-desc">Continue game</div>
+  <div class="footer" id="footer">
+    <img src="./images/idea.svg" id="hint-icon" alt="">
+    <img src="./images/arrow-left.svg" id="arrow-left-icon" alt="">
+    <span class="level-number" id="level-number">78</span>
+    <img src="./images/arrow-right.svg" id="arrow-right-icon" alt="">
+    <div class="copy-level-code-container" id="copy-level-code-container">
+      <img src="./images/copy.svg" id="copy-icon" alt="">
+      <span class="level-code" id="level-code"></span>
     </div>
-    <div class="menu-item" id='menu-item-tutorial'>
-      <img class="menu-item-icon" src="./images/thunderbolt.svg">
-      <div class="menu-item-desc">Replay Tutorial</div>
-    </div>
-    <div class="menu-item" id='menu-item-challenge'>
-      <img class="menu-item-icon" src="./images/star.svg">
-      <div class="menu-item-desc">Daily Challenge</div>
-    </div>
-    <div class="menu-item" id='menu-item-create'>
-      <img class="menu-item-icon" src="./images/edit.svg">
-      <div class="menu-item-desc">Create a Level</div>
-    </div>
-    <div class="menu-item" id='menu-item-load'>
-      <img class="menu-item-icon" src="./images/download.svg">
-      <div class="menu-item-desc">Load a Level</div>
-    </div>
-    <div class="menu-item" id='menu-item-color'>
-      <input class="menu-item-icon" type='color' id='color-picker' />
-      <div class="menu-item-desc">Background Color</div>
-    </div>
+    <img src="./images/retry.svg" id="retry-icon" alt="" class="retry-icon">
   </div>
 </body>
 

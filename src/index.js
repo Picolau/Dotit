@@ -63,13 +63,16 @@ let p5Sketch = (sk) => {
   }
 
   sk.windowResized = () => {
-    sk.resizeCanvas(sk.windowWidth, sk.windowHeight);
+    setTimeout(() => {
+      //alert(sk.windowWidth + "," + sk.windowHeight+ "," + window.innerWidth+ "," + window.innerHeight);
+      sk.resizeCanvas(window.innerWidth, window.innerHeight);
 
-    animationsController?.clearAnimations(true);
-    backgroundController?.handleResize();
-    gameController?.handleResize();
+      animationsController?.clearAnimations(true);
+      backgroundController?.handleResize();
+      gameController?.handleResize();
 
-    updateFullscreenIcon();
+      updateFullscreenIcon();
+    }, 100);
   }
 }
 
@@ -77,27 +80,13 @@ const P5 = new p5(p5Sketch);
 
 window.onload = () => {
   // close menu when click outside menu
-  document.addEventListener("click", (event) => {
-    let menuContainerDiv = document.getElementById("menu-container");
-    let isMenuActive = menuContainerDiv.style.display != "none";
-    let clickedOutsideMenu = true;
-    for (let i = 0; i < event.path.length; i++) {
-      let elem = event.path[i];
-      if (elem.id == 'menu-container') {
-        clickedOutsideMenu = false;
-        break;
-      }
-    }
-    if (isMenuActive && clickedOutsideMenu) {
-      hideMenu();
-      event.stopPropagation();
-    }
-  });
+  document.getElementById("outside-menu").onclick = (event) => {
+    hideMenu();
+  };
   document.getElementById("menu-icon").onclick = (event) => {
     showMenu();
     event.stopPropagation();
   };
-
   document.getElementById("fullscreen-icon").onclick = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen({ navigationUI: 'hide' }).then(() => {
@@ -125,8 +114,9 @@ window.onload = () => {
   document.getElementById('copy-icon').addEventListener('click', () => {
     copyTextToClipboard(document.getElementById('level-code').innerText);
   })
-
+  
   document.addEventListener('contextmenu', event => event.preventDefault());
+
   document.getElementById('menu-item-continue').onclick = () => {
     gameController.clearScreen();
     gameController.levelController.goToMax();
@@ -185,6 +175,12 @@ function decideGameStateAndStart() {
       gameController.loadDailyChallenge();
       return;
     }
+    let onlyDigits = /^\d+$/.test(url); 
+    if (!onlyDigits) {
+      gameController.continueGame();
+      return;
+    }
+
     let levelCodeURL = url;
     if (!gameController.loadLevel(levelCodeURL)) {
       gameController.clearScreen();
@@ -237,7 +233,7 @@ function translateDocument() {
   document.getElementById("congratulations-2").innerText = i18n.t('infoScreen.congratulations2')
   document.getElementById("congratulations-3").innerText = i18n.t('infoScreen.congratulations3')
 
-  document.getElementById("back-text").innerText = i18n.t('infoScreen.backText')
+  document.getElementById("back-text").innerText = i18n.t('infoScreen.backText.game')
   document.getElementById("refresh-text").innerText = i18n.t('infoScreen.refreshText')
   document.getElementById("results-text").innerText = i18n.t('infoScreen.resultsText')
   document.getElementById("results-message").innerText = i18n.t('infoScreen.resultsErrorMessage')
@@ -273,6 +269,8 @@ function hideMenu() {
     window.history.pushState({}, document.title, "/");
   else
     window.history.replaceState({}, document.title, "/");
+  
+  document.getElementById("outside-menu").style.display = "none";
 }
 
 function showMenu() {
@@ -281,6 +279,8 @@ function showMenu() {
   setTimeout(function () {
     menuContainerDiv.style.opacity = 1;
   }, 50)
+
+  document.getElementById("outside-menu").style.display = "block";
 }
 
 let displayingClipboardMessage = false;

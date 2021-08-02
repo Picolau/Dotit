@@ -42,6 +42,8 @@ const ptMessages = {
                     fetchingResults: "Ok, enviando e preparando os resultados, vejamos...",
                     resultsSuccess: "Finalmente... Aproveite seus resultados!!",
                     resultsError: "Essa não! Parece que mestre recusou essa chamada... Por favor, tente novamente mais tarde.",
+                    performCaptcha: "Preciso que você faça esse captcha. Não vai demorar muito, eu prometo.",
+                    errorCaptcha: "Essa não! Parece que algo deu errado com o captcha, por favor tente novamente."
                 }
             },
             info: {
@@ -55,12 +57,15 @@ const ptMessages = {
                 congratulations2: "Estamos abertos para receber feedbacks ou sugestões para melhorar o jogo, então nos envie uma mensagem no instagram caso queira, ficaremos muito feliz em saber de você! Aproveite e nos envie alguns de seus padrões criados, se forem legais e desafiadores, podemos colocá-los nos desafios diários e te marcar como o idealizador :D",
                 congratulations3: "Aqui embaixo você pode ver os resultados da sua performance comparados com os outros que também zeraram o jogo. Também temos algumas curiosidades e histórias sobre nós e a criação desse jogo. Muito obrigado novamente e tenha um ótimo dia!",
 
-                backText: "Ir para fases",
+                backText: {
+                    game: "Voltar para fases",
+                    challenge: "Voltar para desafio"
+                },
                 refreshText: "Atualizar resultados",
                 resultsText: "Resultados",
                 resultsErrorMessage: "Ops! Algo deu errado com minha comunicação com o servidor. Tente novamente mais tarde, basta recarregar essa página!",
                 youOthersText: " (Você / Outros)",
-                betterThan: "Você foi melhor que ",
+                betterThan: "Desempenho igual ou melhor que ",
                 ofPeople: " das pessoas",
                 totalTimeText: "Tempo total de jogo: ",
                 totalRetriesText: "Total de retentativas: ",

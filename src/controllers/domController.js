@@ -5,7 +5,10 @@ export default class {
         this.hideAll();
     }
 
-    showInfoScreen(showEndMessages) {
+    showInfoScreen(type) {
+        let showEndMessages = type == 'game';
+        document.getElementById("back-text").innerText = i18n.t('infoScreen.backText.' + type)
+
         document.getElementById("info-screen").style.display = "block";
         document.getElementById("end-info-wrapper").style.display = showEndMessages ? "block" : "none";
     }
