@@ -54,8 +54,8 @@ const enMessages = {
             infoScreen: {
                 congratulationsText: "Congratulations!",
                 congratulations1: "You've made it! Thanks a lot for playing the game! Fortunately, things don't end just here... You can create levels and share it with your friends, or load some of their created levels! Also, there are daily challenges available for you, and you can replay the entire game if you wish too, by accessing 'Start New Game' on menu.",
-                congratulations2: "We are open to receive feedback or suggestions to improve the game, so send us an e-mail if you want to, we will be happy to hear from you! Also, you can create levels and share it with us to so we can put it on the daily challenges :D",
-                congratulations3: "Down here you can see the results of your game compared to others that are playing too. And some curiosities and stories about us and the creation of this game. Thank you again and have a great day!",
+                congratulations2: "We are open to receive feedback or suggestions to improve the game, so send contact us on instagram (@joido.xyz) if you want to, we will be happy to hear from you! Also, you can create levels and share it with us to so we can put it on the daily challenges :D",
+                congratulations3: "In this page you can see the results of your game compared to others that are playing too. And some curiosities and stories about us and the creation of this game. Thank you again and have a great day!",
 
                 backText: {
                     game: "Back to levels",

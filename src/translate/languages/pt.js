@@ -54,7 +54,7 @@ const ptMessages = {
             infoScreen: {
                 congratulationsText: "Parabéns!",
                 congratulations1: "Você conseguiu! Muito obrigado por jogar Joidô! Felizmente, as coisas não param por aqui... Você mesmo pode criar padrões e compartilhá-los com seus amigos, ou carregar alguns dos padrões feito por eles! Aah... Além disso, desafios diários estarão disponíveis para você! Os resultados de sua performance sempre são atualizados conforme novos jogadores vão zerando o jogo, basta recarregar a tela de resultados ;)",
-                congratulations2: "Estamos abertos para receber feedbacks ou sugestões para melhorar o jogo, então nos envie uma mensagem no instagram caso queira, ficaremos muito feliz em saber de você! Aproveite e nos envie alguns de seus padrões criados, se forem legais e desafiadores, podemos colocá-los nos desafios diários e te marcar como o idealizador :D",
+                congratulations2: "Estamos abertos para receber feedbacks ou sugestões para melhorar o jogo, então nos envie uma mensagem no instagram caso queira (@joido.xyz), ficaremos muito feliz em saber de você! Aproveite e nos envie alguns de seus padrões criados, se forem legais e desafiadores, podemos colocá-los nos desafios diários e te marcar como o idealizador :D",
                 congratulations3: "Aqui embaixo você pode ver os resultados da sua performance comparados com os outros que também zeraram o jogo. Também temos algumas curiosidades e histórias sobre nós e a criação desse jogo. Muito obrigado novamente e tenha um ótimo dia!",
 
                 backText: {
